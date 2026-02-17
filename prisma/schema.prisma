@@ -33,7 +33,7 @@ model Customer {
   insertUser   String?                 @map("insert_user") @db.VarChar(120)
   updateDate   String?                 @map("update_date") @db.VarChar(40)
   updateUser   String?                 @map("update_user") @db.VarChar(120)
-  otp          String?                 @db.VarChar(6)
+  otp          String?                 @db.VarChar(255)
   otpValidUpto DateTime?               @map("otp_valid_upto") @db.DateTime(0)
   refreshToken String?                 @map("refresh_token") @db.VarChar(255)
   indate       DateTime?               @default(now()) @db.DateTime(0)

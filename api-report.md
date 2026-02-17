@@ -1,38 +1,33 @@
-# API Testing Report
-Date: 2026-02-17
-Status: PASSED ✅
+# API Endpoints List
 
-All critical Product APIs have been tested and verified working.
-Please use the following endpoints for your application.
+## Authentication
+- `POST /v1/auth/signup` - Register a new user
+- `POST /v1/auth/send-otp` - Send OTP to mobile number
+- `POST /v1/auth/verify-otp` - Verify OTP and login (returns JWT tokens)
 
-## 1. Product Listing (General)
-**Endpoint:** `GET /v1/product-register`
-- **Usage:** Fetch a list of products with pagination.
-- **Example:** `http://localhost:3000/v1/product-register?limit=20`
-- **Result:** Returns an array of products.
+## Products & Inventory
+- `GET /v1/products` - List all products (with search/filters)
+- `GET /v1/products/:id` - Get single product details
+- `GET /v1/product-register` - List product registers
+- `GET /v1/product-register/:id` - Get product register details
+- `GET /v1/product-image-register` - List product images
+- `GET /v1/product-ratings` - List product ratings
+- `POST /v1/product-ratings` - Submit a new product rating
 
-## 2. Product Collections (Slugs)
-**Endpoint:** `GET /v1/product-register?slugs={collection_slug}`
-- **Usage:** Fetch curated collections like "New Arrivals", "Fashion", etc.
-- **Supported Slugs:** `new-arrivals`, `fashion`, `trending`, `featured`.
-- **Example:** `http://localhost:3000/v1/product-register?slugs=new-arrivals`
+## Categories
+- `GET /v1/categories` - List all categories
+- `GET /v1/categories/:id` - Get category details
 
-## 3. Product Search
-**Endpoint:** `GET /v1/product-register/search`
-- **Usage:** Search products by name.
-- **Example:** `http://localhost:3000/v1/product-register/search?q=shirt`
+## User Management
+- `GET /v1/user-addresses` - List user saved addresses
+- `POST /v1/user-addresses` - Add a new address
+- `PUT /v1/user-addresses/:id` - Update an address
+- `DELETE /v1/user-addresses/:id` - Delete an address
 
-## 4. Product Filtering (Price, Rating, Category)
-**Endpoint:** `GET /v1/product-register` (Use this instead of `/products`)
-- **Usage:** Filter products by various criteria.
-- **Supported Filters:** `minPrice`, `maxPrice`, `rating`, `categoryId`, `q` (search term).
-- **Example:** `http://localhost:3000/v1/product-register?minPrice=500&rating=4&categoryId=61`
+## Coupons & Discounts
+- `GET /v1/coupon-codes` - List available coupon codes
+- `GET /v1/coupon-codes/:id` - Get coupon details
 
-## 5. Single Product Details
-**Endpoint:** `GET /v1/product-register/:id`
-- **Usage:** Get detailed information for a specific product ID.
-- **Example:** `http://localhost:3000/v1/product-register/1`
-
----
-**Note on Filtering:**
-Previously, the `/v1/products` endpoint was causing errors due to middleware issues. Please switch to using `/v1/product-register` for filtering as shown above. This endpoint is robust and handles all filter combinations correctly.
+## System
+- `GET /health` - Server health check
+- `GET /api-docs` - Swagger API Documentation

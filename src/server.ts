@@ -1,4 +1,4 @@
-// Force restart server
+// Force restart - Merge Auth
 import express, { Request, Response } from "express";
 import cors from "cors";
 import helmet from "helmet";

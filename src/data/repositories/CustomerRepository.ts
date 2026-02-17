@@ -1,5 +1,5 @@
 import prisma from "../../prisma-client";
-import { Customer, aa13_customer_db_status } from "@prisma/client";
+import { Customer, aa13_customer_db_status, Prisma } from "@prisma/client";
 
 export class CustomerRepository {
     async findByMobile(mobile: string): Promise<Customer | null> {
@@ -37,7 +37,7 @@ export class CustomerRepository {
     async saveRefreshToken(id: number, refreshToken: string): Promise<Customer> {
         return prisma.customer.update({
             where: { id },
-            data: { refreshToken },
+            data: { refreshToken } as Prisma.CustomerUpdateInput,
         });
     }
 
@@ -53,7 +53,7 @@ export class CustomerRepository {
                 emailId: data.email,
                 indate: new Date(),
                 status: aa13_customer_db_status.ONE,
-            },
+            } as Prisma.CustomerCreateInput,
         });
     }
 

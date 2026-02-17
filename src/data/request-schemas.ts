@@ -3,18 +3,18 @@ import Joi from "joi";
 // --- Auth Schemas ---
 export const sendOtpSchema = Joi.object({
     mobile: Joi.string().required().label("Mobile Number"),
-}).required();
+}).unknown().required();
 
 export const verifyOtpSchema = Joi.object({
     mobile: Joi.string().required().label("Mobile Number"),
     otp: Joi.string().required().label("OTP"),
-}).required();
+}).unknown().required();
 
 export const signupSchema = Joi.object({
     fullName: Joi.string().min(3).required().label("Full Name"),
     mobile: Joi.string().pattern(/^[0-9]{10}$/).required().label("Mobile Number"),
     email: Joi.string().email().required().label("Email"),
-}).required();
+}).unknown().required();
 
 // --- Coupon Code Schemas ---
 export const createCouponCodeSchema = Joi.object({

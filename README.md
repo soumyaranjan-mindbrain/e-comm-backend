@@ -43,21 +43,12 @@ docker-compose up -d
 
 ---
 
-### Step 5: Import Existing Data
-To load the tables and existing product data, run this command:
-
-**Windows (PowerShell):**
-```powershell
-get-content "../latest_ecommerce_shop.sql" | docker exec -i scripts-db-1 mysql -u root -p"secret" ecommerce_app
-```
-
----
-
-### Step 6: Start the Application
-Finally, run these two commands to start the backend:
+### Step 5: Start the Application
+Wait about 10 seconds for the database to finish setting up (the first run takes a moment to load the data). Then, run these two commands to start the backend:
 ```bash
 npx prisma generate
 npm run dev
 ```
 
 **Setup Complete!** Your API is now live at: `http://localhost:3000`
+

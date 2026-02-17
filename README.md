@@ -1,88 +1,84 @@
-# BM2MALL Backend - Comprehensive Setup Guide
+# 🚀 BM2MALL Backend - Complete Setup Guide
 
-This guide will help you set up the BM2MALL E-commerce backend from scratch on a new device.
+Follow this guide for a 100% error-free setup on a new device.
 
 ---
 
 ## 📋 Prerequisites
 
-Before you start, make sure you have the following installed on your system:
+Before you start, you MUST have these installed:
 
-1.  **Node.js (v18 or higher)**: [Download here](https://nodejs.org/)
+1.  **Node.js (v20+)**: [Download here](https://nodejs.org/)
 2.  **Docker Desktop**: [Download here](https://www.docker.com/products/docker-desktop)
-    *   *Important: After installing, open Docker Desktop and wait for it to start. The icon in the taskbar should show a green status.*
-3.  **Git**: [Download here](https://git-scm.com/) (Required for cloning the code)
+    -   *Crucial: Open Docker Desktop and wait until you see the green **"Engine Running"** status.*
+3.  **Git**: [Download here](https://git-scm.com/)
 
 ---
 
-## 🚀 Step-by-Step Setup
+## 🛠️ Step-by-Step Installation
 
-### 1. Clone the Project
-Open your terminal (PowerShell, Command Prompt, or Terminal) and run:
+### Step 1: Clone the Project
+Open your terminal (PowerShell or Command Prompt) and run:
 ```bash
 git clone <repository-url>
 cd scripts
 ```
 
-### 2. Configure Environment Variables
-Copy the example environment file to create your own configuration:
-
-**Windows (PowerShell):**
+### Step 2: Create Environment File (.env)
+This is the most important step. Run this command:
 ```powershell
 copy env.example .env
 ```
+*Note: If you are on Mac/Linux, use `cp env.example .env`.*
 
-**Mac/Linux:**
+### Step 3: Start the Database (Docker)
+Ensure Docker Desktop is open and green. Then run:
 ```bash
-cp env.example .env
+docker-compose up -d db
 ```
-*Note: The `.env` file contains keys for JWT and Database connection. The default values in `env.example` are pre-configured for local Docker setup.*
+**Why only `db`?** This command starts only the MySQL database server. It will automatically:
+- Create the `ecommerce_app` database.
+- Import all tables and initial product data from `init.sql`.
 
-### 3. Start the Database (Docker)
-Ensure Docker Desktop is running, then run:
-```bash
-docker-compose up -d
-```
-**Why this step?** This command automatically:
-- Downloads and starts a MySQL server.
-- Sets up the database named `ecommerce_app`.
-- **Automatically imports all tables and product data** using the provided `init.sql` script.
-- Starts a `phpMyAdmin` panel for database viewing.
+*Wait 15 seconds for the database to finish loading.*
 
-*Wait about 10-15 seconds after this command for the database to fully initialize.*
-
-### 4. Install Dependencies
-Install all the necessary libraries required by the code:
+### Step 4: Install Packages
+Run this to install all the libraries (Prisma, Express, JWT, etc.):
 ```bash
 npm install
 ```
 
-### 5. Generate Database Client & Start Application
-Run these commands to sync the code with the database and start the server:
+### Step 5: Sync Database & Start App
+Run these two commands to finish the setup:
 ```bash
 npx prisma generate
 npm run dev
 ```
 
----
-
-## ✅ Verification
-
-Once the application starts, you can verify everything is working:
-
-1.  **API Health Check**: Open `http://localhost:3000/health` in your browser. It should show `{"ok":true}`.
-2.  **API Documentation**: Browse `http://localhost:3000/api-docs` to see all available endpoints and interactive documentation.
-3.  **Database Console**: Browse `http://localhost:8080` to log into phpMyAdmin and see the database tables. (User: `root`, Password: `secret`).
+**🎉 SUCCESS!** Your backend is now running at `http://localhost:3000`
 
 ---
 
-## 🛠️ Troubleshooting
+## 🖥️ How to verify it's working?
 
--   **Port 3000 is already in use**: Change the `PORT` value in your `.env` file.
--   **Docker command not found**: Ensure Docker Desktop is installed and added to your system PATH.
--   **Database connection error**: Ensure `docker-compose up -d` was successful and the container is running by checking `docker ps`.
--   **Prisma Client Error**: Run `npx prisma generate` again to rebuild the client.
+-   **Test API**: Open `http://localhost:3000/health` (Should say `{"ok":true}`)
+-   **Documentation**: Open `http://localhost:3000/api-docs` (Interactive Swagger Docs)
+-   **Database View**: Open `http://localhost:8080` (phpMyAdmin)
+    -   Host: `db`
+    -   Username: `root`
+    -   Password: `secret`
 
 ---
 
-**Happy Coding!** 🚀
+## ⚠️ Common Errors & Fixes
+
+| Error | Solution |
+| :--- | :--- |
+| **"docker-compose" not found** | Install Docker Desktop and Restart your Terminal (VS Code). |
+| **"prisma" command fails** | Run `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` in your PowerShell then try again. |
+| **Port 33061 already in use** | Your previous Docker container is still running. Run `docker-compose down` and then try again. |
+| **Database connection error** | Check if Docker container is green. Run `docker ps` to see if `scripts-db-1` is running. |
+
+---
+
+**Developed for the BM2MALL E-commerce system.**

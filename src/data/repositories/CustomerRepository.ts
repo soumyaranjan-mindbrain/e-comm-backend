@@ -1,5 +1,5 @@
 import prisma from "../../prisma-client";
-import { Customer } from "@prisma/client";
+import { Customer, aa13_customer_db_status } from "@prisma/client";
 
 export class CustomerRepository {
     async findByMobile(mobile: string): Promise<Customer | null> {
@@ -22,14 +22,48 @@ export class CustomerRepository {
 
     async updateOtp(
         id: number,
-        otp: string,
-        otpValidUpto: Date,
+        otp: string | null,
+        otpValidUpto: Date | null,
     ): Promise<Customer> {
         return prisma.customer.update({
             where: { id },
             data: {
                 otp,
                 otpValidUpto,
+            },
+        });
+    }
+
+    async saveRefreshToken(id: number, refreshToken: string): Promise<Customer> {
+        return prisma.customer.update({
+            where: { id },
+            data: { refreshToken },
+        });
+    }
+
+    async createCustomerWithoutOtp(data: {
+        contactNo: string;
+        fullName: string;
+        email: string;
+    }): Promise<Customer> {
+        return prisma.customer.create({
+            data: {
+                contactNo: data.contactNo,
+                fullName: data.fullName,
+                emailId: data.email,
+                indate: new Date(),
+                status: aa13_customer_db_status.ONE,
+            },
+        });
+    }
+
+    async updateProfile(id: number, data: { fullName?: string; email?: string }): Promise<Customer> {
+        return prisma.customer.update({
+            where: { id },
+            data: {
+                fullName: data.fullName,
+                emailId: data.email,
+                status: aa13_customer_db_status.ONE,
             },
         });
     }

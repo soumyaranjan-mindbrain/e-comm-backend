@@ -1,6 +1,8 @@
 import { CustomerRepository } from "../../data/repositories/CustomerRepository";
 import AppError from "../../errors/AppError";
-import { aa13_customer_db_status } from "@prisma/client";
+import { generateOtp, hashOtp } from "../../util/crypto";
+import config from "../../config";
+import { mailer } from "../../services/mailer";
 
 export class SendOtpUseCase {
     constructor(private customerRepository: CustomerRepository) { }
@@ -10,26 +12,42 @@ export class SendOtpUseCase {
             throw AppError.badRequest("Mobile number is required");
         }
 
-        // Generate 6-digit OTP
-        const otp = "111111"; // Fixed for now
-        const otpValidUpto = new Date(Date.now() + 10 * 60000); // 10 minutes
-
-        let customer = await this.customerRepository.findByMobile(mobile);
+        // Check if user exists (Sushree's logic: signup required)
+        const customer = await this.customerRepository.findByMobile(mobile);
 
         if (!customer) {
-            // Create new customer if not exists (or we can decide to only allow existing customers)
-            // For this refactor, let's assume auto-registration or just create a record
-            customer = await this.customerRepository.create({
-                contactNo: mobile,
-                otp,
-                otpValidUpto,
-                status: aa13_customer_db_status.ONE,
-            });
-        } else {
-            await this.customerRepository.updateOtp(customer.id, otp, otpValidUpto);
+            throw AppError.notFound("Mobile number not registered. Please signup first.");
         }
 
-        // Mock sending SMS
+        // Check for active OTP (Rate limiting)
+        if (customer.otpValidUpto && customer.otpValidUpto > new Date()) {
+            throw AppError.tooManyRequests("OTP already sent. Please wait before requesting again.");
+        }
+
+        // Generate OTP
+        const otp = config.env === "development" ? "111111" : generateOtp();
+
+        // Hash OTP before storing
+        const hashedOtp = await hashOtp(otp);
+        const otpValidUpto = new Date(Date.now() + 10 * 60000); // 10 minutes
+
+        await this.customerRepository.updateOtp(customer.id, hashedOtp, otpValidUpto);
+
+        // Send OTP via Email if email exists
+        if (customer.emailId) {
+            try {
+                await mailer.send({
+                    to: customer.emailId,
+                    subject: "Your BM2MALL Login OTP",
+                    text: `Your OTP for login is ${otp}. It is valid for 10 minutes.`,
+                    html: `<p>Your OTP for login is <b>${otp}</b>. It is valid for 10 minutes.</p>`
+                });
+            } catch (err) {
+                console.error("Failed to send OTP email:", err);
+            }
+        }
+
+        // Mock SMS
         console.log(`[MOCK SMS] OTP for ${mobile} is ${otp}`);
 
         return {

@@ -10,6 +10,12 @@ export const verifyOtpSchema = Joi.object({
     otp: Joi.string().required().label("OTP"),
 }).required();
 
+export const signupSchema = Joi.object({
+    fullName: Joi.string().min(3).required().label("Full Name"),
+    mobile: Joi.string().pattern(/^[0-9]{10}$/).required().label("Mobile Number"),
+    email: Joi.string().email().required().label("Email"),
+}).required();
+
 // --- Coupon Code Schemas ---
 export const createCouponCodeSchema = Joi.object({
     name: Joi.string().max(100).optional().allow("", null),

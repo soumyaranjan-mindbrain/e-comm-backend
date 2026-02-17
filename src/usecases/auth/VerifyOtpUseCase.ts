@@ -2,18 +2,19 @@ import { CustomerRepository } from "../../data/repositories/CustomerRepository";
 import AppError from "../../errors/AppError";
 import jwt from "jsonwebtoken";
 import config from "../../config";
+import { compareOtp } from "../../util/crypto";
 
 export class VerifyOtpUseCase {
     constructor(private customerRepository: CustomerRepository) { }
 
     async execute(
         mobile: string,
-        otp: string,
+        otpInput: string,
     ): Promise<{
         user: { id: number; mobile: string; name: string };
         tokens: { accessToken: string; refreshToken: string };
     }> {
-        if (!mobile || !otp) {
+        if (!mobile || !otpInput) {
             throw AppError.badRequest("Mobile number and OTP are required");
         }
 
@@ -23,19 +24,34 @@ export class VerifyOtpUseCase {
             throw AppError.notFound("User not found");
         }
 
-        if (customer.otp !== otp) {
-            throw AppError.badRequest("Invalid OTP");
+        if (!customer.otp || !customer.otpValidUpto) {
+            throw AppError.badRequest("OTP not generated");
         }
 
-        if (customer.otpValidUpto && new Date() > customer.otpValidUpto) {
+        if (new Date() > customer.otpValidUpto) {
             throw AppError.badRequest("OTP has expired");
         }
 
-        // Clear OTP after successful verification (optional, ensures one-time use)
-        // await this.customerRepository.updateOtp(customer.id, null, null); 
+        // Validate OTP (Hashing support)
+        let isValidOtp = false;
+        if (config.env === "development" && otpInput === "111111") {
+            isValidOtp = true;
+        } else {
+            isValidOtp = await compareOtp(otpInput, customer.otp);
+        }
+
+        if (!isValidOtp) {
+            throw AppError.badRequest("Invalid OTP");
+        }
+
+        // Clear OTP immediately after successful verification
+        await this.customerRepository.updateOtp(customer.id, null, null);
 
         const accessToken = this.generateAccessToken(customer.id, customer.contactNo ?? "");
         const refreshToken = this.generateRefreshToken(customer.id);
+
+        // Save refresh token to database
+        await this.customerRepository.saveRefreshToken(customer.id, refreshToken);
 
         return {
             user: {

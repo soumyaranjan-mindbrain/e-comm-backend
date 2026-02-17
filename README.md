@@ -1,47 +1,51 @@
-# BM2MALL Backend Setup Guide
+# BM2MALL Backend Setup Guide (Beginner Friendly)
 
-Follow these simple steps to run the project on your system.
-
-### 1. Prerequisites
-Install these if you don't have them:
-- [Node.js](https://nodejs.org/)
-- [Docker Desktop](https://www.docker.com/products/docker-desktop)
+Follow these simple steps to get the project running on your system.
 
 ---
 
-### 2. Setup Project
-Open your terminal in the `scripts` folder and run:
+### Step 1: Install Required Tools
+If you don't have these already, download and install them:
+1. **Node.js**: [Download here](https://nodejs.org/) (Required to run the code)
+2. **Docker Desktop**: [Download here](https://www.docker.com/products/docker-desktop) (Required for the Database)
+   - *Note: After installing, make sure to **Open** Docker Desktop and wait until the status in the bottom-left corner turns green ("Engine Running").*
+
+---
+
+### Step 2: Install Project Dependencies
+Open your terminal (PowerShell or Command Prompt) inside the `scripts` folder and run:
 ```bash
 npm install
 ```
 
 ---
 
-### 3. Environment File
-Create a file named `.env` inside the `scripts` folder and paste this:
+### Step 3: Setup Configuration (.env)
+Create a new file named `.env` inside the `scripts` folder and paste the following content:
 ```env
 PORT=3000
 DATABASE_URL=mysql://root:secret@localhost:33061/ecommerce_app
 DB_PASSWORD=secret
 DB_NAME=ecommerce_app
-JWT_ACCESS_SECRET=any-random-secret-key
-JWT_REFRESH_SECRET=any-random-refresh-key
+JWT_ACCESS_SECRET=your-random-secret-key
+JWT_REFRESH_SECRET=your-random-refresh-key
 CONSOLE_LOG_EMAILS=true
 ```
 
 ---
 
-### 4. Start Database
-Run this command to start the database:
+### Step 4: Start the Database (Docker)
+Instead of installing MySQL manually, we use Docker. Simply run this command:
 ```bash
 docker-compose up -d
 ```
-*Wait 10 seconds for it to start.*
+**What this does:** It automatically creates and starts a pre-configured MySQL database server for you.
 
 ---
 
-### 5. Import Database Data
-Run this to load the latest tables and products:
+### Step 5: Import Existing Data
+To load the tables and existing product data, run this command:
+
 **Windows (PowerShell):**
 ```powershell
 get-content "../latest_ecommerce_shop.sql" | docker exec -i scripts-db-1 mysql -u root -p"secret" ecommerce_app
@@ -49,11 +53,11 @@ get-content "../latest_ecommerce_shop.sql" | docker exec -i scripts-db-1 mysql -
 
 ---
 
-### 6. Run the App
-Finally, run these two commands:
+### Step 6: Start the Application
+Finally, run these two commands to start the backend:
 ```bash
 npx prisma generate
 npm run dev
 ```
 
-**Project is now live at:** `http://localhost:3000`
+**Setup Complete!** Your API is now live at: `http://localhost:3000`

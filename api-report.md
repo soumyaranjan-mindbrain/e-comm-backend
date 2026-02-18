@@ -1,105 +1,123 @@
-# 📋 BM2MALL Backend - API Test Report
+# 📋 BM2MALL Backend - API Comprehensive Test Report
 
-## 1. Executive Summary
-This report documents the end-to-end (E2E) verification of the BM2MALL E-commerce backend. The testing was performed against the Dockerized environment to ensure database integrity, API responsiveness, and authentication security.
-
-**Overall Status:** ✅ **STABLE**
-- **Public APIs:** 100% Operational
-- **Authenticated APIs:** Verified via fresh token generation
-- **Database:** Full synchronization confirmed (77 Tables, Latest Product Set)
+This document provides a detailed guide on all available API endpoints, their expected JSON bodies, and a step-by-step procedure for end-to-end testing of the BM2MALL E-commerce system.
 
 ---
 
-## 2. Test Environment
-- **Base URL:** `http://localhost:3000/v1`
-- **Environment:** Docker (Node.js 22-alpine + MySQL 8.0)
-- **Database Source:** `latest_ecommerce_shop.sql`
-- **Test Tools:** REST Client, PowerShell, Docker CLI
+## 🚀 1. End-To-End Testing Flow
+
+To test the system from scratch as a new user, follow this sequence:
+1.  **Signup**: Create a new account.
+2.  **Verify OTP**: Use the hardcoded `111111` (in Dev mode) to get your JWT token.
+3.  **Explore Products**: Search and filter the product catalog.
+4.  **Manage Addresses**: Add, Update, and View your delivery addresses.
 
 ---
 
-## 3. End-to-End Testing Procedure
-To perform a complete test of the system, follow these steps in order:
+## 🔐 2. Authentication Module
 
-### Phase A: User Onboarding
-1.  **Signup:** Create a new user account.
-2.  **OTP Generation:** Request an OTP to be sent to the mobile number.
-3.  **Verification:** Verify the OTP and receive a JWT `accessToken`.
+### A. User Signup (Step 1)
+Register a new mobile number into the system.
+- **Endpoint**: `POST /v1/auth/signup`
+- **Body**:
+```json
+{
+  "fullName": "Test User",
+  "mobile": "9998887776",
+  "email": "test@mindbrain.com"
+}
+```
 
-### Phase B: Catalog Discovery
-4.  **Category Listing:** Retrieve the list of active categories.
-5.  **Product Search:** Search for products using keywords and filters.
-6.  **Product Details:** Fetch specific details of an individual item.
+### B. Send OTP (Optional Step 1 alternative)
+Trigger an OTP for an existing user.
+- **Endpoint**: `POST /v1/auth/send-otp`
+- **Body**:
+```json
+{
+  "mobile": "9998887776"
+}
+```
 
-### Phase C: Authenticated Actions
-7.  **Address Management:** Use the JWT token to create and retrieve user-specific delivery addresses.
-
----
-
-## 4. Detailed API Catalog & Payloads
-
-### 🔐 Authentication Module
-| Endpoint | Method | Purpose | Payload (JSON) |
-| :--- | :--- | :--- | :--- |
-| `/auth/signup` | `POST` | Create new user | `{ "fullName": "John Doe", "mobile": "9998887776", "email": "john@example.com" }` |
-| `/auth/send-otp` | `POST` | Trigger OTP | `{ "mobile": "9998887776" }` |
-| `/auth/verify-otp`| `POST` | Login & Get Token | `{ "mobile": "9998887776", "otp": "111111" }` |
-
-**Verification Result:** ✅ Login returns `accessToken` and `refreshToken`.
-
----
-
-### 📦 Product & Category Module
-| Endpoint | Method | Filters | Purpose |
-| :--- | :--- | :--- | :--- |
-| `/categories` | `GET` | `q` (Search) | List all active product categories. |
-| `/product-register` | `GET` | `limit`, `slugs` | List all products or collection-based products. |
-| `/product-register/search`| `GET`| `q` | Fuzzy search products by name. |
-| `/product-register/:id` | `GET` | `-` | Get full details (description, images, specs). |
-| `/product-register` (Filter)| `GET` | `minPrice`, `rating`| Advanced filtering of the catalog. |
-
-**Example Search Payload:**
-`GET /v1/product-register/search?q=shirt`
+### C. Verify OTP (Final Onboarding Step)
+Verify the code and receive the `accessToken`.
+- **Endpoint**: `POST /v1/auth/verify-otp`
+- **Body**:
+```json
+{
+  "mobile": "9998887776",
+  "otp": "111111"
+}
+```
+*Note: The response will contain a `data.tokens.accessToken`. Copy this for all protected calls.*
 
 ---
 
-### 🏠 User Module (Protected)
-*Note: These require `Authorization: Bearer <token>` in headers.*
+## 📦 3. Product & Catalog Module (Public)
 
-#### Create Address
-- **Endpoint:** `POST /v1/user-addresses`
-- **Payload:**
+### A. List All Categories
+- **Endpoint**: `GET /v1/categories`
+- **Fuzzy Search**: `GET /v1/categories?q=ELECTORNICS` (Matches "Electronics")
+
+### B. Product Listing & Search
+- **Get all products**: `GET /v1/product-register?limit=20`
+- **Search by Name**: `GET /v1/product-register/search?q=shirt`
+- **Filter by Collection**: `GET /v1/product-register?slugs=new-arrivals`
+
+### C. Advanced Filtering
+- **Price Range**: `GET /v1/product-register?minPrice=500&maxPrice=5000`
+- **Minimum Rating**: `GET /v1/product-register?rating=4`
+- **Specific Category**: `GET /v1/product-register?categoryId=61`
+
+### D. Single Product Details
+- **Endpoint**: `GET /v1/product-register/:id` (e.g., `/v1/product-register/1`)
+
+---
+
+## 🏠 4. User Address Module (Protected)
+*All headers below must include: `Authorization: Bearer <your_token>`*
+
+### A. Create New Address
+- **Endpoint**: `POST /v1/user-addresses`
+- **Body**:
 ```json
 {
   "address": "MindBrain HQ, Floor 9",
   "townCity": "Bhubaneswar",
   "pincode": "751024",
-  "receiversName": "John Doe",
+  "receiversName": "Test User",
   "receiversNumber": "9998887776",
   "saveAs": "Work"
 }
 ```
-*Note: `saveAs` must be one of [Home, Work, Other].*
+*Valid `saveAs` types: [Home, Work, Other]*
 
-#### Get My Addresses
-- **Endpoint:** `GET /v1/user-addresses/me`
-- **Status:** ✅ Returns array of saved addresses for the current user.
+### B. View My Addresses
+- **Endpoint**: `GET /v1/user-addresses/me`
+
+### C. Update Address
+- **Endpoint**: `PUT /v1/user-addresses/:id`
+- **Body**:
+```json
+{
+  "address": "Updated Floor 10",
+  "saveAs": "Home"
+}
+```
+
+### D. Delete Address
+- **Endpoint**: `DELETE /v1/user-addresses/:id`
 
 ---
 
-## 5. System Health & Docs
-- **Health Check:** `http://localhost:3000/health`
-- **Interactive Docs (Swagger):** `http://localhost:3000/api-docs`
+## 🧪 5. Latest Test Results (Feb 18, 2026)
 
-## 6. Latest Test Run Results (Feb 18, 2026)
-| Category | Test Case | Status | Notes |
+| Module | Test Case | Status | Notes |
 | :--- | :--- | :---: | :--- |
-| **Auth** | User Registration & OTP Send | ✅ PASS | Validated with mobile `9998887776`. |
-| **Auth** | Login with Hardcoded OTP | ✅ PASS | Verified bypass fix for `111111` in `dev`. |
-| **Catalog** | Category Fuzzy Search | ✅ PASS | Found `Electronics` via `ELECTORNICS`. |
-| **Catalog** | Product List & Filters | ✅ PASS | Verified 15+ items in DB sync. |
-| **User** | Protected Address Creation | ✅ PASS | Successfully added "Floor 9" address. |
+| **Auth** | Signup + Send OTP | ✅ PASS | Created mobile `9998887776`. |
+| **Auth** | Verify (111111) | ✅ PASS | Token generated successfully. |
+| **Catalog**| Schema Load (77 Tables) | ✅ PASS | Verified via MySQL CLI. |
+| **User** | CRUD Address | ✅ PASS | Create, Read, Update, Delete verified. |
+| **System** | Health Check | ✅ PASS | Returns `{"ok":true}` |
 
 ---
-**Report generated for BM2MALL Development Team.**
-
+**Prepared for the BM2MALL Engineering Team.**

@@ -1,83 +1,84 @@
-# 🚀 BM2MALL Backend - Complete Setup Guide
+# � BM2MALL Backend - Docker Setup Guide
 
-Follow this guide for a 100% error-free setup on a new device.
-
----
-
-## 📋 Prerequisites
-
-Before you start, you MUST have these installed:
-
-1.  **Node.js (v20+)**: [Download here](https://nodejs.org/)
-2.  **Docker Desktop**: [Download here](https://www.docker.com/products/docker-desktop)
-    -   *Crucial: Open Docker Desktop and wait until you see the green **"Engine Running"** status.*
-3.  **Git**: [Download here](https://git-scm.com/)
+Welcome to the **BM2MALL** backend project! This guide is designed for absolute beginners. Follow these steps to get the server running on your machine using Docker.
 
 ---
 
-## 🛠️ Step-by-Step Installation
+## �️ Step 1: Prerequisites
+Before starting, ensure you have these two tools installed and running:
 
-### Step 1: Clone the Project
-Open your terminal (PowerShell or Command Prompt) and run:
-```bash
-git clone <repository-url>
-cd scripts
-```
+1.  **Docker Desktop**: [Download & Install](https://www.docker.com/products/docker-desktop)
+    -   *Crucial: Open Docker Desktop. Wait until the whale icon in your taskbar stays still and the status is green (**Engine Running**).*
+2.  **Visual Studio Code (VS Code)**: [Download & Install](https://code.visualstudio.com/)
 
-### Step 2: Create Environment File (.env)
-This is the most important step. Run this command:
+---
+
+## � Step 2: Quick Start (The "Magic" Command)
+
+Open your terminal in the `scripts` folder and run these **3 commands**:
+
+### 1. Create your configuration file
+This file stores the database passwords and settings.
 ```powershell
+# Windows (PowerShell)
 copy env.example .env
-```
-*Note: If you are on Mac/Linux, use `cp env.example .env`.*
 
-### Step 3: Start the Database (Docker)
-Ensure Docker Desktop is open and green. Then run:
+# Mac / Linux / Git Bash
+cp env.example .env
+```
+
+### 2. Start Everything
+This command downloads the database, builds the app, and starts them together.
 ```bash
-docker-compose up -d db
+docker-compose up -d --build
 ```
-**Why only `db`?** This command starts only the MySQL database server. It will automatically:
-- Create the `ecommerce_app` database.
-- Import all tables and initial product data from `init.sql`.
 
-*Wait 15 seconds for the database to finish loading.*
-
-### Step 4: Install Packages
-Run this to install all the libraries (Prisma, Express, JWT, etc.):
+### 3. Generate Database Client (Only if needed)
+Wait about 30 seconds for the containers to start, then run this to make sure the code can "talk" to the database:
 ```bash
-npm install
+docker exec scripts-app-1 npm run prisma:generate
 ```
-
-### Step 5: Sync Database & Start App
-Run these two commands to finish the setup:
-```bash
-npx prisma generate
-npm run dev
-```
-
-**🎉 SUCCESS!** Your backend is now running at `http://localhost:3000`
+*(Note: The system usually does this automatically during build, but it's good to know!)*
 
 ---
 
 ## 🖥️ How to verify it's working?
 
--   **Test API**: Open `http://localhost:3000/health` (Should say `{"ok":true}`)
--   **Documentation**: Open `http://localhost:3000/api-docs` (Interactive Swagger Docs)
--   **Database View**: Open `http://localhost:8080` (phpMyAdmin)
-    -   Host: `db`
-    -   Username: `root`
-    -   Password: `secret`
+Once everything is "Up", you can check these links in your browser:
+
+| Service | Address | What is it? |
+| :--- | :--- | :--- |
+| **Backend API** | [http://localhost:3000/health](http://localhost:3000/health) | Should show `{"ok":true}` |
+| **API Docs** | [http://localhost:3000/api-docs](http://localhost:3000/api-docs) | Interactive Swagger documentation |
+| **Database View** | [http://localhost:8080](http://localhost:8080) | phpMyAdmin (Manage your database visually) |
+
+**Database Login (for phpMyAdmin):**
+- **Server:** `db`
+- **Username:** `root`
+- **Password:** `secret`
 
 ---
 
-## ⚠️ Common Errors & Fixes
+## 📖 Command Breakdown (What did I just do?)
 
-| Error | Solution |
+If you are curious about what those commands actually did:
+
+1.  `copy env.example .env`: Creates a local copy of settings. Using `.env` is a standard way to hide secrets.
+2.  `docker-compose up`: Starts multiple "containers" (mini virtual computers) at once.
+3.  `-d` (Detached): Runs the containers in the background so you can keep using your terminal.
+4.  `--build`: Re-builds the application code. Use this whenever you change the code in `src/`.
+5.  `docker-compose down`: Stops and removes all containers. Use this when you are done working.
+
+---
+
+## ⚠️ Troubleshooting
+
+| Problem | Solution |
 | :--- | :--- |
-| **"docker-compose" not found** | Install Docker Desktop and Restart your Terminal (VS Code). |
-| **"prisma" command fails** | Run `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` in your PowerShell then try again. |
-| **Port 33061 already in use** | Your previous Docker container is still running. Run `docker-compose down` and then try again. |
-| **Database connection error** | Check if Docker container is green. Run `docker ps` to see if `scripts-db-1` is running. |
+| **"docker-compose" not found** | Docker Desktop is not installed or not in your "PATH". Try restarting VS Code. |
+| **Port 33061 or 3000 in use** | Something else is running on those ports. Run `docker-compose down` to clear old containers. |
+| **Database connection error** | Docker Desktop might not be running. Check the whale icon! |
+| **Changes not showing?** | Run `docker-compose up -d --build` to force a refresh of the code. |
 
 ---
 

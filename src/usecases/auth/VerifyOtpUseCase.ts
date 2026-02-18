@@ -34,7 +34,7 @@ export class VerifyOtpUseCase {
 
         // Validate OTP (Hashing support)
         let isValidOtp = false;
-        if (config.env === "development" && otpInput === "111111") {
+        if ((config.env === "development" || config.env === "dev") && otpInput === "111111") {
             isValidOtp = true;
         } else {
             isValidOtp = await compareOtp(otpInput, customer.otp);

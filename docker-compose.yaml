@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     environment:
       DATABASE_URL: mysql://root:${DB_PASSWORD:-secret}@db:3306/${DB_NAME:-ecommerce_app}
-      NODE_ENV: dev
+      NODE_ENV: development
     depends_on:
       - db
     ports:

@@ -37,6 +37,7 @@ const getAll = async (req, res, next) => {
         const result = await categoryUseCase.getAllCategories(limit, cursor, search);
         res.status(200).json({
             success: true,
+            count: result.totalCount,
             data: result.data,
             nextCursor: result.nextCursor,
         });
@@ -59,4 +60,3 @@ const getOne = async (req, res, next) => {
     }
 };
 exports.getOne = getOne;
-//# sourceMappingURL=CategoryController.js.map

@@ -34,7 +34,7 @@ const customerRepository = new CustomerRepository_1.CustomerRepository();
 const getUserAddressById = async (id) => {
     const address = await userAddressRepository.getUserAddressById(id);
     if (!address) {
-        throw AppError_1.default.notFound(`Address not found.`);
+        throw AppError_1.default.notFound(`address not found`);
     }
     return address;
 };
@@ -53,15 +53,15 @@ const getAllUserAddresses = async (limit, cursor) => {
 exports.getAllUserAddresses = getAllUserAddresses;
 const createUserAddress = async (data) => {
     if (data.pincode && !/^\d{6}$/.test(data.pincode)) {
-        throw AppError_1.default.badRequest("Pincode must be 6 digits.");
+        throw AppError_1.default.badRequest("pincode must be 6 digits");
     }
     if (data.receiversNumber && !/^\d{10}$/.test(data.receiversNumber.replace(/\D/g, ""))) {
-        throw AppError_1.default.badRequest("Receiver's number must be 10 digits.");
+        throw AppError_1.default.badRequest("receiver's number must be 10 digits");
     }
     if (data.saveAs) {
         const validValues = ["Home", "Work", "Other"];
         if (!validValues.includes(data.saveAs)) {
-            throw AppError_1.default.badRequest("Invalid saveAs value.");
+            throw AppError_1.default.badRequest("invalid saveas value");
         }
     }
     return await userAddressRepository.createUserAddress(data);
@@ -70,24 +70,24 @@ exports.createUserAddress = createUserAddress;
 const updateUserAddress = async (id, data) => {
     const existingAddress = await userAddressRepository.getUserAddressById(id);
     if (!existingAddress) {
-        throw AppError_1.default.notFound(`Address not found.`);
+        throw AppError_1.default.notFound(`address not found`);
     }
     // customerId renamed to userId in table but repo returns userId as property
     // Wait, let me check what type Prisma generates now
     const address = existingAddress;
     if (address.userId !== data.customerId) {
-        throw AppError_1.default.forbidden("You do not have permission to update this address.");
+        throw AppError_1.default.forbidden("permission denied to update this address");
     }
     if (data.pincode && !/^\d{6}$/.test(data.pincode)) {
-        throw AppError_1.default.badRequest("Pincode must be 6 digits.");
+        throw AppError_1.default.badRequest("pincode must be 6 digits");
     }
     if (data.receiversNumber && !/^\d{10}$/.test(data.receiversNumber.replace(/\D/g, ""))) {
-        throw AppError_1.default.badRequest("Receiver's number must be 10 digits.");
+        throw AppError_1.default.badRequest("receiver's number must be 10 digits");
     }
     if (data.saveAs) {
         const validValues = ["Home", "Work", "Other"];
         if (!validValues.includes(data.saveAs)) {
-            throw AppError_1.default.badRequest("Invalid saveAs value.");
+            throw AppError_1.default.badRequest("invalid saveas value");
         }
     }
     return await userAddressRepository.updateUserAddress(id, data);
@@ -96,13 +96,12 @@ exports.updateUserAddress = updateUserAddress;
 const deleteUserAddress = async (id, customerId) => {
     const existingAddress = await userAddressRepository.getUserAddressById(id);
     if (!existingAddress) {
-        throw AppError_1.default.notFound(`Address not found.`);
+        throw AppError_1.default.notFound(`address not found`);
     }
     const address = existingAddress;
     if (address.userId !== customerId) {
-        throw AppError_1.default.forbidden("You do not have permission to delete this address.");
+        throw AppError_1.default.forbidden("permission denied to delete this address");
     }
     return await userAddressRepository.deleteUserAddress(id);
 };
 exports.deleteUserAddress = deleteUserAddress;
-//# sourceMappingURL=UserAddressUseCase.js.map

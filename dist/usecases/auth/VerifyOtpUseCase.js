@@ -15,28 +15,28 @@ class VerifyOtpUseCase {
     }
     async execute(mobile, otpInput) {
         if (!mobile || !otpInput) {
-            throw AppError_1.default.badRequest("Mobile number and OTP are required");
+            throw AppError_1.default.badRequest("mobile number and otp are required");
         }
         const customer = await this.customerRepository.findByMobile(mobile);
         if (!customer) {
-            throw AppError_1.default.notFound("User not found");
+            throw AppError_1.default.notFound("user not found");
         }
         if (!customer.otp || !customer.otpValidUpto) {
-            throw AppError_1.default.badRequest("OTP not generated");
+            throw AppError_1.default.badRequest("otp not generated");
         }
         if (new Date() > customer.otpValidUpto) {
-            throw AppError_1.default.badRequest("OTP has expired");
+            throw AppError_1.default.badRequest("otp has expired");
         }
         // Validate OTP (Hashing support)
         let isValidOtp = false;
-        if (config_1.default.env === "development" && otpInput === "111111") {
+        if ((config_1.default.env === "development" || config_1.default.env === "dev") && otpInput === "111111") {
             isValidOtp = true;
         }
         else {
             isValidOtp = await (0, crypto_1.compareOtp)(otpInput, customer.otp);
         }
         if (!isValidOtp) {
-            throw AppError_1.default.badRequest("Invalid OTP");
+            throw AppError_1.default.badRequest("invalid otp");
         }
         // Clear OTP immediately after successful verification
         await this.customerRepository.updateOtp(customer.id, null, null);
@@ -66,4 +66,3 @@ class VerifyOtpUseCase {
     }
 }
 exports.VerifyOtpUseCase = VerifyOtpUseCase;
-//# sourceMappingURL=VerifyOtpUseCase.js.map

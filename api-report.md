@@ -45,8 +45,14 @@ Request Body:
 {
   "fullName": "New Name",
   "email": "new@email.com",
-  "profileImage": "https://example.com/photo.jpg"
+  "profileImage": "https://url.com/existing-image.jpg"
 }
+
+[POST] /v1/profile/upload-photo
+Description: Directly upload an image file to Cloudinary and update profile. (Requires Auth)
+Request Format: Multipart Form-Data
+Field Name: `photo` (File)
+Endpoint: `http://localhost:3000/v1/profile/upload-photo`
 
 
 --------------------------------------------------

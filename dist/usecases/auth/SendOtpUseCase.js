@@ -15,19 +15,19 @@ class SendOtpUseCase {
     }
     async execute(mobile) {
         if (!mobile) {
-            throw AppError_1.default.badRequest("Mobile number is required");
+            throw AppError_1.default.badRequest("mobile number is required");
         }
         // Check if user exists (Sushree's logic: signup required)
         const customer = await this.customerRepository.findByMobile(mobile);
         if (!customer) {
-            throw AppError_1.default.notFound("Mobile number not registered. Please signup first.");
+            throw AppError_1.default.notFound("mobile number not registered. please signup first.");
         }
         // Check for active OTP (Rate limiting)
         if (customer.otpValidUpto && customer.otpValidUpto > new Date()) {
-            throw AppError_1.default.tooManyRequests("OTP already sent. Please wait before requesting again.");
+            throw AppError_1.default.tooManyRequests("otp already sent. please wait before requesting again.");
         }
         // Generate OTP
-        const otp = config_1.default.env === "development" ? "111111" : (0, crypto_1.generateOtp)();
+        const otp = (config_1.default.env === "development" || config_1.default.env === "dev") ? "111111" : (0, crypto_1.generateOtp)();
         // Hash OTP before storing
         const hashedOtp = await (0, crypto_1.hashOtp)(otp);
         const otpValidUpto = new Date(Date.now() + 10 * 60000); // 10 minutes
@@ -50,9 +50,8 @@ class SendOtpUseCase {
         console.log(`[MOCK SMS] OTP for ${mobile} is ${otp}`);
         return {
             success: true,
-            message: "OTP sent successfully",
+            message: "otp sent successfully",
         };
     }
 }
 exports.SendOtpUseCase = SendOtpUseCase;
-//# sourceMappingURL=SendOtpUseCase.js.map

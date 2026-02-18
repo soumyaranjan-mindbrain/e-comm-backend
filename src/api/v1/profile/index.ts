@@ -3,6 +3,7 @@ import * as profileController from "../../../controllers/ProfileController";
 import validateRequest from "../../../middleware/validate-request";
 import authenticateUser from "../../../middleware/authenticate-user";
 import { updateProfileSchema } from "../../../data/request-schemas";
+import { upload } from "../../../middleware/upload-middleware";
 
 const router = Router();
 
@@ -51,5 +52,29 @@ router.get("/me", profileController.getProfile);
  *         description: Profile updated successfully
  */
 router.patch("/me", validateRequest(updateProfileSchema), profileController.updateProfile);
+
+/**
+ * @openapi
+ * /v1/profile/upload-photo:
+ *   post:
+ *     tags:
+ *       - Profile
+ *     summary: Upload profile photo to Cloudinary
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               photo:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Photo uploaded successfully
+ */
+router.post("/upload-photo", upload.single("photo"), profileController.uploadPhoto);
 
 export default router;

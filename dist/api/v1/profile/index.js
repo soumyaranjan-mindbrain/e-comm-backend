@@ -27,101 +27,76 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const authController = __importStar(require("../../../controllers/AuthController"));
+const profileController = __importStar(require("../../../controllers/ProfileController"));
 const validate_request_1 = __importDefault(require("../../../middleware/validate-request"));
 const authenticate_user_1 = __importDefault(require("../../../middleware/authenticate-user"));
 const request_schemas_1 = require("../../../data/request-schemas");
+const upload_middleware_1 = require("../../../middleware/upload-middleware");
 const router = (0, express_1.Router)();
+// All routes here require authentication
+router.use(authenticate_user_1.default);
 /**
  * @openapi
- * /v1/auth/send-otp:
- *   post:
+ * /v1/profile/me:
+ *   get:
  *     tags:
- *       - Auth
- *     summary: Send OTP to mobile number
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - mobile
- *             properties:
- *               mobile:
- *                 type: string
- *     responses:
- *       200:
- *         description: OTP sent successfully
- */
-router.post("/send-otp", (0, validate_request_1.default)(request_schemas_1.sendOtpSchema), authController.sendOtp);
-/**
- * @openapi
- * /v1/auth/verify-otp:
- *   post:
- *     tags:
- *       - Auth
- *     summary: Verify OTP and login
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - mobile
- *               - otp
- *             properties:
- *               mobile:
- *                 type: string
- *               otp:
- *                 type: string
- *     responses:
- *       200:
- *         description: Login successful
- */
-router.post("/verify-otp", (0, validate_request_1.default)(request_schemas_1.verifyOtpSchema), authController.verifyOtp);
-/**
- * @openapi
- * /v1/auth/signup:
- *   post:
- *     tags:
- *       - Auth
- *     summary: Signup a new user
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - fullName
- *               - mobile
- *               - email
- *             properties:
- *               fullName:
- *                 type: string
- *               mobile:
- *                 type: string
- *               email:
- *                 type: string
- *     responses:
- *       201:
- *         description: Signup successful
- */
-router.post("/signup", (0, validate_request_1.default)(request_schemas_1.signupSchema), authController.signup);
-/**
- * @openapi
- * /v1/auth/logout:
- *   post:
- *     tags:
- *       - Auth
- *     summary: Logout user and clear session
+ *       - Profile
+ *     summary: Get current user profile
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Logged out successfully
+ *         description: Profile data
  */
-router.post("/logout", authenticate_user_1.default, authController.logout);
+router.get("/me", profileController.getProfile);
+/**
+ * @openapi
+ * /v1/profile/me:
+ *   patch:
+ *     tags:
+ *       - Profile
+ *     summary: Update current user profile
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               fullName:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               mobile:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Profile updated successfully
+ */
+router.patch("/me", (0, validate_request_1.default)(request_schemas_1.updateProfileSchema), profileController.updateProfile);
+/**
+ * @openapi
+ * /v1/profile/upload-photo:
+ *   post:
+ *     tags:
+ *       - Profile
+ *     summary: Upload profile photo to Cloudinary
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               photo:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Photo uploaded successfully
+ */
+router.post("/upload-photo", upload_middleware_1.upload.single("photo"), profileController.uploadPhoto);
 exports.default = router;

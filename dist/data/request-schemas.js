@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.productFilterSchema = exports.updateProductRatingSchema = exports.createProductRatingSchema = exports.updateUserAddressSchema = exports.createUserAddressSchema = exports.updateCouponCodeSchema = exports.createCouponCodeSchema = exports.signupSchema = exports.verifyOtpSchema = exports.sendOtpSchema = void 0;
+exports.productFilterSchema = exports.updateProductRatingSchema = exports.createProductRatingSchema = exports.updateUserAddressSchema = exports.createUserAddressSchema = exports.updateCouponCodeSchema = exports.createCouponCodeSchema = exports.updateProfileSchema = exports.signupSchema = exports.verifyOtpSchema = exports.sendOtpSchema = void 0;
 const joi_1 = __importDefault(require("joi"));
 // --- Auth Schemas ---
 exports.sendOtpSchema = joi_1.default.object({
@@ -17,6 +17,12 @@ exports.signupSchema = joi_1.default.object({
     fullName: joi_1.default.string().min(3).required().label("Full Name"),
     mobile: joi_1.default.string().pattern(/^[0-9]{10}$/).required().label("Mobile Number"),
     email: joi_1.default.string().email().required().label("Email"),
+}).unknown().required();
+exports.updateProfileSchema = joi_1.default.object({
+    fullName: joi_1.default.string().min(3).optional().label("Full Name"),
+    mobile: joi_1.default.string().pattern(/^[0-9]{10}$/).optional().label("Mobile Number"),
+    email: joi_1.default.string().email().optional().label("Email"),
+    profileImage: joi_1.default.string().optional().allow("", null).label("Profile Image"),
 }).unknown().required();
 // --- Coupon Code Schemas ---
 exports.createCouponCodeSchema = joi_1.default.object({
@@ -124,4 +130,3 @@ exports.productFilterSchema = joi_1.default.object({
     limit: joi_1.default.number().integer().min(1).max(100).optional(),
     cursor: joi_1.default.number().integer().optional(),
 });
-//# sourceMappingURL=request-schemas.js.map

@@ -62,6 +62,7 @@ const getAllCategories = async (limit, cursor, search) => {
     return {
         data: scoredCategories.slice(0, queryLimit),
         nextCursor: null,
+        totalCount: scoredCategories.length,
     };
 };
 exports.getAllCategories = getAllCategories;
@@ -73,4 +74,3 @@ const getCategoryById = async (id) => {
     return category;
 };
 exports.getCategoryById = getCategoryById;
-//# sourceMappingURL=CategoryUseCase.js.map

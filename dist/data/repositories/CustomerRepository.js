@@ -37,6 +37,12 @@ class CustomerRepository {
             data: { refreshToken },
         });
     }
+    async clearRefreshToken(id) {
+        await prisma_client_1.default.customer.update({
+            where: { id },
+            data: { refreshToken: null },
+        });
+    }
     async createCustomerWithoutOtp(data) {
         return prisma_client_1.default.customer.create({
             data: {
@@ -54,10 +60,11 @@ class CustomerRepository {
             data: {
                 fullName: data.fullName,
                 emailId: data.email,
+                contactNo: data.mobile,
+                profileImage: data.profileImage,
                 status: client_1.aa13_customer_db_status.ONE,
             },
         });
     }
 }
 exports.CustomerRepository = CustomerRepository;
-//# sourceMappingURL=CustomerRepository.js.map

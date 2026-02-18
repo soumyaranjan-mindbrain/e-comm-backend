@@ -13,4 +13,3 @@ class BaseRepository {
     }
 }
 exports.default = BaseRepository;
-//# sourceMappingURL=BaseRepository.js.map

@@ -5,4 +5,3 @@ const send = async (mailNotification) => {
     console.log(mailNotification.text);
 };
 exports.send = send;
-//# sourceMappingURL=ConsoleLogMailer.js.map

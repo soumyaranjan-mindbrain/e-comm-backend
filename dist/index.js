@@ -11,4 +11,3 @@ const server = (0, server_1.createServer)();
 server.listen(config_1.default.port, () => {
     console.log(`api running on ${config_1.default.port}`);
 });
-//# sourceMappingURL=index.js.map

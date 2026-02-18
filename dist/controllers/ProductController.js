@@ -53,7 +53,7 @@ const getAll = async (req, res, next) => {
         }
         res.status(200).json({
             success: true,
-            count: result.data.length,
+            count: result.totalCount, // Return total matches for better testing clarity
             data: result.data,
             nextCursor: result.nextCursor,
         });
@@ -100,4 +100,3 @@ const getOne = async (req, res, next) => {
     }
 };
 exports.getOne = getOne;
-//# sourceMappingURL=ProductController.js.map

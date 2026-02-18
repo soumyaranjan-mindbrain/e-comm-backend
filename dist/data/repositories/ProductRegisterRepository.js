@@ -22,22 +22,25 @@ exports.getProductRegisterById = getProductRegisterById;
 const getAllProductRegisters = async (limit = 20, cursor) => {
     const take = limit + 1;
     const where = { isDisplay: client_1.x1_app_product_register_is_display.ONE };
-    const products = await prisma_client_1.default.productRegister.findMany({
-        where: cursor ? { ...where, id: { lt: cursor } } : where,
-        include: {
-            images: true,
-            stockItems: {
-                where: { status: client_1.caa1_shop_stock_item_db_status.ONE },
-                take: 1,
-            }
-        },
-        orderBy: { id: "desc" },
-        take,
-    });
+    const [products, totalCount] = await Promise.all([
+        prisma_client_1.default.productRegister.findMany({
+            where: cursor ? { ...where, id: { lt: cursor } } : where,
+            include: {
+                images: true,
+                stockItems: {
+                    where: { status: client_1.caa1_shop_stock_item_db_status.ONE },
+                    take: 1,
+                }
+            },
+            orderBy: { id: "desc" },
+            take,
+        }),
+        prisma_client_1.default.productRegister.count({ where })
+    ]);
     const hasMore = products.length > limit;
     const data = hasMore ? products.slice(0, limit) : products;
     const nextCursor = hasMore && data.length > 0 ? data[data.length - 1].id : null;
-    return { data, nextCursor };
+    return { data, nextCursor, totalCount };
 };
 exports.getAllProductRegisters = getAllProductRegisters;
 const getFilteredProducts = async (filters, limit = 20, cursor) => {
@@ -69,43 +72,49 @@ const getFilteredProducts = async (filters, limit = 20, cursor) => {
     if (filters.rating !== undefined) {
         where.ratings = { gte: filters.rating };
     }
-    const products = await prisma_client_1.default.productRegister.findMany({
-        where: cursor ? { ...where, id: { lt: cursor } } : where,
-        include: {
-            images: true,
-            stockItems: {
-                where: { status: client_1.caa1_shop_stock_item_db_status.ONE },
-                take: 1,
-            }
-        },
-        orderBy: { id: "desc" },
-        take,
-    });
+    const [products, totalCount] = await Promise.all([
+        prisma_client_1.default.productRegister.findMany({
+            where: cursor ? { ...where, id: { lt: cursor } } : where,
+            include: {
+                images: true,
+                stockItems: {
+                    where: { status: client_1.caa1_shop_stock_item_db_status.ONE },
+                    take: 1,
+                }
+            },
+            orderBy: { id: "desc" },
+            take,
+        }),
+        prisma_client_1.default.productRegister.count({ where })
+    ]);
     const hasMore = products.length > limit;
     const data = hasMore ? products.slice(0, limit) : products;
     const nextCursor = hasMore && data.length > 0 ? data[data.length - 1].id : null;
-    return { data, nextCursor };
+    return { data, nextCursor, totalCount };
 };
 exports.getFilteredProducts = getFilteredProducts;
 const getNewArrivals = async (limit = 20, cursor) => {
     const take = limit + 1;
     const where = { isDisplay: client_1.x1_app_product_register_is_display.ONE };
-    const products = await prisma_client_1.default.productRegister.findMany({
-        where: cursor ? { ...where, id: { lt: cursor } } : where,
-        include: {
-            images: true,
-            stockItems: {
-                where: { status: client_1.caa1_shop_stock_item_db_status.ONE },
-                take: 1,
-            }
-        },
-        orderBy: { createdAt: "desc" },
-        take,
-    });
+    const [products, totalCount] = await Promise.all([
+        prisma_client_1.default.productRegister.findMany({
+            where: cursor ? { ...where, id: { lt: cursor } } : where,
+            include: {
+                images: true,
+                stockItems: {
+                    where: { status: client_1.caa1_shop_stock_item_db_status.ONE },
+                    take: 1,
+                }
+            },
+            orderBy: { createdAt: "desc" },
+            take,
+        }),
+        prisma_client_1.default.productRegister.count({ where })
+    ]);
     const hasMore = products.length > limit;
     const data = hasMore ? products.slice(0, limit) : products;
     const nextCursor = hasMore && data.length > 0 ? data[data.length - 1].id : null;
-    return { data, nextCursor };
+    return { data, nextCursor, totalCount };
 };
 exports.getNewArrivals = getNewArrivals;
 const getProductRegistersByDisplaySection = async (displaySection, limit = 20, cursor) => {
@@ -114,22 +123,25 @@ const getProductRegistersByDisplaySection = async (displaySection, limit = 20, c
         isDisplay: client_1.x1_app_product_register_is_display.ONE,
         displaySection: displaySection,
     };
-    const products = await prisma_client_1.default.productRegister.findMany({
-        where: cursor ? { ...where, id: { lt: cursor } } : where,
-        include: {
-            images: true,
-            stockItems: {
-                where: { status: client_1.caa1_shop_stock_item_db_status.ONE },
-                take: 1,
-            }
-        },
-        orderBy: { id: "desc" },
-        take,
-    });
+    const [products, totalCount] = await Promise.all([
+        prisma_client_1.default.productRegister.findMany({
+            where: cursor ? { ...where, id: { lt: cursor } } : where,
+            include: {
+                images: true,
+                stockItems: {
+                    where: { status: client_1.caa1_shop_stock_item_db_status.ONE },
+                    take: 1,
+                }
+            },
+            orderBy: { id: "desc" },
+            take,
+        }),
+        prisma_client_1.default.productRegister.count({ where })
+    ]);
     const hasMore = products.length > limit;
     const data = hasMore ? products.slice(0, limit) : products;
     const nextCursor = hasMore && data.length > 0 ? data[data.length - 1].id : null;
-    return { data, nextCursor };
+    return { data, nextCursor, totalCount };
 };
 exports.getProductRegistersByDisplaySection = getProductRegistersByDisplaySection;
 const searchProductRegistersByName = async (searchTerm, limit) => {
@@ -151,4 +163,3 @@ const searchProductRegistersByName = async (searchTerm, limit) => {
     });
 };
 exports.searchProductRegistersByName = searchProductRegistersByName;
-//# sourceMappingURL=ProductRegisterRepository.js.map

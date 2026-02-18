@@ -31,6 +31,7 @@ exports.createServer = void 0;
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const helmet_1 = __importDefault(require("helmet"));
+const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 const swaggerUi = __importStar(require("swagger-ui-express"));
 const config_1 = __importDefault(require("./config"));
@@ -51,9 +52,16 @@ const createServer = () => {
         .use(limiter)
         .disable("x-powered-by")
         .use(morgan_middleware_1.default)
+        .use((0, cookie_parser_1.default)())
         .use(express_1.default.urlencoded({ extended: true }))
         .use(express_1.default.json())
-        .use((0, cors_1.default)());
+        .use((0, cors_1.default)({
+        origin: (origin, callback) => {
+            // Allow all origins but echo back the origin for credentials support
+            callback(null, true);
+        },
+        credentials: true,
+    }));
     /**
      * @openapi
      * /health:
@@ -74,4 +82,3 @@ const createServer = () => {
     return app;
 };
 exports.createServer = createServer;
-//# sourceMappingURL=server.js.map

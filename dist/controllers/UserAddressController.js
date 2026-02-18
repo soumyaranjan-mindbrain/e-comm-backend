@@ -31,13 +31,13 @@ const getMine = async (req, res, next) => {
         const limit = req.query.limit ? parseInt(req.query.limit) : undefined;
         const cursor = req.query.cursor ? parseInt(req.query.cursor) : undefined;
         if (!customerId) {
-            res.status(401).json({ success: false, message: "Unauthorized" });
+            res.status(401).json({ success: false, code: "ERR_AUTH", msg: "unauthorized" });
             return;
         }
         const result = await userAddressUseCase.getUserAddressesByCustomerId(customerId, limit, cursor);
         res.status(200).json({
             success: true,
-            count: result.data.length,
+            msg: "addresses fetched successfully",
             data: result.data,
             nextCursor: result.nextCursor,
         });
@@ -52,15 +52,19 @@ const getOne = async (req, res, next) => {
         const id = parseInt(req.params.id);
         const customerId = req.user?.id;
         if (isNaN(id) || !customerId) {
-            res.status(400).json({ success: false, message: "Invalid request" });
+            res.status(400).json({ success: false, code: "ERR_BAD_REQUEST", msg: "invalid request" });
             return;
         }
         const address = await userAddressUseCase.getUserAddressById(id);
         if (address.userId !== customerId) {
-            res.status(403).json({ success: false, message: "Forbidden" });
+            res.status(403).json({ success: false, code: "ERR_FORBIDDEN", msg: "forbidden" });
             return;
         }
-        res.status(200).json({ success: true, data: address });
+        res.status(200).json({
+            success: true,
+            msg: "address fetched successfully",
+            data: address
+        });
     }
     catch (error) {
         next(error);
@@ -71,7 +75,7 @@ const create = async (req, res, next) => {
     try {
         const customerId = req.user?.id;
         if (!customerId) {
-            res.status(401).json({ success: false, message: "Unauthorized" });
+            res.status(401).json({ success: false, code: "ERR_AUTH", msg: "unauthorized" });
             return;
         }
         const userAddress = await userAddressUseCase.createUserAddress({
@@ -81,7 +85,7 @@ const create = async (req, res, next) => {
         });
         res.status(201).json({
             success: true,
-            message: "Address created successfully",
+            msg: "address created successfully",
             data: userAddress,
         });
     }
@@ -95,7 +99,7 @@ const update = async (req, res, next) => {
         const id = parseInt(req.params.id);
         const customerId = req.user?.id;
         if (isNaN(id) || !customerId) {
-            res.status(400).json({ success: false, message: "Invalid request" });
+            res.status(400).json({ success: false, code: "ERR_BAD_REQUEST", msg: "invalid request" });
             return;
         }
         const userAddress = await userAddressUseCase.updateUserAddress(id, {
@@ -105,7 +109,7 @@ const update = async (req, res, next) => {
         });
         res.status(200).json({
             success: true,
-            message: "Address updated successfully",
+            msg: "address updated successfully",
             data: userAddress,
         });
     }
@@ -119,13 +123,14 @@ const remove = async (req, res, next) => {
         const id = parseInt(req.params.id);
         const customerId = req.user?.id;
         if (isNaN(id) || !customerId) {
-            res.status(400).json({ success: false, message: "Invalid request" });
+            res.status(400).json({ success: false, code: "ERR_BAD_REQUEST", msg: "invalid request" });
             return;
         }
         await userAddressUseCase.deleteUserAddress(id, customerId);
         res.status(200).json({
             success: true,
-            message: "Address deleted successfully",
+            msg: "address deleted successfully",
+            data: null
         });
     }
     catch (error) {
@@ -133,4 +138,3 @@ const remove = async (req, res, next) => {
     }
 };
 exports.remove = remove;
-//# sourceMappingURL=UserAddressController.js.map

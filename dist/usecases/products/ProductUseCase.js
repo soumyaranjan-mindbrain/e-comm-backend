@@ -29,13 +29,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getFilteredProducts = exports.searchProductRegistersByName = exports.getProductRegisterById = exports.getAllProductRegisters = exports.getProductsByCategorySlug = exports.getNewArrivals = void 0;
 const productRegisterRepository = __importStar(require("../../data/repositories/ProductRegisterRepository"));
 const AppError_1 = __importDefault(require("../../errors/AppError"));
-// Get new arrivals (ProductRegisters sorted by createdAt, newest first)
-const getNewArrivals = async (limit, cursor) => {
-    const queryLimit = limit && limit > 0 ? Math.floor(limit) : 20;
-    const queryCursor = cursor && cursor > 0 ? Math.floor(cursor) : undefined;
-    return await productRegisterRepository.getNewArrivals(queryLimit, queryCursor);
+// Helper to flatten product data (extract price/MRP from nested stockItems)
+const transformProduct = (product) => {
+    const stock = product.stockItems?.[0];
+    return {
+        ...product,
+        price: stock?.saleRate || null,
+        mrp: stock?.mrpRate || null,
+        // Keep original stockItems but usually frontend only needs the flattened price
+    };
 };
-exports.getNewArrivals = getNewArrivals;
 // Slug to displaySection mapping (API slugs -> DB values)
 const SLUG_TO_SECTION = {
     fashion: "Fashion",
@@ -44,19 +47,37 @@ const SLUG_TO_SECTION = {
     "new-arrivals": "New Arrival",
     "new arrival": "New Arrival",
 };
-// Get products by category slug (filters ProductRegister by displaySection)
+const getNewArrivals = async (limit, cursor) => {
+    const queryLimit = limit && limit > 0 ? Math.floor(limit) : 20;
+    const queryCursor = cursor && cursor > 0 ? Math.floor(cursor) : undefined;
+    const result = await productRegisterRepository.getNewArrivals(queryLimit, queryCursor);
+    return {
+        ...result,
+        data: result.data.map(transformProduct)
+    };
+};
+exports.getNewArrivals = getNewArrivals;
+// Get products by category slug
 const getProductsByCategorySlug = async (slug, limit, cursor) => {
     const queryLimit = limit && limit > 0 ? Math.floor(limit) : 20;
     const queryCursor = cursor && cursor > 0 ? Math.floor(cursor) : undefined;
     const displaySection = SLUG_TO_SECTION[slug.toLowerCase()] ?? slug;
-    return await productRegisterRepository.getProductRegistersByDisplaySection(displaySection, queryLimit, queryCursor);
+    const result = await productRegisterRepository.getProductRegistersByDisplaySection(displaySection, queryLimit, queryCursor);
+    return {
+        ...result,
+        data: result.data.map(transformProduct)
+    };
 };
 exports.getProductsByCategorySlug = getProductsByCategorySlug;
 // Get all product registers
 const getAllProductRegisters = async (limit, cursor) => {
     const queryLimit = limit && limit > 0 ? Math.floor(limit) : 20;
     const queryCursor = cursor && cursor > 0 ? Math.floor(cursor) : undefined;
-    return await productRegisterRepository.getAllProductRegisters(queryLimit, queryCursor);
+    const result = await productRegisterRepository.getAllProductRegisters(queryLimit, queryCursor);
+    return {
+        ...result,
+        data: result.data.map(transformProduct)
+    };
 };
 exports.getAllProductRegisters = getAllProductRegisters;
 // Get product register by ID
@@ -65,24 +86,28 @@ const getProductRegisterById = async (id) => {
     if (!product) {
         throw AppError_1.default.notFound("Product register not found.");
     }
-    return product;
+    return transformProduct(product);
 };
 exports.getProductRegisterById = getProductRegisterById;
 // Search product registers by name
 const searchProductRegistersByName = async (searchTerm, limit) => {
-    return await productRegisterRepository.searchProductRegistersByName(searchTerm, limit);
+    const products = await productRegisterRepository.searchProductRegistersByName(searchTerm.trim(), limit);
+    return products.map(transformProduct);
 };
 exports.searchProductRegistersByName = searchProductRegistersByName;
 const getFilteredProducts = async (filters) => {
     const limit = filters.limit ? Math.floor(filters.limit) : 20;
     const cursor = filters.cursor ? Math.floor(filters.cursor) : undefined;
-    return await productRegisterRepository.getFilteredProducts({
-        q: filters.q,
+    const result = await productRegisterRepository.getFilteredProducts({
+        q: filters.q?.trim(),
         minPrice: filters.minPrice,
         maxPrice: filters.maxPrice,
         rating: filters.rating,
         categoryId: filters.categoryId,
     }, limit, cursor);
+    return {
+        ...result,
+        data: result.data.map(transformProduct)
+    };
 };
 exports.getFilteredProducts = getFilteredProducts;
-//# sourceMappingURL=ProductUseCase.js.map

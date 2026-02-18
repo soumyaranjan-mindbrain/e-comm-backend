@@ -1,0 +1,30 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const health_1 = __importDefault(require("./health"));
+const auth_1 = __importDefault(require("./auth"));
+// import userRouter from "./user";
+const categories_1 = __importDefault(require("./categories"));
+const products_1 = __importDefault(require("./products"));
+const product_registers_1 = __importDefault(require("./product-registers"));
+const product_image_registers_1 = __importDefault(require("./product-image-registers"));
+const product_ratings_1 = __importDefault(require("./product-ratings"));
+const user_addresses_1 = __importDefault(require("./user-addresses"));
+const coupon_codes_1 = __importDefault(require("./coupon-codes"));
+const v1 = express_1.default.Router();
+v1.use("/health", health_1.default);
+v1.use("/auth", auth_1.default);
+// import userRouter from "./user"; 
+// v1.use("/users", userRouter);
+v1.use("/categories", categories_1.default);
+v1.use("/products", products_1.default);
+v1.use("/product-register", product_registers_1.default);
+v1.use("/product-image-register", product_image_registers_1.default);
+v1.use("/product-ratings", product_ratings_1.default);
+v1.use("/user-addresses", user_addresses_1.default);
+v1.use("/coupon-codes", coupon_codes_1.default);
+exports.default = v1;
+//# sourceMappingURL=index.js.map

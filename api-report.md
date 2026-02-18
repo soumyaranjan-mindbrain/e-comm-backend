@@ -91,5 +91,15 @@ To perform a complete test of the system, follow these steps in order:
 - **Health Check:** `http://localhost:3000/health`
 - **Interactive Docs (Swagger):** `http://localhost:3000/api-docs`
 
+## 6. Latest Test Run Results (Feb 18, 2026)
+| Category | Test Case | Status | Notes |
+| :--- | :--- | :---: | :--- |
+| **Auth** | User Registration & OTP Send | ✅ PASS | Validated with mobile `9998887776`. |
+| **Auth** | Login with Hardcoded OTP | ✅ PASS | Verified bypass fix for `111111` in `dev`. |
+| **Catalog** | Category Fuzzy Search | ✅ PASS | Found `Electronics` via `ELECTORNICS`. |
+| **Catalog** | Product List & Filters | ✅ PASS | Verified 15+ items in DB sync. |
+| **User** | Protected Address Creation | ✅ PASS | Successfully added "Floor 9" address. |
+
 ---
 **Report generated for BM2MALL Development Team.**
+

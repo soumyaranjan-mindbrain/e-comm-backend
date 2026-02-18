@@ -15,21 +15,21 @@ export class VerifyOtpUseCase {
         tokens: { accessToken: string; refreshToken: string };
     }> {
         if (!mobile || !otpInput) {
-            throw AppError.badRequest("Mobile number and OTP are required");
+            throw AppError.badRequest("mobile number and otp are required");
         }
 
         const customer = await this.customerRepository.findByMobile(mobile);
 
         if (!customer) {
-            throw AppError.notFound("User not found");
+            throw AppError.notFound("user not found");
         }
 
         if (!customer.otp || !customer.otpValidUpto) {
-            throw AppError.badRequest("OTP not generated");
+            throw AppError.badRequest("otp not generated");
         }
 
         if (new Date() > customer.otpValidUpto) {
-            throw AppError.badRequest("OTP has expired");
+            throw AppError.badRequest("otp has expired");
         }
 
         // Validate OTP (Hashing support)
@@ -41,8 +41,9 @@ export class VerifyOtpUseCase {
         }
 
         if (!isValidOtp) {
-            throw AppError.badRequest("Invalid OTP");
+            throw AppError.badRequest("invalid otp");
         }
+
 
         // Clear OTP immediately after successful verification
         await this.customerRepository.updateOtp(customer.id, null, null);

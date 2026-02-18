@@ -1,6 +1,7 @@
 import { Router } from "express";
 import * as authController from "../../../controllers/AuthController";
 import validateRequest from "../../../middleware/validate-request";
+import authenticateUser from "../../../middleware/authenticate-user";
 import { sendOtpSchema, verifyOtpSchema, signupSchema } from "../../../data/request-schemas";
 
 const router = Router();
@@ -90,4 +91,20 @@ router.post(
  */
 router.post("/signup", validateRequest(signupSchema), authController.signup);
 
+/**
+ * @openapi
+ * /v1/auth/logout:
+ *   post:
+ *     tags:
+ *       - Auth
+ *     summary: Logout user and clear session
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Logged out successfully
+ */
+router.post("/logout", authenticateUser, authController.logout);
+
 export default router;
+

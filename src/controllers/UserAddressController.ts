@@ -13,7 +13,7 @@ export const getMine = async (
     const cursor = req.query.cursor ? parseInt(req.query.cursor as string) : undefined;
 
     if (!customerId) {
-      res.status(401).json({ success: false, message: "Unauthorized" });
+      res.status(401).json({ success: false, code: "ERR_AUTH", msg: "unauthorized" });
       return;
     }
 
@@ -25,7 +25,7 @@ export const getMine = async (
 
     res.status(200).json({
       success: true,
-      count: result.data.length,
+      msg: "addresses fetched successfully",
       data: result.data,
       nextCursor: result.nextCursor,
     });
@@ -44,18 +44,22 @@ export const getOne = async (
     const customerId = (req as AuthRequest).user?.id;
 
     if (isNaN(id) || !customerId) {
-      res.status(400).json({ success: false, message: "Invalid request" });
+      res.status(400).json({ success: false, code: "ERR_BAD_REQUEST", msg: "invalid request" });
       return;
     }
 
     const address = await userAddressUseCase.getUserAddressById(id);
 
     if ((address as any).userId !== customerId) {
-      res.status(403).json({ success: false, message: "Forbidden" });
+      res.status(403).json({ success: false, code: "ERR_FORBIDDEN", msg: "forbidden" });
       return;
     }
 
-    res.status(200).json({ success: true, data: address });
+    res.status(200).json({
+      success: true,
+      msg: "address fetched successfully",
+      data: address
+    });
   } catch (error) {
     next(error);
   }
@@ -69,7 +73,7 @@ export const create = async (
   try {
     const customerId = (req as AuthRequest).user?.id;
     if (!customerId) {
-      res.status(401).json({ success: false, message: "Unauthorized" });
+      res.status(401).json({ success: false, code: "ERR_AUTH", msg: "unauthorized" });
       return;
     }
 
@@ -81,7 +85,7 @@ export const create = async (
 
     res.status(201).json({
       success: true,
-      message: "Address created successfully",
+      msg: "address created successfully",
       data: userAddress,
     });
   } catch (error) {
@@ -99,7 +103,7 @@ export const update = async (
     const customerId = (req as AuthRequest).user?.id;
 
     if (isNaN(id) || !customerId) {
-      res.status(400).json({ success: false, message: "Invalid request" });
+      res.status(400).json({ success: false, code: "ERR_BAD_REQUEST", msg: "invalid request" });
       return;
     }
 
@@ -111,7 +115,7 @@ export const update = async (
 
     res.status(200).json({
       success: true,
-      message: "Address updated successfully",
+      msg: "address updated successfully",
       data: userAddress,
     });
   } catch (error) {
@@ -129,7 +133,7 @@ export const remove = async (
     const customerId = (req as AuthRequest).user?.id;
 
     if (isNaN(id) || !customerId) {
-      res.status(400).json({ success: false, message: "Invalid request" });
+      res.status(400).json({ success: false, code: "ERR_BAD_REQUEST", msg: "invalid request" });
       return;
     }
 
@@ -137,9 +141,11 @@ export const remove = async (
 
     res.status(200).json({
       success: true,
-      message: "Address deleted successfully",
+      msg: "address deleted successfully",
+      data: null
     });
   } catch (error) {
     next(error);
   }
 };
+

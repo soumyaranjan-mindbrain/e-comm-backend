@@ -34,12 +34,20 @@ export class CustomerRepository {
         });
     }
 
-    async saveRefreshToken(id: number, refreshToken: string): Promise<Customer> {
+    async saveRefreshToken(id: number, refreshToken: string | null): Promise<Customer> {
         return prisma.customer.update({
             where: { id },
             data: { refreshToken } as Prisma.CustomerUpdateInput,
         });
     }
+
+    async clearRefreshToken(id: number): Promise<void> {
+        await prisma.customer.update({
+            where: { id },
+            data: { refreshToken: null } as Prisma.CustomerUpdateInput,
+        });
+    }
+
 
     async createCustomerWithoutOtp(data: {
         contactNo: string;
@@ -57,14 +65,19 @@ export class CustomerRepository {
         });
     }
 
-    async updateProfile(id: number, data: { fullName?: string; email?: string }): Promise<Customer> {
+    async updateProfile(id: number, data: { fullName?: string; email?: string; mobile?: string; profileImage?: string }): Promise<Customer> {
         return prisma.customer.update({
             where: { id },
             data: {
                 fullName: data.fullName,
                 emailId: data.email,
+                contactNo: data.mobile,
+                profileImage: data.profileImage,
                 status: aa13_customer_db_status.ONE,
-            },
+            } as any,
         });
     }
+
+
+
 }

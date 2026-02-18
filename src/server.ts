@@ -2,6 +2,7 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
 import helmet from "helmet";
+import cookieParser from "cookie-parser";
 import rateLimit from "express-rate-limit";
 import * as swaggerUi from "swagger-ui-express";
 import config from "./config";
@@ -25,9 +26,19 @@ export const createServer = () => {
     .use(limiter)
     .disable("x-powered-by")
     .use(morganMiddleware)
+    .use(cookieParser())
     .use(express.urlencoded({ extended: true }))
     .use(express.json())
-    .use(cors());
+    .use(
+      cors({
+        origin: (origin, callback) => {
+          // Allow all origins but echo back the origin for credentials support
+          callback(null, true);
+        },
+        credentials: true,
+      })
+    );
+
 
   /**
    * @openapi

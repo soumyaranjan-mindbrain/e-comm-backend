@@ -4,6 +4,7 @@ import { Category, aa4_category_db_status } from "@prisma/client";
 export interface CursorPaginationResult<T> {
   data: T[];
   nextCursor: number | null;
+  totalCount: number;
 }
 
 export const getCategoryById = async (id: number): Promise<Category | null> => {
@@ -29,11 +30,14 @@ export const getAllCategories = async (
     };
   }
 
-  const categories = await prisma.category.findMany({
-    where: cursor ? { ...where, id: { gt: cursor } } : where,
-    orderBy: { disorder: "asc" },
-    take,
-  });
+  const [categories, totalCount] = await Promise.all([
+    prisma.category.findMany({
+      where: cursor ? { ...where, id: { gt: cursor } } : where,
+      orderBy: { disorder: "asc" },
+      take,
+    }),
+    prisma.category.count({ where })
+  ]);
 
   const hasMore = categories.length > limit;
   const data = hasMore ? categories.slice(0, limit) : categories;
@@ -43,5 +47,7 @@ export const getAllCategories = async (
   return {
     data,
     nextCursor,
+    totalCount
   };
 };
+

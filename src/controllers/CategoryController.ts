@@ -19,9 +19,11 @@ export const getAll = async (
 
     res.status(200).json({
       success: true,
+      count: result.totalCount,
       data: result.data,
       nextCursor: result.nextCursor,
     });
+
   } catch (error) {
     next(error);
   }

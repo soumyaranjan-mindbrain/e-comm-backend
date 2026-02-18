@@ -21,14 +21,14 @@ export class SignupUseCase {
         const { fullName, mobile, email } = input;
 
         if (!fullName || !mobile || !email) {
-            throw AppError.badRequest("Full name, mobile and email are required");
+            throw AppError.badRequest("full name, mobile and email are required");
         }
 
         // STRICT CHECK: mobile must be unique
         const existingCustomer = await this.customerRepository.findByMobile(mobile);
 
         if (existingCustomer) {
-            throw AppError.conflict("Mobile number already registered");
+            throw AppError.conflict("mobile number already registered");
         }
 
         // Create new customer only
@@ -43,7 +43,8 @@ export class SignupUseCase {
 
         return {
             success: true,
-            message: "Signup successful. OTP sent to mobile number",
+            message: "signup successful. otp sent to mobile number",
         };
+
     }
 }

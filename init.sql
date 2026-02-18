@@ -126,6 +126,7 @@ CREATE TABLE `aa13_customer_db` (
   `otp_valid_upto` datetime DEFAULT NULL,
   `indate` datetime DEFAULT CURRENT_TIMESTAMP,
   `refresh_token` varchar(255) DEFAULT NULL,
+  `profile_image` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `id` (`id`,`cust_type`,`party_code`,`full_name`,`alias`,`state`)
 ) ENGINE=MyISAM AUTO_INCREMENT=20 DEFAULT CHARSET=latin1;

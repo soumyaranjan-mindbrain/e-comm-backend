@@ -41,8 +41,10 @@ export const getAllCategories = async (
     return {
         data: scoredCategories.slice(0, queryLimit),
         nextCursor: null,
+        totalCount: scoredCategories.length,
     };
 };
+
 
 export const getCategoryById = async (id: number) => {
     const category = await categoryRepository.getCategoryById(id);

@@ -1,123 +1,194 @@
-# 📋 BM2MALL Backend - API Comprehensive Test Report
+# BM2MALL BACKEND - COMPLETE API DOCUMENTATION
+Updated: 2026-02-18 | Total Modules: 9
 
-This document provides a detailed guide on all available API endpoints, their expected JSON bodies, and a step-by-step procedure for end-to-end testing of the BM2MALL E-commerce system.
+--------------------------------------------------
+1. AUTHENTICATION MODULE
+--------------------------------------------------
 
----
-
-## 🚀 1. End-To-End Testing Flow
-
-To test the system from scratch as a new user, follow this sequence:
-1.  **Signup**: Create a new account.
-2.  **Verify OTP**: Use the hardcoded `111111` (in Dev mode) to get your JWT token.
-3.  **Explore Products**: Search and filter the product catalog.
-4.  **Manage Addresses**: Add, Update, and View your delivery addresses.
-
----
-
-## 🔐 2. Authentication Module
-
-### A. User Signup (Step 1)
-Register a new mobile number into the system.
-- **Endpoint**: `POST /v1/auth/signup`
-- **Body**:
-```json
+[POST] /v1/auth/signup
+Description: Register a new user and send OTP.
+Request Body:
 {
-  "fullName": "Test User",
-  "mobile": "9998887776",
-  "email": "test@mindbrain.com"
+  "fullName": "Name",
+  "mobile": "10-digit number",
+  "email": "email@test.com"
 }
-```
 
-### B. Send OTP (Optional Step 1 alternative)
-Trigger an OTP for an existing user.
-- **Endpoint**: `POST /v1/auth/send-otp`
-- **Body**:
-```json
-{
-  "mobile": "9998887776"
-}
-```
+[POST] /v1/auth/send-otp
+Description: Send OTP to an existing registered mobile number.
+Request Body: { "mobile": "9876543210" }
 
-### C. Verify OTP (Final Onboarding Step)
-Verify the code and receive the `accessToken`.
-- **Endpoint**: `POST /v1/auth/verify-otp`
-- **Body**:
-```json
+[POST] /v1/auth/verify-otp
+Description: Verify OTP and login (Sets Http-Only session cookies).
+Request Body:
 {
-  "mobile": "9998887776",
+  "mobile": "9876543210",
   "otp": "111111"
 }
-```
-*Note: The response will contain a `data.tokens.accessToken`. Copy this for all protected calls.*
 
----
+[POST] /v1/auth/logout
+Description: Clear session and logout. (Requires Auth)
+Endpoint: `http://localhost:3000/v1/auth/logout`
 
-## 📦 3. Product & Catalog Module (Public)
 
-### A. List All Categories
-- **Endpoint**: `GET /v1/categories`
-- **Fuzzy Search**: `GET /v1/categories?q=ELECTORNICS` (Matches "Electronics")
+--------------------------------------------------
+2. USER PROFILE MODULE
+--------------------------------------------------
 
-### B. Product Listing & Search
-- **Get all products**: `GET /v1/product-register?limit=20`
-- **Search by Name**: `GET /v1/product-register/search?q=shirt`
-- **Filter by Collection**: `GET /v1/product-register?slugs=new-arrivals`
+[GET] /v1/profile/me
+Description: Fetch logged-in user details (Name, Email, Mobile, Profile Image). (Requires Auth)
+Endpoint: `http://localhost:3000/v1/profile/me`
 
-### C. Advanced Filtering
-- **Price Range**: `GET /v1/product-register?minPrice=500&maxPrice=5000`
-- **Minimum Rating**: `GET /v1/product-register?rating=4`
-- **Specific Category**: `GET /v1/product-register?categoryId=61`
-
-### D. Single Product Details
-- **Endpoint**: `GET /v1/product-register/:id` (e.g., `/v1/product-register/1`)
-
----
-
-## 🏠 4. User Address Module (Protected)
-*All headers below must include: `Authorization: Bearer <your_token>`*
-
-### A. Create New Address
-- **Endpoint**: `POST /v1/user-addresses`
-- **Body**:
-```json
+[PATCH] /v1/profile/me
+Description: Edit/Update profile name, email, or photo. (Requires Auth)
+Request Body:
 {
-  "address": "MindBrain HQ, Floor 9",
-  "townCity": "Bhubaneswar",
-  "pincode": "751024",
-  "receiversName": "Test User",
-  "receiversNumber": "9998887776",
-  "saveAs": "Work"
+  "fullName": "New Name",
+  "email": "new@email.com",
+  "profileImage": "https://example.com/photo.jpg"
 }
-```
-*Valid `saveAs` types: [Home, Work, Other]*
 
-### B. View My Addresses
-- **Endpoint**: `GET /v1/user-addresses/me`
 
-### C. Update Address
-- **Endpoint**: `PUT /v1/user-addresses/:id`
-- **Body**:
-```json
+--------------------------------------------------
+3. USER ADDRESS MODULE
+--------------------------------------------------
+
+[GET] /v1/user-addresses/me
+Description: List all saved addresses for the current user. (Requires Auth)
+Endpoint: `http://localhost:3000/v1/user-addresses/me`
+
+[POST] /v1/user-addresses
+Description: Add a new delivery address. (Requires Auth)
+Request Body:
 {
-  "address": "Updated Floor 10",
-  "saveAs": "Home"
+  "address": "Full Address String",
+  "townCity": "City Name",
+  "pincode": "654321",
+  "receiversName": "Person Name",
+  "receiversNumber": "9876543210",
+  "saveAs": "Home" // Home, Work, Other
 }
-```
 
-### D. Delete Address
-- **Endpoint**: `DELETE /v1/user-addresses/:id`
+[PUT] /v1/user-addresses/:id
+Description: Edit an existing address. (Requires Auth)
+Example: `http://localhost:3000/v1/user-addresses/15`
 
----
+[DELETE] /v1/user-addresses/:id
+Description: Delete an address. (Requires Auth)
+Example: `http://localhost:3000/v1/user-addresses/15`
 
-## 🧪 5. Latest Test Results (Feb 18, 2026)
 
-| Module | Test Case | Status | Notes |
-| :--- | :--- | :---: | :--- |
-| **Auth** | Signup + Send OTP | ✅ PASS | Created mobile `9998887776`. |
-| **Auth** | Verify (111111) | ✅ PASS | Token generated successfully. |
-| **Catalog**| Schema Load (77 Tables) | ✅ PASS | Verified via MySQL CLI. |
-| **User** | CRUD Address | ✅ PASS | Create, Read, Update, Delete verified. |
-| **System** | Health Check | ✅ PASS | Returns `{"ok":true}` |
+--------------------------------------------------
+4. CATEGORY MODULE
+--------------------------------------------------
 
----
-**Prepared for the BM2MALL Engineering Team.**
+[GET] /v1/categories
+Description: List all categories. Supports fuzzy search and pagination.
+Endpoints:
+- All: `http://localhost:3000/v1/categories`
+- Search: `http://localhost:3000/v1/categories?search=men`
+- Pagination: `http://localhost:3000/v1/categories?limit=10&cursor=5`
+
+[GET] /v1/categories/:id
+Description: Get details of a single category.
+Example: `http://localhost:3000/v1/categories/61`
+
+
+--------------------------------------------------
+5. PRODUCT REGISTER MODULE (CATALOG)
+--------------------------------------------------
+
+[GET] /v1/product-register
+Description: Main product listing with advanced filters.
+Special Query Parameters:
+- q: Search by Name
+- minPrice / maxPrice: Price filters
+- rating: Minimum rating (e.g., 4.5)
+- categoryId: Filter by category ID
+- slugs: "new-arrivals" for latest products
+- limit / cursor: For pagination
+
+Example (Combined): 
+`http://localhost:3000/v1/product-register?q=shirt&minPrice=100&rating=3&limit=5`
+
+[GET] /v1/product-register/search
+Description: Direct fuzzy search for products.
+Example: `http://localhost:3000/v1/product-register/search?q=shirt`
+
+[GET] /v1/product-register/:id
+Description: Full product details (Images, Pricing, Description).
+Example: `http://localhost:3000/v1/product-register/5001`
+
+
+--------------------------------------------------
+6. PRODUCT IMAGE MODULE
+--------------------------------------------------
+
+[GET] /v1/product-image-register
+Description: List all product images across catalog.
+
+[GET] /v1/product-image-register/product/:productId
+Description: Get all images belonging to a specific product.
+Example: `http://localhost:3000/v1/product-image-register/product/5001`
+
+[GET] /v1/product-image-register/:id
+Description: Get single image details by its record ID.
+
+
+--------------------------------------------------
+7. PRODUCT RATINGS MODULE
+--------------------------------------------------
+
+[GET] /v1/product-ratings
+Description: Global list of all ratings/reviews.
+
+[GET] /v1/product-ratings/product/:productId
+Description: All reviews for a specific product.
+
+[GET] /v1/product-ratings/product/:productId/stats
+Description: Rating stats (Average, total counts).
+
+[POST] /v1/product-ratings
+Description: Post a new review.
+Request Body: { "productId": 5001, "givenRatings": 5, "message": "Good!" }
+
+[PUT] /v1/product-ratings/:id
+Description: Edit a review.
+
+[DELETE] /v1/product-ratings/:id
+Description: Delete a review.
+
+
+--------------------------------------------------
+8. COUPON CODES MODULE
+--------------------------------------------------
+
+[GET] /v1/coupon-codes
+Description: List all available coupons.
+
+[GET] /v1/coupon-codes/search
+Description: Search for a specific coupon code by name.
+
+[POST] /v1/coupon-codes
+Description: Create a new coupon (Admin/Backend).
+
+[DELETE] /v1/coupon-codes/:id
+Description: Remove a coupon.
+
+
+--------------------------------------------------
+9. SYSTEM / UTILITY
+--------------------------------------------------
+
+[GET] /v1/health
+Description: Check if API server and Database are online.
+Endpoint: `http://localhost:3000/v1/health`
+
+
+--------------------------------------------------
+ERROR CODES FOR TESTERS
+--------------------------------------------------
+- ERR_AUTH: Login required/Session expired.
+- ERR_VALID: Request data invalid (e.g. bad email).
+- ERR_CONFLICT: Conflict (e.g. mobile already exists).
+- ERR_NOT_FOUND: Record not found.

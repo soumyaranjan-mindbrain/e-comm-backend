@@ -16,6 +16,15 @@ export const signupSchema = Joi.object({
     email: Joi.string().email().required().label("Email"),
 }).unknown().required();
 
+export const updateProfileSchema = Joi.object({
+    fullName: Joi.string().min(3).optional().label("Full Name"),
+    mobile: Joi.string().pattern(/^[0-9]{10}$/).optional().label("Mobile Number"),
+    email: Joi.string().email().optional().label("Email"),
+    profileImage: Joi.string().optional().allow("", null).label("Profile Image"),
+}).unknown().required();
+
+
+
 // --- Coupon Code Schemas ---
 export const createCouponCodeSchema = Joi.object({
     name: Joi.string().max(100).optional().allow("", null),

@@ -16,45 +16,47 @@ export default function errorHandler(
     return;
   }
 
+  // Handle Joi validation errors
   if (Joi.isError(error)) {
-    const validationError: ValidationError = {
-      error: {
-        message: "Validation error",
-        code: "ERR_VALID",
-        errors: error.details.map((item) => ({
-          message: item.message,
-        })),
-      },
-    };
-    res.status(422).json(validationError);
+    const fieldErrors: Record<string, string> = {};
+    error.details.forEach((detail) => {
+      const key = detail.path.join(".");
+      fieldErrors[key] = detail.message.replace(/['"]/g, "");
+    });
+
+    res.status(422).json({
+      success: false,
+      code: "ERR_VALIDATION",
+      msg: fieldErrors,
+    });
     return;
   }
 
+  // Handle Custom errors (AppError)
   if (error instanceof CustomError) {
     res.status(error.statusCode).json({
-      error: {
-        message: error.message,
-        code: error.code,
-      },
+      success: false,
+      code: error.code,
+      msg: error.message.toLowerCase(),
     });
     return;
   }
 
+  // Handle JWT Unauthorized errors
   if (error instanceof UnauthorizedError) {
     res.status(error.statusCode).json({
-      error: {
-        message: error.message,
-        code: "code" in error ? error.code : "ERR_AUTH",
-      },
+      success: false,
+      code: "code" in error ? (error.code as string) : "ERR_AUTH",
+      msg: error.message.toLowerCase(),
     });
     return;
   }
 
+  // Handle generic errors
   res.status(500).json({
-    error: {
-      message:
-        getErrorMessage(error) ||
-        "An error occurred. Please view logs for more details",
-    },
+    success: false,
+    code: "ERR_SERVER",
+    msg: (getErrorMessage(error) || "internal server error").toLowerCase(),
   });
 }
+

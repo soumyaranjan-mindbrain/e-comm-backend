@@ -8,6 +8,7 @@ import {
 export interface CursorPaginationResult<T> {
   data: T[];
   nextCursor: number | null;
+  totalCount: number;
 }
 
 export const getProductRegisterById = async (
@@ -30,27 +31,29 @@ export const getAllProductRegisters = async (
   cursor?: number
 ): Promise<CursorPaginationResult<any>> => {
   const take = limit + 1;
-
   const where: any = { isDisplay: x1_app_product_register_is_display.ONE };
 
-  const products = await prisma.productRegister.findMany({
-    where: cursor ? { ...where, id: { lt: cursor } } : where,
-    include: {
-      images: true,
-      stockItems: {
-        where: { status: caa1_shop_stock_item_db_status.ONE },
-        take: 1,
-      }
-    },
-    orderBy: { id: "desc" },
-    take,
-  });
+  const [products, totalCount] = await Promise.all([
+    prisma.productRegister.findMany({
+      where: cursor ? { ...where, id: { lt: cursor } } : where,
+      include: {
+        images: true,
+        stockItems: {
+          where: { status: caa1_shop_stock_item_db_status.ONE },
+          take: 1,
+        }
+      },
+      orderBy: { id: "desc" },
+      take,
+    }),
+    prisma.productRegister.count({ where })
+  ]);
 
   const hasMore = products.length > limit;
   const data = hasMore ? products.slice(0, limit) : products;
   const nextCursor = hasMore && data.length > 0 ? data[data.length - 1].id : null;
 
-  return { data, nextCursor };
+  return { data, nextCursor, totalCount };
 };
 
 export const getFilteredProducts = async (
@@ -98,24 +101,27 @@ export const getFilteredProducts = async (
     where.ratings = { gte: filters.rating };
   }
 
-  const products = await prisma.productRegister.findMany({
-    where: cursor ? { ...where, id: { lt: cursor } } : where,
-    include: {
-      images: true,
-      stockItems: {
-        where: { status: caa1_shop_stock_item_db_status.ONE },
-        take: 1,
-      }
-    },
-    orderBy: { id: "desc" },
-    take,
-  });
+  const [products, totalCount] = await Promise.all([
+    prisma.productRegister.findMany({
+      where: cursor ? { ...where, id: { lt: cursor } } : where,
+      include: {
+        images: true,
+        stockItems: {
+          where: { status: caa1_shop_stock_item_db_status.ONE },
+          take: 1,
+        }
+      },
+      orderBy: { id: "desc" },
+      take,
+    }),
+    prisma.productRegister.count({ where })
+  ]);
 
   const hasMore = products.length > limit;
   const data = hasMore ? products.slice(0, limit) : products;
   const nextCursor = hasMore && data.length > 0 ? data[data.length - 1].id : null;
 
-  return { data, nextCursor };
+  return { data, nextCursor, totalCount };
 };
 
 export const getNewArrivals = async (
@@ -123,26 +129,29 @@ export const getNewArrivals = async (
   cursor?: number
 ): Promise<CursorPaginationResult<any>> => {
   const take = limit + 1;
-
   const where = { isDisplay: x1_app_product_register_is_display.ONE };
-  const products = await prisma.productRegister.findMany({
-    where: cursor ? { ...where, id: { lt: cursor } } : where,
-    include: {
-      images: true,
-      stockItems: {
-        where: { status: caa1_shop_stock_item_db_status.ONE },
-        take: 1,
-      }
-    },
-    orderBy: { createdAt: "desc" },
-    take,
-  });
+
+  const [products, totalCount] = await Promise.all([
+    prisma.productRegister.findMany({
+      where: cursor ? { ...where, id: { lt: cursor } } : where,
+      include: {
+        images: true,
+        stockItems: {
+          where: { status: caa1_shop_stock_item_db_status.ONE },
+          take: 1,
+        }
+      },
+      orderBy: { createdAt: "desc" },
+      take,
+    }),
+    prisma.productRegister.count({ where })
+  ]);
 
   const hasMore = products.length > limit;
   const data = hasMore ? products.slice(0, limit) : products;
   const nextCursor = hasMore && data.length > 0 ? data[data.length - 1].id : null;
 
-  return { data, nextCursor };
+  return { data, nextCursor, totalCount };
 };
 
 export const getProductRegistersByDisplaySection = async (
@@ -151,30 +160,34 @@ export const getProductRegistersByDisplaySection = async (
   cursor?: number
 ): Promise<CursorPaginationResult<any>> => {
   const take = limit + 1;
-
   const where = {
     isDisplay: x1_app_product_register_is_display.ONE,
     displaySection: displaySection,
   };
-  const products = await prisma.productRegister.findMany({
-    where: cursor ? { ...where, id: { lt: cursor } } : where,
-    include: {
-      images: true,
-      stockItems: {
-        where: { status: caa1_shop_stock_item_db_status.ONE },
-        take: 1,
-      }
-    },
-    orderBy: { id: "desc" },
-    take,
-  });
+
+  const [products, totalCount] = await Promise.all([
+    prisma.productRegister.findMany({
+      where: cursor ? { ...where, id: { lt: cursor } } : where,
+      include: {
+        images: true,
+        stockItems: {
+          where: { status: caa1_shop_stock_item_db_status.ONE },
+          take: 1,
+        }
+      },
+      orderBy: { id: "desc" },
+      take,
+    }),
+    prisma.productRegister.count({ where })
+  ]);
 
   const hasMore = products.length > limit;
   const data = hasMore ? products.slice(0, limit) : products;
   const nextCursor = hasMore && data.length > 0 ? data[data.length - 1].id : null;
 
-  return { data, nextCursor };
+  return { data, nextCursor, totalCount };
 };
+
 
 export const searchProductRegistersByName = async (
   searchTerm: string,

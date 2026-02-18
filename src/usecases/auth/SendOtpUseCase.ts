@@ -9,23 +9,23 @@ export class SendOtpUseCase {
 
     async execute(mobile: string): Promise<{ success: boolean; message: string }> {
         if (!mobile) {
-            throw AppError.badRequest("Mobile number is required");
+            throw AppError.badRequest("mobile number is required");
         }
 
         // Check if user exists (Sushree's logic: signup required)
         const customer = await this.customerRepository.findByMobile(mobile);
 
         if (!customer) {
-            throw AppError.notFound("Mobile number not registered. Please signup first.");
+            throw AppError.notFound("mobile number not registered. please signup first.");
         }
 
         // Check for active OTP (Rate limiting)
         if (customer.otpValidUpto && customer.otpValidUpto > new Date()) {
-            throw AppError.tooManyRequests("OTP already sent. Please wait before requesting again.");
+            throw AppError.tooManyRequests("otp already sent. please wait before requesting again.");
         }
 
         // Generate OTP
-        const otp = config.env === "development" ? "111111" : generateOtp();
+        const otp = (config.env === "development" || config.env === "dev") ? "111111" : generateOtp();
 
         // Hash OTP before storing
         const hashedOtp = await hashOtp(otp);
@@ -52,7 +52,8 @@ export class SendOtpUseCase {
 
         return {
             success: true,
-            message: "OTP sent successfully",
+            message: "otp sent successfully",
         };
     }
+
 }

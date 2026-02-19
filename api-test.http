@@ -1,84 +1,143 @@
 @baseUrl = http://localhost:3000/v1
 @token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTQsIm1vYmlsZSI6Ijk4NzY1NDMyMTAiLCJpYXQiOjE3NzEzMTc3MzEsImV4cCI6MTc3MTMxODYzMX0.6tMezwX8Cd-HR0sS9sTh_6My5iEep6xy7kEMBs1gmxw
 
-# 1. AUTHENTICATION
-### Send OTP
+### [HEALTH] System Status
+GET {{baseUrl}}/health
+
+
+# ==============================================================================
+# 1. AUTHENTICATION & PROFILE
+# ==============================================================================
+
+### Signup User
+POST {{baseUrl}}/auth/signup
+Content-Type: application/json
+
+{
+  "fullName": "Test User",
+  "mobile": "1546598563",
+  "email": "testuser@example.com"
+}
+
+### Send OTP (Login)
 POST {{baseUrl}}/auth/send-otp
 Content-Type: application/json
 
 { "mobile": "9876543210" }
 
-### Verify OTP
+### Verify OTP (Get Access)
 POST {{baseUrl}}/auth/verify-otp
 Content-Type: application/json
 
-{ "mobile": "9876543210", "otp": "111111" }
+{
+  "mobile": "9876543210",
+  "otp": "111111"
+}
+
+### Get My Profile
+GET {{baseUrl}}/profile/me
+Authorization: Bearer {{token}}
+
+### Update Profile
+PATCH {{baseUrl}}/profile/me
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "fullName": "Updated Professional Name",
+  "email": "updated@example.com"
+}
+
+### Logout
+POST {{baseUrl}}/auth/logout
+Authorization: Bearer {{token}}
 
 
-# 2. USER ADDRESSES (Protected)
-### Get my addresses
+# ==============================================================================
+# 2. PRODUCT CATALOG (SHOP)
+# ==============================================================================
+
+### List All Products (Paginated)
+GET {{baseUrl}}/products?limit=20
+
+### [IMPROVED] Search Products by Name
+GET {{baseUrl}}/products?q=Chicken
+
+### [IMPROVED] Filter by Price Range
+GET {{baseUrl}}/products?minPrice=300&maxPrice=1500
+
+### [IMPROVED] Filter by Category
+GET {{baseUrl}}/products?categoryId=61
+
+### [NEW] Get Single Product Details (Variants & Related)
+# Includes detailed stock, sizes, colors, and related items
+GET {{baseUrl}}/products/3
+
+### [NEW] Get New Arrivals
+GET {{baseUrl}}/products?slugs=new-arrivals
+
+
+# ==============================================================================
+# 3. CATEGORIES
+# ==============================================================================
+
+### List All Categories
+GET {{baseUrl}}/categories
+
+### Get Category Details
+GET {{baseUrl}}/categories/61
+
+
+# ==============================================================================
+# 4. CUSTOMER DATA (PROTECTED)
+# ==============================================================================
+
+### Get Saved Addresses
 GET {{baseUrl}}/user-addresses/me
 Authorization: Bearer {{token}}
 
-### Create new address
+### Add New Address
 POST {{baseUrl}}/user-addresses
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "address": "Flat 402, Sunshine Apartments, MG Road",
-  "townCity": "Bangalore",
-  "pincode": "560001",
-  "receiversName": "Rahul Sharma",
-  "receiversNumber": "9988776655",
-  "saveAs": "Home"
+  "address": "123 Business Park, Sector 62",
+  "townCity": "Noida",
+  "pincode": "201301",
+  "receiversName": "Office Admin",
+  "receiversNumber": "9876543210",
+  "saveAs": "Work"
 }
 
-### Get address by ID
-GET {{baseUrl}}/user-addresses/11
-Authorization: Bearer {{token}}
-
-### Update address
-PUT {{baseUrl}}/user-addresses/11
+### Update Address
+PUT {{baseUrl}}/user-addresses/2
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
-{ "saveAs": "Work" }
+{ "saveAs": "Home" }
 
-### Delete address
-DELETE {{baseUrl}}/user-addresses/11
+
+# ==============================================================================
+# 5. OFFERS & RATINGS
+# ==============================================================================
+
+### List Available Coupons
+GET {{baseUrl}}/coupon-codes
+
+### Search Coupon
+GET {{baseUrl}}/coupon-codes/search?name=SAVE10
+
+### Get Product Reviews
+GET {{baseUrl}}/product-ratings/product/3
+
+### Post a Review
+POST {{baseUrl}}/product-ratings
 Authorization: Bearer {{token}}
+Content-Type: application/json
 
-
-# 3. CATEGORIES
-### List all active categories
-GET {{baseUrl}}/categories
-
-### Fuzzy and partial search
-GET {{baseUrl}}/categories?q=ELECTORNICS
-
-
-# 4. PRODUCT LIST & FILTERS
-### Get all products
-GET {{baseUrl}}/product-register?limit=20
-
-### Get products by collection slug
-GET {{baseUrl}}/product-register?slugs=new-arrivals
-
-### Search products by name
-GET {{baseUrl}}/product-register/search?q=shirt
-
-### Filter by min and max price
-GET {{baseUrl}}/product-register?minPrice=500&maxPrice=5000
-
-### Filter by minimum rating
-GET {{baseUrl}}/product-register?rating=4
-
-### Filter by category ID
-GET {{baseUrl}}/product-register?categoryId=61
-
-### Combined filter search
-GET {{baseUrl}}/product-register?q=shirt&minPrice=100&rating=3
-
-### Get single product details
-GET {{baseUrl}}/product-register/1
+{
+  "productId": 3,
+  "givenRatings": 5,
+  "message": "Excellent quality and fast delivery!"
+}

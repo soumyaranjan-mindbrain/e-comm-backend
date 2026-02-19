@@ -20,9 +20,36 @@ export const getProductRegisterById = async (
       images: true,
       stockItems: {
         where: { status: caa1_shop_stock_item_db_status.ONE },
-        take: 1,
       },
     },
+  });
+};
+
+export const getRelatedProducts = async (
+  currentProductId: number,
+  categoryId?: number,
+  limit: number = 10
+): Promise<any[]> => {
+  return prisma.productRegister.findMany({
+    where: {
+      id: { not: currentProductId },
+      isDisplay: x1_app_product_register_is_display.ONE,
+      stockItems: categoryId ? {
+        some: {
+          catId: categoryId,
+          status: caa1_shop_stock_item_db_status.ONE
+        }
+      } : undefined
+    },
+    include: {
+      images: true,
+      stockItems: {
+        where: { status: caa1_shop_stock_item_db_status.ONE },
+        take: 1
+      }
+    },
+    take: limit,
+    orderBy: { createdAt: "desc" }
   });
 };
 

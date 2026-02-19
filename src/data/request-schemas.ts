@@ -132,6 +132,7 @@ export const updateProductRatingSchema = Joi.object({
 
 export const productFilterSchema = Joi.object({
     q: Joi.string().optional().allow("", null),
+    slugs: Joi.string().optional().allow("", null),
     minPrice: Joi.number().min(0).optional(),
     maxPrice: Joi.number().min(0).optional(),
     rating: Joi.number().min(1).max(5).optional(),

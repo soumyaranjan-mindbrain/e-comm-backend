@@ -3,6 +3,7 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 COPY . .
 RUN npm install
+RUN npx prisma generate
 RUN npm run build
 
 FROM node:22-alpine AS installer

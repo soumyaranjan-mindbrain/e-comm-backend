@@ -92,13 +92,14 @@ export const getOne = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const product = await productUseCase.getProductRegisterById(
+    const result = await productUseCase.getProductDetail(
       parseInt(req.params.id)
     );
 
     res.status(200).json({
       success: true,
-      data: product,
+      data: result.product,
+      relatedProducts: result.relatedProducts
     });
   } catch (error) {
     next(error);

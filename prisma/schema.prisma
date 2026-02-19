@@ -35,13 +35,10 @@ model Customer {
   updateUser   String?                 @map("update_user") @db.VarChar(120)
   otp          String?                 @db.VarChar(255)
   otpValidUpto DateTime?               @map("otp_valid_upto") @db.DateTime(0)
+  indate       DateTime?               @default(now()) @db.DateTime(0)
   refreshToken String?                 @map("refresh_token") @db.VarChar(255)
   profileImage String?                 @map("profile_image") @db.VarChar(255)
-  indate       DateTime?               @default(now()) @db.DateTime(0)
-
-  
-  addresses UserAddress[]
-  ratings   ProductRating[]
+  addresses    UserAddress[]
 
   @@index([id, custType, partyCode, fullName, alias, state], map: "id")
   @@map("aa13_customer_db")
@@ -87,7 +84,6 @@ model ProductRegister {
   ratings        Decimal?                            @db.Decimal(2, 1)
   createdAt      DateTime?                           @default(now()) @map("created_at") @db.Timestamp(0)
   updatedAt      DateTime?                           @updatedAt @map("updated_at") @db.DateTime(0)
-  
   images         ProductImageRegister[]
   stockItems     ShopStockItem[]
 
@@ -101,9 +97,9 @@ model ProductImageRegister {
   status     x2_app_product_img_register_status? @default(ONE)
   created_at DateTime?                           @default(now()) @db.Timestamp(0)
   updated_at DateTime?                           @db.DateTime(0)
-
   product    ProductRegister?                    @relation(fields: [productId], references: [productId])
 
+  @@index([productId], map: "x2_app_product_img_register_product_id_fkey")
   @@map("x2_app_product_img_register")
 }
 
@@ -117,8 +113,6 @@ model ProductRating {
   updatedAt    DateTime? @updatedAt @map("updated_at") @db.DateTime(0)
   createdBy    Int?      @map("created_by")
   updatedBy    Int?      @map("updated_by")
-
-  customer     Customer? @relation(fields: [createdBy], references: [id])
 
   @@map("x3_app_product_ratings")
 }
@@ -136,7 +130,6 @@ model UserAddress {
   updatedAt       DateTime? @updatedAt @map("updated_at") @db.DateTime(0)
   createdBy       Int?      @map("created_by")
   updatedBy       Int?      @map("updated_by")
-
   customer        Customer? @relation(fields: [userId], references: [id])
 
   @@map("x4_app_user_addresses")
@@ -189,7 +182,6 @@ model ShopStockItem {
   insert_user         String?                        @db.VarChar(120)
   update_date         String?                        @db.VarChar(40)
   update_user         String?                        @db.VarChar(120)
-
   product             ProductRegister?               @relation(fields: [itemId], references: [productId])
 
   @@index([barCode], map: "bar_code")

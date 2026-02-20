@@ -1,5 +1,5 @@
 import { Router } from "express";
-import * as profileController from "../../../controllers/ProfileController";
+import * as profileController from "../../../controllers/profile/ProfileController";
 import validateRequest from "../../../middleware/validate-request";
 import authenticateUser from "../../../middleware/authenticate-user";
 import { updateProfileSchema } from "../../../data/request-schemas";
@@ -31,13 +31,13 @@ router.get("/me", profileController.getProfile);
  *   patch:
  *     tags:
  *       - Profile
- *     summary: Update current user profile
+ *     summary: Update current user profile (Details + Optional Photo)
  *     security:
  *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
@@ -47,34 +47,18 @@ router.get("/me", profileController.getProfile);
  *                 type: string
  *               mobile:
  *                 type: string
- *     responses:
- *       200:
- *         description: Profile updated successfully
- */
-router.patch("/me", validateRequest(updateProfileSchema), profileController.updateProfile);
-
-/**
- * @openapi
- * /v1/profile/upload-photo:
- *   post:
- *     tags:
- *       - Profile
- *     summary: Upload profile photo to Cloudinary
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       content:
- *         multipart/form-data:
- *           schema:
- *             type: object
- *             properties:
- *               photo:
+ *               profileImage:
  *                 type: string
  *                 format: binary
  *     responses:
  *       200:
- *         description: Photo uploaded successfully
+ *         description: Profile updated successfully
  */
-router.post("/upload-photo", upload.single("photo"), profileController.uploadPhoto);
+router.patch(
+  "/me",
+  upload.single("profileImage"),
+  validateRequest(updateProfileSchema),
+  profileController.updateProfile,
+);
 
 export default router;

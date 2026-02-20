@@ -1,5 +1,5 @@
 import express from "express";
-import * as productController from "../../../controllers/ProductController";
+import * as productController from "../../../controllers/products/ProductController";
 import validateRequest from "../../../middleware/validate-request";
 import { productFilterSchema } from "../../../data/request-schemas";
 
@@ -42,7 +42,11 @@ router.get("/search", productController.searchProducts);
  *       200:
  *         description: List of products matching filters
  */
-router.get("/", validateRequest(productFilterSchema, "query"), productController.getAll);
+router.get(
+  "/",
+  validateRequest(productFilterSchema, "query"),
+  productController.getAll,
+);
 
 /**
  * @openapi

@@ -22,7 +22,7 @@ async function fixAddToWebsite() {
     `);
 
     console.log(
-      `Fixed ${convertResult} add_to_website values (converted strings to integers)`
+      `Fixed ${convertResult} add_to_website values (converted strings to integers)`,
     );
 
     // Step 2: Set NULL/empty values to default value of 1 (matching Prisma schema default)
@@ -41,7 +41,7 @@ async function fixAddToWebsite() {
     `);
 
     console.log(
-      "✅ add_to_website column type verified/updated to INT NULL DEFAULT 1"
+      "✅ add_to_website column type verified/updated to INT NULL DEFAULT 1",
     );
 
     // Verify the fix

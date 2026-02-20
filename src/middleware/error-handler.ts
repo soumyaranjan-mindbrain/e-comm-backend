@@ -59,4 +59,3 @@ export default function errorHandler(
     msg: (getErrorMessage(error) || "internal server error").toLowerCase(),
   });
 }
-

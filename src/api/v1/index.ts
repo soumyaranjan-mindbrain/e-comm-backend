@@ -9,6 +9,7 @@ import productImageRegisterRouter from "./product-image-registers";
 import productRatingRouter from "./product-ratings";
 import userAddressRouter from "./user-addresses";
 import couponCodeRouter from "./coupon-codes";
+import cartRouter from "./cart";
 
 const v1: Router = express.Router();
 
@@ -22,6 +23,6 @@ v1.use("/product-image-register", productImageRegisterRouter);
 v1.use("/product-ratings", productRatingRouter);
 v1.use("/user-addresses", userAddressRouter);
 v1.use("/coupon-codes", couponCodeRouter);
-
+v1.use("/cart", cartRouter);
 
 export default v1;

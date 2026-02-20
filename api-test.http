@@ -15,7 +15,7 @@ Content-Type: application/json
 
 {
   "fullName": "Test User",
-  "mobile": "1546598563",
+  "mobile": "1546518863",
   "email": "testuser@example.com"
 }
 
@@ -23,22 +23,27 @@ Content-Type: application/json
 POST {{baseUrl}}/auth/send-otp
 Content-Type: application/json
 
-{ "mobile": "9876543210" }
+{ "mobile": "1546518863" }
 
 ### Verify OTP (Get Access)
 POST {{baseUrl}}/auth/verify-otp
 Content-Type: application/json
 
 {
-  "mobile": "9876543210",
+  "mobile": "1546518863",
   "otp": "111111"
 }
+
+### Refresh Access Token 
+POST {{baseUrl}}/auth/refresh-token
+Content-Type: application/json
 
 ### Get My Profile
 GET {{baseUrl}}/profile/me
 Authorization: Bearer {{token}}
 
-### Update Profile
+### Update Profile (Combined: Details & Photo)
+# Note: In REST Client, multipart/form-data is tricky. This is for reference.
 PATCH {{baseUrl}}/profile/me
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -71,7 +76,7 @@ GET {{baseUrl}}/products?categoryId=61
 
 ### [NEW] Get Single Product Details (Variants & Related)
 # Includes detailed stock, sizes, colors, and related items
-GET {{baseUrl}}/products/3
+GET {{baseUrl}}/products/16
 
 ### [NEW] Get New Arrivals
 GET {{baseUrl}}/products?slugs=new-arrivals
@@ -85,7 +90,7 @@ GET {{baseUrl}}/products?slugs=new-arrivals
 GET {{baseUrl}}/categories
 
 ### Get Category Details
-GET {{baseUrl}}/categories/61
+GET {{baseUrl}}/categories/62
 
 
 # ==============================================================================
@@ -141,3 +146,41 @@ Content-Type: application/json
   "givenRatings": 5,
   "message": "Excellent quality and fast delivery!"
 }
+
+
+# ==============================================================================
+# 6. CART OPERATIONS (PROTECTED)
+# ==============================================================================
+
+### Get My Cart
+GET {{baseUrl}}/cart
+Authorization: Bearer {{token}}
+
+### Add Item to Cart
+# Use a valid ItemId (stock item id)
+POST {{baseUrl}}/cart
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "ItemId": 16,
+  "quantity": 2
+}
+
+### Update Cart Quantity
+# Use ItemId in the URL
+PUT {{baseUrl}}/cart/16
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "quantity": 5
+}
+
+### Remove Item from Cart
+DELETE {{baseUrl}}/cart/16
+Authorization: Bearer {{token}}
+
+### Clear Entire Cart
+DELETE {{baseUrl}}/cart/clear/all
+Authorization: Bearer {{token}}

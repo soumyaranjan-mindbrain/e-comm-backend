@@ -1,7 +1,10 @@
 import express from "express";
-import * as productRatingController from "../../../controllers/ProductRatingController";
+import * as productRatingController from "../../../controllers/product-ratings/ProductRatingController";
 import validateRequest from "../../../middleware/validate-request";
-import { createProductRatingSchema, updateProductRatingSchema } from "../../../data/request-schemas";
+import {
+  createProductRatingSchema,
+  updateProductRatingSchema,
+} from "../../../data/request-schemas";
 
 const router = express.Router();
 
@@ -19,16 +22,16 @@ router.get("/:id", productRatingController.getOne);
 
 // Create a new product rating
 router.post(
-    "/",
-    validateRequest(createProductRatingSchema),
-    productRatingController.create
+  "/",
+  validateRequest(createProductRatingSchema),
+  productRatingController.create,
 );
 
 // Update a product rating
 router.put(
-    "/:id",
-    validateRequest(updateProductRatingSchema),
-    productRatingController.update
+  "/:id",
+  validateRequest(updateProductRatingSchema),
+  productRatingController.update,
 );
 
 // Delete a product rating

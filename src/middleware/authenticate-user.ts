@@ -9,6 +9,8 @@ export interface AuthRequest extends Request {
     username?: string;
     mobile?: string;
   };
+  file?: any;
+  files?: any;
 }
 
 const authenticateUser = (req: Request, res: Response, next: NextFunction) => {
@@ -28,7 +30,6 @@ const authenticateUser = (req: Request, res: Response, next: NextFunction) => {
     );
   }
 
-
   try {
     const decoded = jwt.verify(token, config.jwtAccessSecret) as {
       id: number;
@@ -40,7 +41,6 @@ const authenticateUser = (req: Request, res: Response, next: NextFunction) => {
   } catch (error) {
     next(AppError.unauthorized("session expired or invalid token"));
   }
-
 };
 
 export default authenticateUser;

@@ -6,7 +6,7 @@ import {
   aa13_customer_db_status,
   x1_app_product_register_is_display,
   caa1_shop_stock_item_db_status,
-  x2_app_product_img_register_status
+  x2_app_product_img_register_status,
 } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -85,7 +85,11 @@ async function main() {
         productName: faker.commerce.productName(),
         productId: uniqueProductId,
         shdesc: faker.commerce.productDescription(),
-        displaySection: faker.helpers.arrayElement(["Fashion", "Trending", "Featured"]),
+        displaySection: faker.helpers.arrayElement([
+          "Fashion",
+          "Trending",
+          "Featured",
+        ]),
         isDisplay: x1_app_product_register_is_display.ONE,
         ratings: 4.5,
       },

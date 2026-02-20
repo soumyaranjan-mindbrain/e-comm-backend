@@ -1,79 +1,85 @@
-import { CustomerRepository } from "../../data/repositories/CustomerRepository";
+import { CustomerRepository } from "../../data/repositories/auth/CustomerRepository";
 import AppError from "../../errors/AppError";
 import jwt from "jsonwebtoken";
 import config from "../../config";
 import { compareOtp } from "../../util/crypto";
 
 export class VerifyOtpUseCase {
-    constructor(private customerRepository: CustomerRepository) { }
+  constructor(private customerRepository: CustomerRepository) {}
 
-    async execute(
-        mobile: string,
-        otpInput: string,
-    ): Promise<{
-        user: { id: number; mobile: string; name: string };
-        tokens: { accessToken: string; refreshToken: string };
-    }> {
-        if (!mobile || !otpInput) {
-            throw AppError.badRequest("mobile number and otp are required");
-        }
-
-        const customer = await this.customerRepository.findByMobile(mobile);
-
-        if (!customer) {
-            throw AppError.notFound("user not found");
-        }
-
-        if (!customer.otp || !customer.otpValidUpto) {
-            throw AppError.badRequest("otp not generated");
-        }
-
-        if (new Date() > customer.otpValidUpto) {
-            throw AppError.badRequest("otp has expired");
-        }
-
-        // Validate OTP (Hashing support)
-        let isValidOtp = false;
-        if ((config.env === "development" || config.env === "dev") && otpInput === "111111") {
-            isValidOtp = true;
-        } else {
-            isValidOtp = await compareOtp(otpInput, customer.otp);
-        }
-
-        if (!isValidOtp) {
-            throw AppError.badRequest("invalid otp");
-        }
-
-
-        // Clear OTP immediately after successful verification
-        await this.customerRepository.updateOtp(customer.id, null, null);
-
-        const accessToken = this.generateAccessToken(customer.id, customer.contactNo ?? "");
-        const refreshToken = this.generateRefreshToken(customer.id);
-
-        // Save refresh token to database
-        await this.customerRepository.saveRefreshToken(customer.id, refreshToken);
-
-        return {
-            user: {
-                id: customer.id,
-                mobile: customer.contactNo ?? "",
-                name: customer.fullName ?? "",
-            },
-            tokens: {
-                accessToken,
-                refreshToken,
-            },
-        };
+  async execute(
+    mobileInput: string,
+    otpInput: string,
+  ): Promise<{
+    user: { id: number; mobile: string; name: string };
+    tokens: { accessToken: string; refreshToken: string };
+  }> {
+    const mobile = mobileInput?.trim();
+    if (!mobile || !otpInput) {
+      throw AppError.badRequest("mobile number and otp are required");
     }
 
-    private generateAccessToken(id: number, mobile: string): string {
-        return jwt.sign({ id, mobile }, config.jwtAccessSecret, {
-            expiresIn: "15m",
-        });
+    const customer = await this.customerRepository.findByMobile(mobile);
+
+    if (!customer) {
+      throw AppError.notFound("user not found");
     }
 
-    private generateRefreshToken(id: number): string {
-        return jwt.sign({ id }, config.jwtRefreshSecret, { expiresIn: "7d" });
+    if (!customer.otp || !customer.otpValidUpto) {
+      throw AppError.badRequest("otp not generated");
     }
+
+    if (new Date() > customer.otpValidUpto) {
+      throw AppError.badRequest("otp has expired");
+    }
+
+    // Validate OTP (Hashing support)
+    let isValidOtp = false;
+    if (
+      (config.env === "development" || config.env === "dev") &&
+      otpInput === "111111"
+    ) {
+      isValidOtp = true;
+    } else {
+      isValidOtp = await compareOtp(otpInput, customer.otp);
+    }
+
+    if (!isValidOtp) {
+      throw AppError.badRequest("invalid otp");
+    }
+
+    // Clear OTP immediately after successful verification
+    await this.customerRepository.updateOtp(customer.id, null, null);
+
+    const accessToken = this.generateAccessToken(
+      customer.id,
+      customer.contactNo ?? "",
+    );
+    const refreshToken = this.generateRefreshToken(customer.id);
+
+    // Save refresh token to database
+    await this.customerRepository.saveRefreshToken(customer.id, refreshToken);
+
+    return { 
+      user: {
+        id: customer.id,
+        mobile: customer.contactNo ?? "",
+        name: customer.fullName ?? "",
+      },
+      tokens: {
+        accessToken,
+        refreshToken,
+      },
+    };
+  }
+
+  private generateAccessToken(id: number, mobile: string): string {
+    return jwt.sign({ id, mobile }, config.jwtAccessSecret, {
+      expiresIn: "15m",
+    });
+  }
+
+  private generateRefreshToken(id: number): string {
+    return jwt.sign({ id }, config.jwtRefreshSecret, { expiresIn: "7d" });
+  }
 }

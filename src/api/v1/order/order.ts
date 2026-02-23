@@ -7,7 +7,11 @@ import {
   cancelOrderController,
 } from "../../../controllers/order/OrderController";
 
+import authenticateUser from "../../../middleware/authenticate-user";
+
 const router = Router();
+
+router.use(authenticateUser);
 
 router.post("/", createOrderController);
 router.get("/:orderId", getOrderController);

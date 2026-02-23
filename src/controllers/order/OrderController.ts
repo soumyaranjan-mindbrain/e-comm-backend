@@ -17,7 +17,17 @@ export const createOrderController = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const orderData = req.body;
+    const user = (req as any).user;
+    if (!user || user.comId === undefined) {
+      res.status(401).json({ message: "Authentication required or missing comId" });
+      return;
+    }
+
+    const orderData = {
+      ...req.body,
+      comId: user.comId
+    };
+
     const result = await createOrderUseCase(orderData);
     res.status(201).json(result);
   } catch (err: any) {

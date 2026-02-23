@@ -469,11 +469,79 @@ Authorization: Bearer {{token}}
 # ✏️  ENSURE: @token is set
 # No body needed. Removes ALL items from cart.
 # ─────────────────────────────────────────────
+# ─────────────────────────────────────────────
 DELETE {{baseUrl}}/cart/clear/all
 Authorization: Bearer {{token}}
 
-# ✅ EXPECTED RESPONSE (200 OK):
-# {
-#   "success": true,
-#   "message": "Cart cleared successfully"
-# }
+###
+
+
+### ════════════════════════════════════════════
+### 6. ORDERS
+### ════════════════════════════════════════════
+
+@orderId = e73b7504-5507-4d30-a38a-ae9faf3d74de
+
+### 6.1 Create Order
+# ✏️  ENSURE: @token is set
+# ✏️  EDIT: Change total_amount and items to match your cart/needs
+# ─────────────────────────────────────────────
+POST {{baseUrl}}/orders
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "payment_mode": "COD",
+  "total_amount": 1500,
+  "items": [
+    {
+      "productId": 5014,
+      "qnty": 2,
+      "rate": 750,
+      "net_amount": 1500
+    }
+  ]
+}
+
+# ✅ EXPECTED RESPONSE (201 Created):
+# Copy the order_id from response into @orderId above
+
+
+### 6.2 Get Order Details
+# ✏️  ENSURE: @token and @orderId are set
+# ─────────────────────────────────────────────
+GET {{baseUrl}}/orders/{{orderId}}
+Authorization: Bearer {{token}}
+
+
+### 6.3 Track Order (Status History)
+# ✏️  ENSURE: @token and @orderId are set
+# ─────────────────────────────────────────────
+GET {{baseUrl}}/orders/{{orderId}}/track
+Authorization: Bearer {{token}}
+
+
+### 6.4 Update Order Status
+# ✏️  ENSURE: @token and @orderId are set
+# ✏️  EDIT: Valid statuses: "PENDING", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED"
+# ─────────────────────────────────────────────
+PATCH {{baseUrl}}/orders/{{orderId}}/status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "CONFIRMED",
+  "updated_by": 1
+}
+
+
+### 6.5 Cancel Order
+# ✏️  ENSURE: @token and @orderId are set
+# ─────────────────────────────────────────────
+PATCH {{baseUrl}}/orders/{{orderId}}/cancel
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "updated_by": 1
+}

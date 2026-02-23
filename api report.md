@@ -572,9 +572,124 @@ Authorization: Bearer <token>
 
 No body needed.
 
+---
+
+## Orders
+
+All order routes need `Authorization: Bearer <token>`.
+
+### Create Order
+
+```
+POST /v1/orders
+Authorization: Bearer <token>
+```
+
+```json
+{
+  "payment_mode": "COD",
+  "total_amount": 1500,
+  "items": [
+    {
+      "productId": 5014,
+      "qnty": 2,
+      "rate": 750,
+      "net_amount": 1500
+    }
+  ]
+}
+```
+
+Success response:
+
 ```json
 {
   "success": true,
-  "message": "Cart cleared successfully"
+  "msg": "order placed successfully",
+  "data": {
+    "message": "Order Created Successfully",
+    "order_id": "e73b7504-5507-4d30-a38a-ae9faf3d74de",
+    "order": {
+      "id": 2,
+      "order_id": "e73b7504-5507-4d30-a38a-ae9faf3d74de",
+      "comId": 100,
+      "total_amount": "1500",
+      ...
+    }
+  }
+}
+```
+
+---
+
+### Track Order (Status History)
+
+```
+GET /v1/orders/e73b7504-5507-4d30-a38a-ae9faf3d74de/track
+Authorization: Bearer <token>
+```
+
+Success:
+
+```json
+{
+  "success": true,
+  "msg": "order tracking history fetched",
+  "data": [
+    {
+      "order_id": "e73b7504-5507-4d30-a38a-ae9faf3d74de",
+      "order_status": "PENDING",
+      "created_at": "2026-02-23T12:23:50.000Z"
+    },
+    {
+      "order_id": "e73b7504-5507-4d30-a38a-ae9faf3d74de",
+      "order_status": "CONFIRMED",
+      "created_at": "2026-02-23T12:24:05.000Z"
+    }
+  ]
+}
+```
+
+---
+
+### Get Order Details
+
+```
+GET /v1/orders/e73b7504-5507-4d30-a38a-ae9faf3d74de
+Authorization: Bearer <token>
+```
+
+Success includes items and current status:
+
+```json
+{
+  "success": true,
+  "msg": "order fetched successfully",
+  "data": {
+    "order_id": "e73b7504-5507-4d30-a38a-ae9faf3d74de",
+    "total_amount": "1500",
+    "payment_mode": "COD",
+    "orderDetails": [...],
+    "orderStatus": [...]
+  }
+}
+```
+
+---
+
+### Cancel Order
+
+```
+PATCH /v1/orders/e73b7504-5507-4d30-a38a-ae9faf3d74de/cancel
+Authorization: Bearer <token>
+```
+
+Success:
+
+```json
+{
+  "success": true,
+  "msg": "order cancelled successfully",
+  "data": { ... }
 }
 ```

@@ -23,6 +23,15 @@ async function main() {
   console.log("🌱 Starting Database Seeding (Office Schema - Enums Fixed)...");
 
   // 1. Clean up (Be careful with order due to FKs)
+  // Delete status history first
+  await (prisma as any).x10_app_order_status.deleteMany({});
+  // Delete order details
+  await (prisma as any).x9_app_order_details.deleteMany({});
+  // Delete order masters
+  await (prisma as any).x8_app_orders_master.deleteMany({});
+  // Delete cart
+  await (prisma as any).x5_app_cart.deleteMany({});
+
   await prisma.shopStockItem.deleteMany({});
   await prisma.productImageRegister.deleteMany({});
   await prisma.productRating.deleteMany({});

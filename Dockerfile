@@ -13,15 +13,16 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/package.json .
 COPY --from=builder /app/package-lock.json .
-RUN npm ci --omit=dev
+COPY --from=builder /app/tsconfig.json .
+# Need devDependencies for ts-node seeding to work
+RUN npm ci
 RUN npx prisma generate
 
 FROM node:22-alpine AS runner
 RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
 
-# Set production environment
-ENV NODE_ENV=production
+ENV NODE_ENV=development
 
 # Don't run production as root for security
 RUN addgroup --system --gid 1001 expressjs
@@ -34,4 +35,5 @@ USER expressjs
 
 EXPOSE 3000
 
-CMD ["npm", "run", "start"]
+# Run auto-setup then start
+CMD ["npm", "run", "deploy"]

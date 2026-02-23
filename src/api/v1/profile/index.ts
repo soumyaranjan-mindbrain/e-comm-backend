@@ -61,4 +61,33 @@ router.patch(
   profileController.updateProfile,
 );
 
+/**
+ * @openapi
+ * /v1/profile/upload-photo:
+ *   post:
+ *     tags:
+ *       - Profile
+ *     summary: Upload profile photo directly to Cloudinary
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               profileImage:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Photo uploaded successfully
+ */
+router.post(
+  "/upload-photo",
+  upload.single("profileImage"),
+  profileController.uploadPhoto,
+);
+
 export default router;

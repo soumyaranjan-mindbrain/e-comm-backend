@@ -34,7 +34,7 @@ export const getProfile = async (
 };
 
 export const updateProfile = async (
-  req: AuthRequest,
+  req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
@@ -45,23 +45,53 @@ export const updateProfile = async (
       return;
     }
 
-    const updateData = { ...req.body };
-
-    // Handle profile image upload if a file is provided
-    if (req.file) {
-      const imageUrl = await cloudinaryService.uploadImage(
-        req.file.buffer,
-        "bm2mall/profiles",
-      );
-      updateData.profileImage = imageUrl;
-    }
-
-    const profile = await updateProfileUseCase.execute(userId, updateData);
+    const profile = await updateProfileUseCase.execute(userId, req.body);
 
     res.status(200).json({
       success: true,
       msg: "profile updated successfully",
       data: profile,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const uploadPhoto = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const userId = (req as AuthRequest).user?.id;
+    if (!userId) {
+      res.status(401).json({ success: false, msg: "unauthorized", data: null });
+      return;
+    }
+
+    if (!req.file) {
+      res.status(400).json({ success: false, msg: "no file uploaded" });
+      return;
+    }
+
+    // 1. Upload to Cloudinary
+    const imageUrl = await cloudinaryService.uploadImage(
+      req.file.buffer,
+      "bm2mall/profiles",
+    );
+
+    // 2. Update profile in database
+    const profile = await updateProfileUseCase.execute(userId, {
+      profileImage: imageUrl,
+    });
+
+    res.status(200).json({
+      success: true,
+      msg: "photo uploaded and profile updated successfully",
+      data: {
+        profileImage: imageUrl,
+        user: profile,
+      },
     });
   } catch (error) {
     next(error);

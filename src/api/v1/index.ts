@@ -10,6 +10,7 @@ import productRatingRouter from "./product-ratings";
 import userAddressRouter from "./user-addresses";
 import couponCodeRouter from "./coupon-codes";
 import cartRouter from "./cart";
+import orderRouter from "./order/order";
 
 const v1: Router = express.Router();
 
@@ -24,5 +25,6 @@ v1.use("/product-ratings", productRatingRouter);
 v1.use("/user-addresses", userAddressRouter);
 v1.use("/coupon-codes", couponCodeRouter);
 v1.use("/cart", cartRouter);
+v1.use("/orders", orderRouter);
 
 export default v1;

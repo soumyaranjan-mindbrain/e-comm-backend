@@ -1,5 +1,4 @@
 import prisma from "../../../prisma-client";
-import { x5_app_cart_isdelete } from "@prisma/client";
 
 export class CartRepository {
   // ---------------- Add to Cart ----------------
@@ -12,13 +11,13 @@ export class CartRepository {
     });
 
     // If item exists and NOT deleted → increase quantity
-    if (existing && existing.isDeleted === x5_app_cart_isdelete.ZERO) {
+    if (existing && (existing as any).isDeleted === false) {
       return (prisma as any).x5_app_cart.update({
         where: {
           comId_ItemId: { comId, ItemId },
         },
         data: {
-          quantity: existing.quantity + quantity,
+          quantity: (existing as any).quantity + quantity,
         },
         include: {
           product: true,
@@ -27,14 +26,14 @@ export class CartRepository {
     }
 
     // If item exists but soft deleted → restore it and update quantity
-    if (existing && existing.isDeleted === x5_app_cart_isdelete.ONE) {
+    if (existing && (existing as any).isDeleted === true) {
       return (prisma as any).x5_app_cart.update({
         where: {
           comId_ItemId: { comId, ItemId },
         },
         data: {
           quantity,
-          isDeleted: x5_app_cart_isdelete.ZERO,
+          isDeleted: false,
         },
         include: {
           product: true,
@@ -48,7 +47,7 @@ export class CartRepository {
         comId,
         ItemId,
         quantity,
-        isDeleted: x5_app_cart_isdelete.ZERO,
+        isDeleted: false,
       },
       include: {
         product: true,
@@ -61,7 +60,7 @@ export class CartRepository {
     return (prisma as any).x5_app_cart.findMany({
       where: {
         comId,
-        isDeleted: x5_app_cart_isdelete.ZERO,
+        isDeleted: false,
       },
       include: {
         product: {
@@ -82,7 +81,7 @@ export class CartRepository {
       where: {
         comId,
         ItemId,
-        isDeleted: x5_app_cart_isdelete.ZERO,
+        isDeleted: false,
       },
     });
 
@@ -110,7 +109,7 @@ export class CartRepository {
         comId_ItemId: { comId, ItemId },
       },
       data: {
-        isDeleted: x5_app_cart_isdelete.ONE,
+        isDeleted: true,
       },
     });
   }
@@ -120,10 +119,10 @@ export class CartRepository {
     return (prisma as any).x5_app_cart.updateMany({
       where: {
         comId,
-        isDeleted: x5_app_cart_isdelete.ZERO,
+        isDeleted: false,
       },
       data: {
-        isDeleted: x5_app_cart_isdelete.ONE,
+        isDeleted: true,
       },
     });
   }

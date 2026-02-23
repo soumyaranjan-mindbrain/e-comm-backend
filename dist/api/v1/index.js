@@ -14,6 +14,8 @@ const product_image_registers_1 = __importDefault(require("./product-image-regis
 const product_ratings_1 = __importDefault(require("./product-ratings"));
 const user_addresses_1 = __importDefault(require("./user-addresses"));
 const coupon_codes_1 = __importDefault(require("./coupon-codes"));
+const cart_1 = __importDefault(require("./cart"));
+const order_1 = __importDefault(require("./order/order"));
 const v1 = express_1.default.Router();
 v1.use("/health", health_1.default);
 v1.use("/auth", auth_1.default);
@@ -25,4 +27,6 @@ v1.use("/product-image-register", product_image_registers_1.default);
 v1.use("/product-ratings", product_ratings_1.default);
 v1.use("/user-addresses", user_addresses_1.default);
 v1.use("/coupon-codes", coupon_codes_1.default);
+v1.use("/cart", cart_1.default);
+v1.use("/orders", order_1.default);
 exports.default = v1;

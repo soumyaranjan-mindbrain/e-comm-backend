@@ -27,7 +27,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const userAddressController = __importStar(require("../../../controllers/UserAddressController"));
+const userAddressController = __importStar(require("../../../controllers/user-addresses/UserAddressController"));
 const validate_request_1 = __importDefault(require("../../../middleware/validate-request"));
 const authenticate_user_1 = __importDefault(require("../../../middleware/authenticate-user"));
 const request_schemas_1 = require("../../../data/request-schemas");

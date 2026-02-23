@@ -27,7 +27,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getCategoryById = exports.getAllCategories = void 0;
-const categoryRepository = __importStar(require("../../data/repositories/CategoryRepository"));
+const categoryRepository = __importStar(require("../../data/repositories/categories/CategoryRepository"));
 const AppError_1 = __importDefault(require("../../errors/AppError"));
 const utils_1 = require("../../utils");
 const getAllCategories = async (limit, cursor, search) => {

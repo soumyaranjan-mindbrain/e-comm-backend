@@ -56,8 +56,11 @@ export class CustomerRepository {
     fullName: string;
     email: string;
   }): Promise<Customer> {
+    const uniqueComId = Math.floor(Math.random() * 2100000000); // Max safe 32-bit integer workaround
+
     return prisma.customer.create({
       data: {
+        comId: uniqueComId,
         contactNo: data.contactNo,
         fullName: data.fullName,
         emailId: data.email,

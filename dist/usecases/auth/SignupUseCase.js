@@ -13,7 +13,8 @@ class SignupUseCase {
         this.sendOtpUseCase = sendOtpUseCase;
     }
     async execute(input) {
-        const { fullName, mobile, email } = input;
+        const { fullName, email } = input;
+        const mobile = input.mobile?.trim();
         if (!fullName || !mobile || !email) {
             throw AppError_1.default.badRequest("full name, mobile and email are required");
         }

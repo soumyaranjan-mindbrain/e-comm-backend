@@ -10,11 +10,11 @@ const AppError_1 = __importDefault(require("../errors/AppError"));
 const storage = multer_1.default.memoryStorage();
 const fileFilter = (req, file, cb) => {
     // Only accept images
-    if (file.mimetype.startsWith('image/')) {
+    if (file.mimetype.startsWith("image/")) {
         cb(null, true);
     }
     else {
-        cb(AppError_1.default.validation('Only image files are allowed'), false);
+        cb(AppError_1.default.validation("Only image files are allowed"), false);
     }
 };
 exports.upload = (0, multer_1.default)({
@@ -22,5 +22,5 @@ exports.upload = (0, multer_1.default)({
     limits: {
         fileSize: 5 * 1024 * 1024, // 5MB limit
     },
-    fileFilter: fileFilter
+    fileFilter: fileFilter,
 });

@@ -27,7 +27,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const categoryController = __importStar(require("../../../controllers/CategoryController"));
+const categoryController = __importStar(require("../../../controllers/categories/CategoryController"));
 const router = express_1.default.Router();
 // Get all categories
 /**

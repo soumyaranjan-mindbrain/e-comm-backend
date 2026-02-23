@@ -8,22 +8,32 @@ const joi_1 = __importDefault(require("joi"));
 // --- Auth Schemas ---
 exports.sendOtpSchema = joi_1.default.object({
     mobile: joi_1.default.string().required().label("Mobile Number"),
-}).unknown().required();
+})
+    .unknown()
+    .required();
 exports.verifyOtpSchema = joi_1.default.object({
     mobile: joi_1.default.string().required().label("Mobile Number"),
     otp: joi_1.default.string().required().label("OTP"),
-}).unknown().required();
+})
+    .unknown()
+    .required();
 exports.signupSchema = joi_1.default.object({
     fullName: joi_1.default.string().min(3).required().label("Full Name"),
-    mobile: joi_1.default.string().pattern(/^[0-9]{10}$/).required().label("Mobile Number"),
+    mobile: joi_1.default.string()
+        .pattern(/^[0-9]{10}$/)
+        .required()
+        .label("Mobile Number"),
     email: joi_1.default.string().email().required().label("Email"),
-}).unknown().required();
+})
+    .unknown()
+    .required();
 exports.updateProfileSchema = joi_1.default.object({
     fullName: joi_1.default.string().min(3).optional().label("Full Name"),
-    mobile: joi_1.default.string().pattern(/^[0-9]{10}$/).optional().label("Mobile Number"),
     email: joi_1.default.string().email().optional().label("Email"),
     profileImage: joi_1.default.string().optional().allow("", null).label("Profile Image"),
-}).unknown().required();
+})
+    .unknown()
+    .required();
 // --- Coupon Code Schemas ---
 exports.createCouponCodeSchema = joi_1.default.object({
     name: joi_1.default.string().max(100).optional().allow("", null),
@@ -123,6 +133,7 @@ exports.updateProductRatingSchema = joi_1.default.object({
 });
 exports.productFilterSchema = joi_1.default.object({
     q: joi_1.default.string().optional().allow("", null),
+    slugs: joi_1.default.string().optional().allow("", null),
     minPrice: joi_1.default.number().min(0).optional(),
     maxPrice: joi_1.default.number().min(0).optional(),
     rating: joi_1.default.number().min(1).max(5).optional(),

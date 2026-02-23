@@ -10,7 +10,9 @@ function validateRequest(schema, source = "body") {
         try {
             const data = source === "body" ? req.body : req.query;
             if (source === "body" && (!data || Object.keys(data).length === 0)) {
-                if (req.method === "POST" || req.method === "PUT" || req.method === "PATCH") {
+                if (req.method === "POST" ||
+                    req.method === "PUT" ||
+                    req.method === "PATCH") {
                     return next(AppError_1.default.badRequest("Request body is missing or empty."));
                 }
             }
@@ -25,7 +27,7 @@ function validateRequest(schema, source = "body") {
                 res.locals.validatedQuery = validated;
                 // Optionally update req.query if possible without throwing
                 try {
-                    Object.keys(req.query).forEach(key => delete req.query[key]);
+                    Object.keys(req.query).forEach((key) => delete req.query[key]);
                     Object.assign(req.query, validated);
                 }
                 catch (err) {

@@ -1,186 +1,371 @@
+### BM2MALL BACKEND - REST CLIENT TEST SUITE (v1.2.0)
+### Base URL: http://localhost:3000/v1
+
 @baseUrl = http://localhost:3000/v1
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTQsIm1vYmlsZSI6Ijk4NzY1NDMyMTAiLCJpYXQiOjE3NzEzMTc3MzEsImV4cCI6MTc3MTMxODYzMX0.6tMezwX8Cd-HR0sS9sTh_6My5iEep6xy7kEMBs1gmxw
+@contentType = application/json
+@authToken = YOUR_JWT_TOKEN_HERE
 
-### [HEALTH] System Status
+############################################################
+# 1. SYSTEM & HEALTH
+############################################################
+
+# @name healthCheck
 GET {{baseUrl}}/health
+Content-Type: {{contentType}}
 
+###
 
-# ==============================================================================
-# 1. AUTHENTICATION & PROFILE
-# ==============================================================================
+############################################################
+# 2. AUTHENTICATION MODULE
+############################################################
 
-### Signup User
+# @name signup
 POST {{baseUrl}}/auth/signup
-Content-Type: application/json
+Content-Type: {{contentType}}
 
 {
   "fullName": "Test User",
-  "mobile": "1546518863",
-  "email": "testuser@example.com"
+  "mobile": "9876543210",
+  "email": "test@example.com"
 }
 
-### Send OTP (Login)
+###
+
+# @name sendOtp
 POST {{baseUrl}}/auth/send-otp
-Content-Type: application/json
+Content-Type: {{contentType}}
 
-{ "mobile": "1546518863" }
+{
+  "mobile": "9876543210"
+}
 
-### Verify OTP (Get Access)
+###
+
+# @name verifyOtp
 POST {{baseUrl}}/auth/verify-otp
-Content-Type: application/json
+Content-Type: {{contentType}}
 
 {
-  "mobile": "1546518863",
-  "otp": "111111"
+  "mobile": "9876543210",
+  "otp": "123456"
 }
 
-### Refresh Access Token 
+###
+
+# @name refreshToken
 POST {{baseUrl}}/auth/refresh-token
-Content-Type: application/json
-
-### Get My Profile
-GET {{baseUrl}}/profile/me
-Authorization: Bearer {{token}}
-
-### Update Profile (Combined: Details & Photo)
-# Note: In REST Client, multipart/form-data is tricky. This is for reference.
-PATCH {{baseUrl}}/profile/me
-Authorization: Bearer {{token}}
-Content-Type: application/json
+Content-Type: {{contentType}}
 
 {
-  "fullName": "Updated Professional Name",
-  "email": "updated@example.com"
+  "refreshToken": "YOUR_REFRESH_TOKEN_HERE"
 }
 
-### Logout
+###
+
+# @name logout
 POST {{baseUrl}}/auth/logout
-Authorization: Bearer {{token}}
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
 
+###
 
-# ==============================================================================
-# 2. PRODUCT CATALOG (SHOP)
-# ==============================================================================
+############################################################
+# 3. PRODUCT CATALOG
+############################################################
 
-### List All Products (Paginated)
-GET {{baseUrl}}/products?limit=20
+# @name getAllProducts
+GET {{baseUrl}}/products
+Content-Type: {{contentType}}
 
-### [IMPROVED] Search Products by Name
-GET {{baseUrl}}/products?q=Chicken
+###
 
-### [IMPROVED] Filter by Price Range
-GET {{baseUrl}}/products?minPrice=300&maxPrice=1500
+# @name getFilteredProducts
+# Query Params: q, minPrice, maxPrice, rating, categoryId, limit, cursor
+GET {{baseUrl}}/products?q=shoe&minPrice=100&maxPrice=5000&rating=4&categoryId=1
+Content-Type: {{contentType}}
 
-### [IMPROVED] Filter by Category
-GET {{baseUrl}}/products?categoryId=61
+###
 
-### [NEW] Get Single Product Details (Variants & Related)
-# Includes detailed stock, sizes, colors, and related items
-GET {{baseUrl}}/products/16
+# @name searchProductsFast
+GET {{baseUrl}}/products/search?q=phone
+Content-Type: {{contentType}}
 
-### [NEW] Get New Arrivals
-GET {{baseUrl}}/products?slugs=new-arrivals
+###
 
+# @name getProductById
+GET {{baseUrl}}/products/1
+Content-Type: {{contentType}}
 
-# ==============================================================================
-# 3. CATEGORIES
-# ==============================================================================
+###
 
-### List All Categories
+# @name getProductRegister
+# Supports ?slugs=new-arrivals or category slug
+GET {{baseUrl}}/product-register?slugs=new-arrivals
+Content-Type: {{contentType}}
+
+###
+
+# @name getProductRegisterById
+GET {{baseUrl}}/product-register/1
+Content-Type: {{contentType}}
+
+###
+
+############################################################
+# 4. CATEGORIES
+############################################################
+
+# @name getAllCategories
 GET {{baseUrl}}/categories
+Content-Type: {{contentType}}
 
-### Get Category Details
-GET {{baseUrl}}/categories/62
+###
 
+# @name getCategoryById
+GET {{baseUrl}}/categories/1
+Content-Type: {{contentType}}
 
-# ==============================================================================
-# 4. CUSTOMER DATA (PROTECTED)
-# ==============================================================================
+###
 
-### Get Saved Addresses
-GET {{baseUrl}}/user-addresses/me
-Authorization: Bearer {{token}}
+############################################################
+# 5. SHOPPING CART (Auth Required)
+############################################################
 
-### Add New Address
-POST {{baseUrl}}/user-addresses
-Authorization: Bearer {{token}}
-Content-Type: application/json
-
-{
-  "address": "123 Business Park, Sector 62",
-  "townCity": "Noida",
-  "pincode": "201301",
-  "receiversName": "Office Admin",
-  "receiversNumber": "9876543210",
-  "saveAs": "Work"
-}
-
-### Update Address
-PUT {{baseUrl}}/user-addresses/2
-Authorization: Bearer {{token}}
-Content-Type: application/json
-
-{ "saveAs": "Home" }
-
-
-# ==============================================================================
-# 5. OFFERS & RATINGS
-# ==============================================================================
-
-### List Available Coupons
-GET {{baseUrl}}/coupon-codes
-
-### Search Coupon
-GET {{baseUrl}}/coupon-codes/search?name=SAVE10
-
-### Get Product Reviews
-GET {{baseUrl}}/product-ratings/product/3
-
-### Post a Review
-POST {{baseUrl}}/product-ratings
-Authorization: Bearer {{token}}
-Content-Type: application/json
-
-{
-  "productId": 3,
-  "givenRatings": 5,
-  "message": "Excellent quality and fast delivery!"
-}
-
-
-# ==============================================================================
-# 6. CART OPERATIONS (PROTECTED)
-# ==============================================================================
-
-### Get My Cart
+# @name getCart
 GET {{baseUrl}}/cart
-Authorization: Bearer {{token}}
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
 
-### Add Item to Cart
-# Use a valid ItemId (stock item id)
+###
+
+# @name addToCart
 POST {{baseUrl}}/cart
-Authorization: Bearer {{token}}
-Content-Type: application/json
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
 
 {
-  "ItemId": 16,
+  "ItemId": 1,
   "quantity": 2
 }
 
-### Update Cart Quantity
-# Use ItemId in the URL
-PUT {{baseUrl}}/cart/16
-Authorization: Bearer {{token}}
-Content-Type: application/json
+###
+
+# @name updateCartQuantity
+PUT {{baseUrl}}/cart/1
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
 
 {
   "quantity": 5
 }
 
-### Remove Item from Cart
-DELETE {{baseUrl}}/cart/16
-Authorization: Bearer {{token}}
+###
 
-### Clear Entire Cart
+# @name removeFromCart
+DELETE {{baseUrl}}/cart/1
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+###
+
+# @name clearCart
 DELETE {{baseUrl}}/cart/clear/all
-Authorization: Bearer {{token}}
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+###
+
+############################################################
+# 6. ORDER MANAGEMENT (Auth Required)
+############################################################
+
+# @name placeOrder
+POST {{baseUrl}}/orders
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "comId": 1,
+  "items": [
+    {
+      "productId": 1,
+      "qnty": 2,
+      "rate": 150.50,
+      "net_amount": 301.00
+    }
+  ],
+  "total_amount": 301.00,
+  "payment_mode": "CASH"
+}
+
+###
+
+# @name getOrderDetails
+GET {{baseUrl}}/orders/ORDER_ID_HERE
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+###
+
+# @name trackOrder
+GET {{baseUrl}}/orders/ORDER_ID_HERE/track
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+###
+
+# @name updateOrderStatus
+PATCH {{baseUrl}}/orders/ORDER_ID_HERE/status
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "status": "SHIPPED",
+  "updated_by": 1
+}
+
+###
+
+# @name cancelOrder
+PATCH {{baseUrl}}/orders/ORDER_ID_HERE/cancel
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "updated_by": 1
+}
+
+###
+
+############################################################
+# 7. ACCOUNT & PROFILE (Auth Required)
+############################################################
+
+# @name getMyProfile
+GET {{baseUrl}}/profile/me
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+###
+
+# @name updateProfile
+PATCH {{baseUrl}}/profile/me
+Authorization: Bearer {{authToken}}
+# Note: Use Multipart/Form-Data in real client for photo upload
+Content-Type: {{contentType}}
+
+{
+  "fullName": "Updated Test User",
+  "email": "updated@example.com"
+}
+
+###
+
+############################################################
+# 8. USER ADDRESS BOOK (Auth Required)
+############################################################
+
+# @name getMyAddresses
+GET {{baseUrl}}/user-addresses/me
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+###
+
+# @name addAddress
+POST {{baseUrl}}/user-addresses
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "address": "123 Test Street",
+  "townCity": "Bhubaneswar",
+  "pincode": "751001",
+  "receiversName": "Test Receiver",
+  "receiversNumber": "9876543210",
+  "saveAs": "Home"
+}
+
+###
+
+# @name updateAddress
+PUT {{baseUrl}}/user-addresses/1
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "address": "456 Updated Lane"
+}
+
+###
+
+# @name deleteAddress
+DELETE {{baseUrl}}/user-addresses/1
+Authorization: Bearer {{authToken}}
+
+###
+
+############################################################
+# 9. PRODUCT RATINGS & REVIEWS
+############################################################
+
+# @name getAllRatings
+GET {{baseUrl}}/product-ratings
+Content-Type: {{contentType}}
+
+###
+
+# @name getProductStats
+GET {{baseUrl}}/product-ratings/product/1/stats
+Content-Type: {{contentType}}
+
+###
+
+# @name getProductReviews
+GET {{baseUrl}}/product-ratings/product/1
+Content-Type: {{contentType}}
+
+###
+
+# @name submitReview
+POST {{baseUrl}}/product-ratings
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "productId": 1,
+  "givenRatings": 5,
+  "message": "Excellent product!"
+}
+
+###
+
+############################################################
+# 10. COUPON CODES
+############################################################
+
+# @name getAllCoupons
+GET {{baseUrl}}/coupon-codes
+Content-Type: {{contentType}}
+
+###
+
+# @name searchCoupon
+GET {{baseUrl}}/coupon-codes/search?q=WELCOME10
+Content-Type: {{contentType}}
+
+###
+
+############################################################
+# 11. PRODUCT MEDIA
+############################################################
+
+# @name getAllProductImages
+GET {{baseUrl}}/product-image-register
+Content-Type: {{contentType}}
+
+###
+
+# @name getProductImagesByProductId
+GET {{baseUrl}}/product-image-register/product/1
+Content-Type: {{contentType}}

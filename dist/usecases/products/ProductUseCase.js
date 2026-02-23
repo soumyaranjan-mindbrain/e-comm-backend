@@ -26,17 +26,38 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getFilteredProducts = exports.searchProductRegistersByName = exports.getProductRegisterById = exports.getAllProductRegisters = exports.getProductsByCategorySlug = exports.getNewArrivals = void 0;
-const productRegisterRepository = __importStar(require("../../data/repositories/ProductRegisterRepository"));
+exports.getFilteredProducts = exports.searchProductRegistersByName = exports.getProductRegisterById = exports.getProductDetail = exports.getAllProductRegisters = exports.getProductsByCategorySlug = exports.getNewArrivals = void 0;
+const productRegisterRepository = __importStar(require("../../data/repositories/products/ProductRegisterRepository"));
 const AppError_1 = __importDefault(require("../../errors/AppError"));
 // Helper to flatten product data (extract price/MRP from nested stockItems)
+// Helper to flatten/transform product data with variants and stock status
 const transformProduct = (product) => {
-    const stock = product.stockItems?.[0];
+    const stockItems = product.stockItems || [];
+    // Transform variants to include inStock flag and clean names
+    const variants = stockItems.map((item) => ({
+        id: item.id,
+        sku: item.barCode,
+        size: item.edition, // Mapping edition to size
+        color: item.color_name,
+        price: item.saleRate || 0,
+        mrp: item.mrpRate ? parseFloat(item.mrpRate) : item.saleRate || 0,
+        curQty: item.curQty || 0,
+        inStock: (item.curQty || 0) > 0,
+    }));
+    // Primary stock item for display in lists
+    const primaryStock = stockItems[0];
+    const totalQty = stockItems.reduce((acc, item) => acc + (item.curQty || 0), 0);
     return {
         ...product,
-        price: stock?.saleRate || null,
-        mrp: stock?.mrpRate || null,
-        // Keep original stockItems but usually frontend only needs the flattened price
+        price: primaryStock?.saleRate || null,
+        mrp: primaryStock?.mrpRate
+            ? parseFloat(primaryStock.mrpRate)
+            : primaryStock?.saleRate || null,
+        totalStock: totalQty,
+        inStock: totalQty > 0,
+        variants: variants,
+        // Remove raw stockItems from the root if we're using transformed variants
+        stockItems: undefined,
     };
 };
 // Slug to displaySection mapping (API slugs -> DB values)
@@ -53,7 +74,7 @@ const getNewArrivals = async (limit, cursor) => {
     const result = await productRegisterRepository.getNewArrivals(queryLimit, queryCursor);
     return {
         ...result,
-        data: result.data.map(transformProduct)
+        data: result.data.map(transformProduct),
     };
 };
 exports.getNewArrivals = getNewArrivals;
@@ -65,7 +86,7 @@ const getProductsByCategorySlug = async (slug, limit, cursor) => {
     const result = await productRegisterRepository.getProductRegistersByDisplaySection(displaySection, queryLimit, queryCursor);
     return {
         ...result,
-        data: result.data.map(transformProduct)
+        data: result.data.map(transformProduct),
     };
 };
 exports.getProductsByCategorySlug = getProductsByCategorySlug;
@@ -76,11 +97,27 @@ const getAllProductRegisters = async (limit, cursor) => {
     const result = await productRegisterRepository.getAllProductRegisters(queryLimit, queryCursor);
     return {
         ...result,
-        data: result.data.map(transformProduct)
+        data: result.data.map(transformProduct),
     };
 };
 exports.getAllProductRegisters = getAllProductRegisters;
-// Get product register by ID
+// Get product register by ID with related products
+const getProductDetail = async (id) => {
+    const product = await productRegisterRepository.getProductRegisterById(id);
+    if (!product) {
+        throw AppError_1.default.notFound("Product register not found.");
+    }
+    const transformedProduct = transformProduct(product);
+    // Get related products (same category)
+    // We get the catId from the first stock item of the current product
+    const categoryId = product.stockItems?.[0]?.catId;
+    const related = await productRegisterRepository.getRelatedProducts(id, categoryId);
+    return {
+        product: transformedProduct,
+        relatedProducts: related.map(transformProduct),
+    };
+};
+exports.getProductDetail = getProductDetail;
 const getProductRegisterById = async (id) => {
     const product = await productRegisterRepository.getProductRegisterById(id);
     if (!product) {
@@ -107,7 +144,7 @@ const getFilteredProducts = async (filters) => {
     }, limit, cursor);
     return {
         ...result,
-        data: result.data.map(transformProduct)
+        data: result.data.map(transformProduct),
     };
 };
 exports.getFilteredProducts = getFilteredProducts;

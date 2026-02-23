@@ -27,7 +27,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const profileController = __importStar(require("../../../controllers/ProfileController"));
+const profileController = __importStar(require("../../../controllers/profile/ProfileController"));
 const validate_request_1 = __importDefault(require("../../../middleware/validate-request"));
 const authenticate_user_1 = __importDefault(require("../../../middleware/authenticate-user"));
 const request_schemas_1 = require("../../../data/request-schemas");
@@ -55,13 +55,13 @@ router.get("/me", profileController.getProfile);
  *   patch:
  *     tags:
  *       - Profile
- *     summary: Update current user profile
+ *     summary: Update current user profile (Details + Optional Photo)
  *     security:
  *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
@@ -71,32 +71,36 @@ router.get("/me", profileController.getProfile);
  *                 type: string
  *               mobile:
  *                 type: string
+ *               profileImage:
+ *                 type: string
+ *                 format: binary
  *     responses:
  *       200:
  *         description: Profile updated successfully
  */
-router.patch("/me", (0, validate_request_1.default)(request_schemas_1.updateProfileSchema), profileController.updateProfile);
+router.patch("/me", upload_middleware_1.upload.single("profileImage"), (0, validate_request_1.default)(request_schemas_1.updateProfileSchema), profileController.updateProfile);
 /**
  * @openapi
  * /v1/profile/upload-photo:
  *   post:
  *     tags:
  *       - Profile
- *     summary: Upload profile photo to Cloudinary
+ *     summary: Upload profile photo directly to Cloudinary
  *     security:
  *       - bearerAuth: []
  *     requestBody:
+ *       required: true
  *       content:
  *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
- *               photo:
+ *               profileImage:
  *                 type: string
  *                 format: binary
  *     responses:
  *       200:
  *         description: Photo uploaded successfully
  */
-router.post("/upload-photo", upload_middleware_1.upload.single("photo"), profileController.uploadPhoto);
+router.post("/upload-photo", upload_middleware_1.upload.single("profileImage"), profileController.uploadPhoto);
 exports.default = router;

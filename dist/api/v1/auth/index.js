@@ -27,7 +27,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const authController = __importStar(require("../../../controllers/AuthController"));
+const authController = __importStar(require("../../../controllers/auth/AuthController"));
 const validate_request_1 = __importDefault(require("../../../middleware/validate-request"));
 const authenticate_user_1 = __importDefault(require("../../../middleware/authenticate-user"));
 const request_schemas_1 = require("../../../data/request-schemas");
@@ -110,6 +110,26 @@ router.post("/verify-otp", (0, validate_request_1.default)(request_schemas_1.ver
  *         description: Signup successful
  */
 router.post("/signup", (0, validate_request_1.default)(request_schemas_1.signupSchema), authController.signup);
+/**
+ * @openapi
+ * /v1/auth/refresh-token:
+ *   post:
+ *     tags:
+ *       - Auth
+ *     summary: Refresh access token
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Token refreshed
+ */
+router.post("/refresh-token", authController.refreshToken);
 /**
  * @openapi
  * /v1/auth/logout:

@@ -36,6 +36,7 @@ async function main() {
   for (const item of categoryData) {
     const cat = await prisma.category.create({
       data: {
+        comId: 1,
         catName: item.name,
         catCode: item.name.substring(0, 3).toUpperCase(),
         catDesc: item.desc,
@@ -51,6 +52,7 @@ async function main() {
   for (let i = 0; i < 10; i++) {
     const customer = await prisma.customer.create({
       data: {
+        comId: 100 + i, // Unique comId for each customer
         fullName: faker.person.fullName(),
         contactNo: i === 0 ? "1234567890" : faker.string.numeric(10),
         emailId: faker.internet.email(),
@@ -82,6 +84,7 @@ async function main() {
 
     const product = await prisma.productRegister.create({
       data: {
+        comId: 1,
         productName: faker.commerce.productName(),
         productId: uniqueProductId,
         shdesc: faker.commerce.productDescription(),

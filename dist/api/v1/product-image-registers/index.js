@@ -27,7 +27,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const productImageRegisterController = __importStar(require("../../../controllers/ProductImageRegisterController"));
+const productImageRegisterController = __importStar(require("../../../controllers/product-image-registers/ProductImageRegisterController"));
 const router = express_1.default.Router();
 // Get all product image registers (?limit=50, ?cursor=id)
 router.get("/", productImageRegisterController.getAll);

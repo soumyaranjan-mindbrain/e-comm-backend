@@ -7,7 +7,7 @@ const stream_1 = require("stream");
 cloudinary_1.v2.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET
+    api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 class CloudinaryService {
     /**
@@ -15,16 +15,16 @@ class CloudinaryService {
      * @param fileBuffer Buffer of the file
      * @param folder Folder name in Cloudinary
      */
-    async uploadImage(fileBuffer, folder = 'bm2mall/profiles') {
+    async uploadImage(fileBuffer, folder = "bm2mall/profiles") {
         return new Promise((resolve, reject) => {
             const uploadStream = cloudinary_1.v2.uploader.upload_stream({
                 folder: folder,
-                resource_type: 'image',
+                resource_type: "image",
             }, (error, result) => {
                 if (error)
                     return reject(error);
                 if (!result)
-                    return reject(new Error('Cloudinary upload failed'));
+                    return reject(new Error("Cloudinary upload failed"));
                 resolve(result.secure_url);
             });
             const stream = new stream_1.Readable();
@@ -41,17 +41,21 @@ class CloudinaryService {
         try {
             // Extract public ID from URL
             // Example: https://res.cloudinary.com/cloud_name/image/upload/v12345/folder/id.jpg
-            const parts = imageUrl.split('/');
+            const parts = imageUrl.split("/");
             const fileName = parts[parts.length - 1];
-            const publicIdWithoutExt = fileName.split('.')[0];
+            const publicIdWithoutExt = fileName.split(".")[0];
             // If it's in a folder, we need the folder path too
             // This is a simple implementation, might need refinement for nested folders
-            const folderPart = parts.slice(parts.indexOf('upload') + 2, parts.length - 1).join('/');
-            const publicId = folderPart ? `${folderPart}/${publicIdWithoutExt}` : publicIdWithoutExt;
+            const folderPart = parts
+                .slice(parts.indexOf("upload") + 2, parts.length - 1)
+                .join("/");
+            const publicId = folderPart
+                ? `${folderPart}/${publicIdWithoutExt}`
+                : publicIdWithoutExt;
             await cloudinary_1.v2.uploader.destroy(publicId);
         }
         catch (error) {
-            console.error('Error deleting image from Cloudinary:', error);
+            console.error("Error deleting image from Cloudinary:", error);
         }
     }
 }

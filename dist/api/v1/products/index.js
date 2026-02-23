@@ -27,7 +27,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const productController = __importStar(require("../../../controllers/ProductController"));
+const productController = __importStar(require("../../../controllers/products/ProductController"));
 const validate_request_1 = __importDefault(require("../../../middleware/validate-request"));
 const request_schemas_1 = require("../../../data/request-schemas");
 const router = express_1.default.Router();

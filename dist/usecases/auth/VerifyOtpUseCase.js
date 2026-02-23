@@ -13,7 +13,8 @@ class VerifyOtpUseCase {
     constructor(customerRepository) {
         this.customerRepository = customerRepository;
     }
-    async execute(mobile, otpInput) {
+    async execute(mobileInput, otpInput) {
+        const mobile = mobileInput?.trim();
         if (!mobile || !otpInput) {
             throw AppError_1.default.badRequest("mobile number and otp are required");
         }
@@ -29,7 +30,8 @@ class VerifyOtpUseCase {
         }
         // Validate OTP (Hashing support)
         let isValidOtp = false;
-        if ((config_1.default.env === "development" || config_1.default.env === "dev") && otpInput === "111111") {
+        if ((config_1.default.env === "development" || config_1.default.env === "dev") &&
+            otpInput === "111111") {
             isValidOtp = true;
         }
         else {

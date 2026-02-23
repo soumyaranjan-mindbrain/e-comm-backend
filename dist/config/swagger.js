@@ -7,18 +7,18 @@ const swagger_jsdoc_1 = __importDefault(require("swagger-jsdoc"));
 const package_json_1 = require("../../package.json");
 const options = {
     definition: {
-        openapi: '3.0.0',
+        openapi: "3.0.0",
         info: {
-            title: 'E-commerce API Docs',
+            title: "E-commerce API Docs",
             version: package_json_1.version,
-            description: 'API documentation for the E-commerce application',
+            description: "API documentation for the E-commerce application",
         },
         components: {
             securitySchemes: {
                 bearerAuth: {
-                    type: 'http',
-                    scheme: 'bearer',
-                    bearerFormat: 'JWT',
+                    type: "http",
+                    scheme: "bearer",
+                    bearerFormat: "JWT",
                 },
             },
         },
@@ -28,7 +28,7 @@ const options = {
             },
         ],
     },
-    apis: ['./src/server.ts', './src/api/v1/*.ts'],
+    apis: ["./src/server.ts", "./src/api/v1/**/*.ts"],
 };
 const swaggerSpec = (0, swagger_jsdoc_1.default)(options);
 exports.default = swaggerSpec;

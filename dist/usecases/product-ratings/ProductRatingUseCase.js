@@ -27,7 +27,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getProductRatingStats = exports.deleteProductRating = exports.updateProductRating = exports.createProductRating = exports.getAllProductRatings = exports.getProductRatingsByProductId = exports.getProductRatingById = void 0;
-const productRatingRepository = __importStar(require("../../data/repositories/ProductRatingRepository"));
+const productRatingRepository = __importStar(require("../../data/repositories/product-ratings/ProductRatingRepository"));
 const AppError_1 = __importDefault(require("../../errors/AppError"));
 const getProductRatingById = async (id) => {
     const rating = await productRatingRepository.getProductRatingById(id);

@@ -27,7 +27,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.searchCouponCodesByName = exports.deleteCouponCode = exports.updateCouponCode = exports.createCouponCode = exports.getAllCouponCodes = exports.getCouponCodeById = void 0;
-const couponCodeRepository = __importStar(require("../../data/repositories/CouponCodeRepository"));
+const couponCodeRepository = __importStar(require("../../data/repositories/coupon-codes/CouponCodeRepository"));
 const AppError_1 = __importDefault(require("../../errors/AppError"));
 const getCouponCodeById = async (id) => {
     const couponCode = await couponCodeRepository.getCouponCodeById(id);

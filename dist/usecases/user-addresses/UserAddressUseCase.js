@@ -27,8 +27,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteUserAddress = exports.updateUserAddress = exports.createUserAddress = exports.getAllUserAddresses = exports.getUserAddressesByCustomerId = exports.getUserAddressById = void 0;
-const userAddressRepository = __importStar(require("../../data/repositories/UserAddressRepository"));
-const CustomerRepository_1 = require("../../data/repositories/CustomerRepository");
+const userAddressRepository = __importStar(require("../../data/repositories/user-addresses/UserAddressRepository"));
+const CustomerRepository_1 = require("../../data/repositories/auth/CustomerRepository");
 const AppError_1 = __importDefault(require("../../errors/AppError"));
 const customerRepository = new CustomerRepository_1.CustomerRepository();
 const getUserAddressById = async (id) => {
@@ -55,7 +55,8 @@ const createUserAddress = async (data) => {
     if (data.pincode && !/^\d{6}$/.test(data.pincode)) {
         throw AppError_1.default.badRequest("pincode must be 6 digits");
     }
-    if (data.receiversNumber && !/^\d{10}$/.test(data.receiversNumber.replace(/\D/g, ""))) {
+    if (data.receiversNumber &&
+        !/^\d{10}$/.test(data.receiversNumber.replace(/\D/g, ""))) {
         throw AppError_1.default.badRequest("receiver's number must be 10 digits");
     }
     if (data.saveAs) {
@@ -81,7 +82,8 @@ const updateUserAddress = async (id, data) => {
     if (data.pincode && !/^\d{6}$/.test(data.pincode)) {
         throw AppError_1.default.badRequest("pincode must be 6 digits");
     }
-    if (data.receiversNumber && !/^\d{10}$/.test(data.receiversNumber.replace(/\D/g, ""))) {
+    if (data.receiversNumber &&
+        !/^\d{10}$/.test(data.receiversNumber.replace(/\D/g, ""))) {
         throw AppError_1.default.badRequest("receiver's number must be 10 digits");
     }
     if (data.saveAs) {

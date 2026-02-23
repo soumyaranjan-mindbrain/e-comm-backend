@@ -4,7 +4,7 @@ CREATE DATABASE ecommerce_app;
 USE ecommerce_app;
 CREATE TABLE `aa13_customer_db` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `com_id` int DEFAULT NULL,
+  `com_id` int NOT NULL,
   `cust_type` varchar(10) DEFAULT NULL,
   `party_code` varchar(10) DEFAULT NULL,
   `full_name` varchar(140) DEFAULT NULL,

@@ -51,9 +51,15 @@ export class VerifyOtpUseCase {
     // Clear OTP immediately after successful verification
     await this.customerRepository.updateOtp(customer.id, null, null);
 
+    if (customer.comId === null || customer.comId === undefined) {
+      throw AppError.internal(
+        "customer record is misconfigured (missing comId). please contact support.",
+      );
+    }
+
     const accessToken = this.generateAccessToken(
       customer.id,
-      customer.comId ?? 0,
+      customer.comId,
       customer.contactNo ?? "",
     );
     const refreshToken = this.generateRefreshToken(customer.id);

@@ -1,6 +1,6 @@
 import prisma from "../../../prisma-client";
 import { randomUUID } from "crypto";
-const { Prisma } = require("@prisma/client");
+import { Prisma } from "@prisma/client";
 
 export enum OrderStatus {
   PENDING = "PENDING",

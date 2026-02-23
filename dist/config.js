@@ -22,4 +22,3 @@ const config = {
     adminEmail: process.env.ADMIN_EMAIL || "",
 };
 exports.default = config;
-//# sourceMappingURL=config.js.map

@@ -6,4 +6,3 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.repository = void 0;
 const BaseRepository_1 = __importDefault(require("./BaseRepository"));
 exports.repository = new BaseRepository_1.default();
-//# sourceMappingURL=index.js.map

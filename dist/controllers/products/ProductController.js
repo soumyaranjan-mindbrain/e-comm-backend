@@ -25,17 +25,21 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getOne = exports.searchProducts = exports.getAll = void 0;
 const productUseCase = __importStar(require("../../usecases/products/ProductUseCase"));
+const DEFAULT_LIMIT = 10;
 const getAll = async (req, res, next) => {
     try {
-        // Use res.locals.validatedQuery if available (from validateRequest middleware), otherwise req.query
         const queryData = res.locals.validatedQuery || req.query;
-        const { slugs, q, minPrice, maxPrice, rating, categoryId, limit, cursor } = queryData;
+        const { slugs, q, minPrice, maxPrice, rating, categoryId } = queryData;
+        // Pagination — supports both cursor and page-based
+        const rawLimit = queryData.limit ? parseInt(queryData.limit) : DEFAULT_LIMIT;
+        const limit = isNaN(rawLimit) || rawLimit < 1 ? DEFAULT_LIMIT : Math.min(rawLimit, 100);
+        const cursor = queryData.cursor ? parseInt(queryData.cursor) : undefined;
         let result;
         if (slugs === "new-arrivals") {
-            result = await productUseCase.getNewArrivals(limit ? parseInt(limit) : undefined, cursor ? parseInt(cursor) : undefined);
+            result = await productUseCase.getNewArrivals(limit, cursor);
         }
         else if (slugs) {
-            result = await productUseCase.getProductsByCategorySlug(slugs, limit ? parseInt(limit) : undefined, cursor ? parseInt(cursor) : undefined);
+            result = await productUseCase.getProductsByCategorySlug(slugs, limit, cursor);
         }
         else if (q || minPrice || maxPrice || rating || categoryId) {
             result = await productUseCase.getFilteredProducts({
@@ -44,18 +48,20 @@ const getAll = async (req, res, next) => {
                 maxPrice: maxPrice ? parseFloat(maxPrice) : undefined,
                 rating: rating ? parseFloat(rating) : undefined,
                 categoryId: categoryId ? parseInt(categoryId) : undefined,
-                limit: limit ? parseInt(limit) : undefined,
-                cursor: cursor ? parseInt(cursor) : undefined,
+                limit,
+                cursor,
             });
         }
         else {
-            result = await productUseCase.getAllProductRegisters(limit ? parseInt(limit) : undefined, cursor ? parseInt(cursor) : undefined);
+            result = await productUseCase.getAllProductRegisters(limit, cursor);
         }
         res.status(200).json({
             success: true,
-            count: result.totalCount, // Return total matches for better testing clarity
+            count: result.data.length,
+            total: result.totalCount,
+            nextCursor: result.nextCursor ?? null,
+            hasMore: result.nextCursor !== null,
             data: result.data,
-            nextCursor: result.nextCursor,
         });
     }
     catch (error) {
@@ -66,11 +72,12 @@ exports.getAll = getAll;
 const searchProducts = async (req, res, next) => {
     try {
         const searchTerm = req.query.q;
-        const limit = req.query.limit ? parseInt(req.query.limit) : 50;
+        const rawLimit = req.query.limit ? parseInt(req.query.limit) : DEFAULT_LIMIT;
+        const limit = isNaN(rawLimit) || rawLimit < 1 ? DEFAULT_LIMIT : Math.min(rawLimit, 100);
         if (!searchTerm || searchTerm.trim() === "") {
             res.status(400).json({
                 success: false,
-                message: "Search term is required. Please provide 'q' query parameter.",
+                msg: "search term is required",
             });
             return;
         }
@@ -78,7 +85,6 @@ const searchProducts = async (req, res, next) => {
         res.status(200).json({
             success: true,
             count: products.length,
-            searchTerm: searchTerm.trim(),
             data: products,
         });
     }
@@ -93,7 +99,7 @@ const getOne = async (req, res, next) => {
         if (isNaN(productId)) {
             res.status(400).json({
                 success: false,
-                message: "Invalid product ID",
+                msg: "invalid product id",
             });
             return;
         }
@@ -109,4 +115,3 @@ const getOne = async (req, res, next) => {
     }
 };
 exports.getOne = getOne;
-//# sourceMappingURL=ProductController.js.map

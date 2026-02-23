@@ -39,4 +39,3 @@ router.post("/", (0, validate_request_1.default)(request_schemas_1.createUserAdd
 router.put("/:id", (0, validate_request_1.default)(request_schemas_1.updateUserAddressSchema), userAddressController.update);
 router.delete("/:id", userAddressController.remove);
 exports.default = router;
-//# sourceMappingURL=index.js.map

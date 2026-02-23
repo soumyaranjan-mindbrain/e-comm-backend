@@ -50,4 +50,3 @@ const getAllProductImageRegisters = async (limit, cursor) => {
     return productImageRegisterRepository.getAllProductImageRegisters(queryLimit, queryCursor);
 };
 exports.getAllProductImageRegisters = getAllProductImageRegisters;
-//# sourceMappingURL=ProductImageRegisterUseCase.js.map

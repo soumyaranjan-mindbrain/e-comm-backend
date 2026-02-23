@@ -52,4 +52,3 @@ function errorHandler(error, req, res, next) {
         msg: ((0, utils_1.getErrorMessage)(error) || "internal server error").toLowerCase(),
     });
 }
-//# sourceMappingURL=error-handler.js.map

@@ -12,4 +12,3 @@ exports.mailer = mailer;
 if (config_1.default.consoleLogEmails) {
     exports.mailer = mailer = console_log_mailer_1.mailer;
 }
-//# sourceMappingURL=index.js.map

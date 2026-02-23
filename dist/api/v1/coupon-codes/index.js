@@ -44,4 +44,3 @@ router.put("/:id", (0, validate_request_1.default)(request_schemas_1.updateCoupo
 // Delete a coupon code
 router.delete("/:id", couponCodeController.remove);
 exports.default = router;
-//# sourceMappingURL=index.js.map

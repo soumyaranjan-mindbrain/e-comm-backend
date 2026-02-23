@@ -41,11 +41,14 @@ const morgan_middleware_1 = __importDefault(require("./middleware/morgan-middlew
 const swagger_1 = __importDefault(require("./config/swagger"));
 const createServer = () => {
     const app = (0, express_1.default)();
+    // In development → no rate limit so testing is unrestricted
+    // In production  → 100 requests per minute per IP
     const limiter = (0, express_rate_limit_1.default)({
-        windowMs: 15 * 60 * 1000, // 15 minutes
-        limit: 1000, // Limit each IP to 1000 requests per `window`
+        windowMs: 60 * 1000, // 1 minute
+        limit: 100,
+        skip: () => config_1.default.env === "development" || config_1.default.env === "dev",
         standardHeaders: true,
-        legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+        legacyHeaders: false,
     });
     app
         .use((0, helmet_1.default)())
@@ -82,4 +85,3 @@ const createServer = () => {
     return app;
 };
 exports.createServer = createServer;
-//# sourceMappingURL=server.js.map

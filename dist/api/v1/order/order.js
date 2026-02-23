@@ -9,4 +9,3 @@ router.patch("/:orderId/status", OrderController_1.updateOrderStatusController);
 router.get("/:orderId/track", OrderController_1.trackOrderController);
 router.patch("/:orderId/cancel", OrderController_1.cancelOrderController);
 exports.default = router;
-//# sourceMappingURL=order.js.map

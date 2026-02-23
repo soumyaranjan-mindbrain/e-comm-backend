@@ -30,4 +30,3 @@ v1.use("/coupon-codes", coupon_codes_1.default);
 v1.use("/cart", cart_1.default);
 v1.use("/orders", order_1.default);
 exports.default = v1;
-//# sourceMappingURL=index.js.map

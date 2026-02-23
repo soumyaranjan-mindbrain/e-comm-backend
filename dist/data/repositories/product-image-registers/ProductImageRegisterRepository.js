@@ -33,4 +33,3 @@ const getAllProductImageRegisters = async (limit = 50, cursor) => {
     return { data, nextCursor };
 };
 exports.getAllProductImageRegisters = getAllProductImageRegisters;
-//# sourceMappingURL=ProductImageRegisterRepository.js.map

@@ -4,39 +4,41 @@ exports.clearCart = exports.removeFromCart = exports.updateCartQuantity = export
 const CartRepository_1 = require("../../data/repositories/cart/CartRepository");
 const cartRepository = new CartRepository_1.CartRepository();
 // ---------------- Add to Cart ----------------
-const addToCart = async (req, res) => {
+const addToCart = async (req, res, next) => {
     try {
-        const comId = req.user.comId || req.user.id; // Fallback to id if comId missing
+        const comId = req.user.comId || req.user.id;
         const productId = req.body.productId || req.body.ItemId;
         const quantity = req.body.quantity;
         if (productId === undefined || quantity === undefined) {
-            res
-                .status(400)
-                .json({ success: false, message: "productId and quantity are required" });
+            res.status(400).json({
+                success: false,
+                msg: "productId and quantity are required",
+            });
             return;
         }
         const numProductId = Number(productId);
         const numQuantity = Number(quantity);
-        if (isNaN(numProductId) || isNaN(numQuantity)) {
-            res
-                .status(400)
-                .json({ success: false, message: "Valid productId and quantity are required" });
+        if (isNaN(numProductId) || isNaN(numQuantity) || numQuantity < 1) {
+            res.status(400).json({
+                success: false,
+                msg: "valid productId and quantity (min 1) are required",
+            });
             return;
         }
         const result = await cartRepository.addToCart(comId, numProductId, numQuantity);
         res.status(200).json({
             success: true,
-            message: "Item added to cart successfully",
+            msg: "item added to cart successfully",
             data: result,
         });
     }
     catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        next(error);
     }
 };
 exports.addToCart = addToCart;
 // ---------------- Get Cart ----------------
-const getCart = async (req, res) => {
+const getCart = async (req, res, next) => {
     try {
         const comId = req.user.comId || req.user.id;
         const items = await cartRepository.getCartByComId(comId);
@@ -65,69 +67,77 @@ const getCart = async (req, res) => {
         });
     }
     catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        next(error);
     }
 };
 exports.getCart = getCart;
 // ---------------- Update Quantity ----------------
-const updateCartQuantity = async (req, res) => {
+const updateCartQuantity = async (req, res, next) => {
     try {
         const comId = req.user.comId || req.user.id;
         const itemId = Number(req.params.itemId);
         const { quantity } = req.body;
-        if (isNaN(itemId) || quantity === undefined) {
+        if (isNaN(itemId)) {
             res.status(400).json({
                 success: false,
-                message: "Valid itemId and quantity are required",
+                msg: "valid itemId is required",
+            });
+            return;
+        }
+        if (quantity === undefined || isNaN(Number(quantity)) || Number(quantity) < 1) {
+            res.status(400).json({
+                success: false,
+                msg: "valid quantity (min 1) is required",
             });
             return;
         }
         const result = await cartRepository.updateQuantity(comId, itemId, Number(quantity));
         res.status(200).json({
             success: true,
-            message: "Cart quantity updated successfully",
+            msg: "cart quantity updated successfully",
             data: result,
         });
     }
     catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        next(error);
     }
 };
 exports.updateCartQuantity = updateCartQuantity;
 // ---------------- Remove Item ----------------
-const removeFromCart = async (req, res) => {
+const removeFromCart = async (req, res, next) => {
     try {
         const comId = req.user.comId || req.user.id;
         const itemId = Number(req.params.itemId);
         if (isNaN(itemId)) {
-            res
-                .status(400)
-                .json({ success: false, message: "Valid itemId is required" });
+            res.status(400).json({
+                success: false,
+                msg: "valid itemId is required",
+            });
             return;
         }
         await cartRepository.removeCartItem(comId, itemId);
         res.status(200).json({
             success: true,
-            message: "Item removed from cart successfully",
+            msg: "item removed from cart successfully",
         });
     }
     catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        next(error);
     }
 };
 exports.removeFromCart = removeFromCart;
 // ---------------- Clear Cart ----------------
-const clearCart = async (req, res) => {
+const clearCart = async (req, res, next) => {
     try {
         const comId = req.user.comId || req.user.id;
         await cartRepository.clearCart(comId);
-        res
-            .status(200)
-            .json({ success: true, message: "Cart cleared successfully" });
+        res.status(200).json({
+            success: true,
+            msg: "cart cleared successfully",
+        });
     }
     catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        next(error);
     }
 };
 exports.clearCart = clearCart;
-//# sourceMappingURL=CartController.js.map

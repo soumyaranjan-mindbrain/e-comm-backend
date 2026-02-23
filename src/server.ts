@@ -14,11 +14,14 @@ import swaggerSpec from "./config/swagger";
 export const createServer = () => {
   const app = express();
 
+  // In development → no rate limit so testing is unrestricted
+  // In production  → 100 requests per minute per IP
   const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    limit: 1000, // Limit each IP to 1000 requests per `window`
+    windowMs: 60 * 1000, // 1 minute
+    limit: 100,
+    skip: () => config.env === "development" || config.env === "dev",
     standardHeaders: true,
-    legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+    legacyHeaders: false,
   });
 
   app

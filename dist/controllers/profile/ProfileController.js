@@ -77,3 +77,4 @@ const uploadPhoto = async (req, res, next) => {
     }
 };
 exports.uploadPhoto = uploadPhoto;
+//# sourceMappingURL=ProfileController.js.map

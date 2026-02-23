@@ -11,7 +11,7 @@ export default function errorHandler(
   res: Response,
   next: NextFunction,
 ) {
-  if (res.headersSent || config.debug) {
+  if (res.headersSent) {
     next(error);
     return;
   }

@@ -64,6 +64,8 @@ export const verifyOtp = async (
       success: true,
       msg: "otp verified successfully",
       data: {
+        token: result.tokens.accessToken,
+        refreshToken: result.tokens.refreshToken,
         user: result.user,
       },
     });
@@ -144,8 +146,9 @@ export const refreshToken = async (
       success: true,
       msg: "token refreshed successfully",
       data: {
+        token: result.tokens.accessToken,
+        refreshToken: result.tokens.refreshToken,
         user: result.user,
-        accessToken: result.tokens.accessToken,
       },
     });
   } catch (error) {

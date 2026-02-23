@@ -7,12 +7,11 @@ export const getAll = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const limit = req.query.limit
-      ? parseInt(req.query.limit as string)
-      : undefined;
-    const cursor = req.query.cursor
-      ? parseInt(req.query.cursor as string)
-      : undefined;
+    const parsedLimit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
+    const parsedCursor = req.query.cursor ? parseInt(req.query.cursor as string) : undefined;
+
+    const limit = isNaN(parsedLimit as any) ? undefined : parsedLimit;
+    const cursor = isNaN(parsedCursor as any) ? undefined : parsedCursor;
 
     const result = await productRatingUseCase.getAllProductRatings(
       limit,
@@ -37,12 +36,11 @@ export const getByProductId = async (
 ): Promise<void> => {
   try {
     const productId = parseInt(req.params.productId);
-    const limit = req.query.limit
-      ? parseInt(req.query.limit as string)
-      : undefined;
-    const cursor = req.query.cursor
-      ? parseInt(req.query.cursor as string)
-      : undefined;
+    const parsedLimit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
+    const parsedCursor = req.query.cursor ? parseInt(req.query.cursor as string) : undefined;
+
+    const limit = isNaN(parsedLimit as any) ? undefined : parsedLimit;
+    const cursor = isNaN(parsedCursor as any) ? undefined : parsedCursor;
 
     if (isNaN(productId)) {
       res.status(400).json({
@@ -75,9 +73,12 @@ export const getOne = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const rating = await productRatingUseCase.getProductRatingById(
-      parseInt(req.params.id),
-    );
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      res.status(400).json({ success: false, message: "Invalid ID." });
+      return;
+    }
+    const rating = await productRatingUseCase.getProductRatingById(id);
 
     res.status(200).json({
       success: true,
@@ -120,18 +121,21 @@ export const update = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      res.status(400).json({ success: false, message: "Invalid ID." });
+      return;
+    }
     const { productId, totalRatings, givenRatings, message, updatedBy } =
       req.body;
 
-    const rating = await productRatingUseCase.updateProductRating(
-      parseInt(req.params.id),
-      {
-        productId,
-        totalRatings,
-        givenRatings,
-        message,
-        updatedBy,
-      },
+    const rating = await productRatingUseCase.updateProductRating(id, {
+      productId,
+      totalRatings,
+      givenRatings,
+      message,
+      updatedBy,
+    },
     );
 
     res.status(200).json({
@@ -149,7 +153,12 @@ export const remove = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    await productRatingUseCase.deleteProductRating(parseInt(req.params.id));
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      res.status(400).json({ success: false, message: "Invalid ID." });
+      return;
+    }
+    await productRatingUseCase.deleteProductRating(id);
 
     res.status(200).json({
       success: true,

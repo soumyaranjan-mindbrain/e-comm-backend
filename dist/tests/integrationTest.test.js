@@ -15,3 +15,4 @@ describe("Health endpoint tests", () => {
         });
     });
 });
+//# sourceMappingURL=integrationTest.test.js.map

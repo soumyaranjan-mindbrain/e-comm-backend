@@ -104,3 +104,4 @@ const getProductRatingStats = async (productId) => {
     };
 };
 exports.getProductRatingStats = getProductRatingStats;
+//# sourceMappingURL=ProductRatingRepository.js.map

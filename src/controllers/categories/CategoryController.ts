@@ -7,12 +7,11 @@ export const getAll = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const limit = req.query.limit
-      ? parseInt(req.query.limit as string)
-      : undefined;
-    const cursor = req.query.cursor
-      ? parseInt(req.query.cursor as string)
-      : undefined;
+    const parsedLimit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
+    const parsedCursor = req.query.cursor ? parseInt(req.query.cursor as string) : undefined;
+
+    const limit = isNaN(parsedLimit as any) ? undefined : parsedLimit;
+    const cursor = isNaN(parsedCursor as any) ? undefined : parsedCursor;
     const search = req.query.q as string | undefined;
 
     const result = await categoryUseCase.getAllCategories(
@@ -38,9 +37,12 @@ export const getOne = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const category = await categoryUseCase.getCategoryById(
-      parseInt(req.params.id),
-    );
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      res.status(400).json({ success: false, message: "Invalid ID." });
+      return;
+    }
+    const category = await categoryUseCase.getCategoryById(id);
 
     res.status(200).json({
       success: true,

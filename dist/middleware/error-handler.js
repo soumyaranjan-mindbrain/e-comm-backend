@@ -4,13 +4,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = errorHandler;
-const config_1 = __importDefault(require("../config"));
 const utils_1 = require("../utils");
 const CustomError_1 = __importDefault(require("../errors/CustomError"));
 const express_oauth2_jwt_bearer_1 = require("express-oauth2-jwt-bearer");
 const joi_1 = __importDefault(require("joi"));
 function errorHandler(error, req, res, next) {
-    if (res.headersSent || config_1.default.debug) {
+    if (res.headersSent) {
         next(error);
         return;
     }
@@ -53,3 +52,4 @@ function errorHandler(error, req, res, next) {
         msg: ((0, utils_1.getErrorMessage)(error) || "internal server error").toLowerCase(),
     });
 }
+//# sourceMappingURL=error-handler.js.map

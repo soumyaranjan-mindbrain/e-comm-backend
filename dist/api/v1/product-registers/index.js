@@ -36,3 +36,4 @@ router.get("/", productController.getAll);
 // Get product register by ID
 router.get("/:id", productController.getOne);
 exports.default = router;
+//# sourceMappingURL=index.js.map

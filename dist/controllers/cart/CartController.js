@@ -6,15 +6,24 @@ const cartRepository = new CartRepository_1.CartRepository();
 // ---------------- Add to Cart ----------------
 const addToCart = async (req, res) => {
     try {
-        const comId = req.user.id;
-        const { ItemId, quantity } = req.body;
-        if (ItemId === undefined || quantity === undefined) {
+        const comId = req.user.comId || req.user.id; // Fallback to id if comId missing
+        const productId = req.body.productId || req.body.ItemId;
+        const quantity = req.body.quantity;
+        if (productId === undefined || quantity === undefined) {
             res
                 .status(400)
-                .json({ success: false, message: "ItemId and quantity are required" });
+                .json({ success: false, message: "productId and quantity are required" });
             return;
         }
-        const result = await cartRepository.addToCart(comId, Number(ItemId), Number(quantity));
+        const numProductId = Number(productId);
+        const numQuantity = Number(quantity);
+        if (isNaN(numProductId) || isNaN(numQuantity)) {
+            res
+                .status(400)
+                .json({ success: false, message: "Valid productId and quantity are required" });
+            return;
+        }
+        const result = await cartRepository.addToCart(comId, numProductId, numQuantity);
         res.status(200).json({
             success: true,
             message: "Item added to cart successfully",
@@ -29,7 +38,7 @@ exports.addToCart = addToCart;
 // ---------------- Get Cart ----------------
 const getCart = async (req, res) => {
     try {
-        const comId = req.user.id;
+        const comId = req.user.comId || req.user.id;
         const items = await cartRepository.getCartByComId(comId);
         let grandTotal = 0;
         const enrichedItems = items.map((item) => {
@@ -63,7 +72,7 @@ exports.getCart = getCart;
 // ---------------- Update Quantity ----------------
 const updateCartQuantity = async (req, res) => {
     try {
-        const comId = req.user.id;
+        const comId = req.user.comId || req.user.id;
         const itemId = Number(req.params.itemId);
         const { quantity } = req.body;
         if (isNaN(itemId) || quantity === undefined) {
@@ -88,7 +97,7 @@ exports.updateCartQuantity = updateCartQuantity;
 // ---------------- Remove Item ----------------
 const removeFromCart = async (req, res) => {
     try {
-        const comId = req.user.id;
+        const comId = req.user.comId || req.user.id;
         const itemId = Number(req.params.itemId);
         if (isNaN(itemId)) {
             res
@@ -110,7 +119,7 @@ exports.removeFromCart = removeFromCart;
 // ---------------- Clear Cart ----------------
 const clearCart = async (req, res) => {
     try {
-        const comId = req.user.id;
+        const comId = req.user.comId || req.user.id;
         await cartRepository.clearCart(comId);
         res
             .status(200)
@@ -121,3 +130,4 @@ const clearCart = async (req, res) => {
     }
 };
 exports.clearCart = clearCart;
+//# sourceMappingURL=CartController.js.map

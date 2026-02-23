@@ -141,3 +141,4 @@ exports.productFilterSchema = joi_1.default.object({
     limit: joi_1.default.number().integer().min(1).max(100).optional(),
     cursor: joi_1.default.number().integer().optional(),
 });
+//# sourceMappingURL=request-schemas.js.map

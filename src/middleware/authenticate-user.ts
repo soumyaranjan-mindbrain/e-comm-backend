@@ -6,6 +6,7 @@ import AppError from "../errors/AppError";
 export interface AuthRequest extends Request {
   user?: {
     id: number;
+    comId?: number;
     username?: string;
     mobile?: string;
   };
@@ -33,6 +34,7 @@ const authenticateUser = (req: Request, res: Response, next: NextFunction) => {
   try {
     const decoded = jwt.verify(token, config.jwtAccessSecret) as {
       id: number;
+      comId?: number;
       username?: string;
       mobile?: string;
     };

@@ -10,20 +10,31 @@ export const addToCart = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const comId = req.user!.id;
-    const { ItemId, quantity } = req.body;
+    const comId = req.user!.comId || req.user!.id; // Fallback to id if comId missing
+    const productId = req.body.productId || req.body.ItemId;
+    const quantity = req.body.quantity;
 
-    if (ItemId === undefined || quantity === undefined) {
+    if (productId === undefined || quantity === undefined) {
       res
         .status(400)
-        .json({ success: false, message: "ItemId and quantity are required" });
+        .json({ success: false, message: "productId and quantity are required" });
+      return;
+    }
+
+    const numProductId = Number(productId);
+    const numQuantity = Number(quantity);
+
+    if (isNaN(numProductId) || isNaN(numQuantity)) {
+      res
+        .status(400)
+        .json({ success: false, message: "Valid productId and quantity are required" });
       return;
     }
 
     const result = await cartRepository.addToCart(
       comId,
-      Number(ItemId),
-      Number(quantity),
+      numProductId,
+      numQuantity,
     );
 
     res.status(200).json({
@@ -42,7 +53,7 @@ export const getCart = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const comId = req.user!.id;
+    const comId = req.user!.comId || req.user!.id;
     const items = await cartRepository.getCartByComId(comId);
 
     let grandTotal = 0;
@@ -81,7 +92,7 @@ export const updateCartQuantity = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const comId = req.user!.id;
+    const comId = req.user!.comId || req.user!.id;
     const itemId = Number(req.params.itemId);
     const { quantity } = req.body;
 
@@ -115,7 +126,7 @@ export const removeFromCart = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const comId = req.user!.id;
+    const comId = req.user!.comId || req.user!.id;
     const itemId = Number(req.params.itemId);
 
     if (isNaN(itemId)) {
@@ -141,7 +152,7 @@ export const clearCart = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const comId = req.user!.id;
+    const comId = req.user!.comId || req.user!.id;
     await cartRepository.clearCart(comId);
     res
       .status(200)

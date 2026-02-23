@@ -55,6 +55,8 @@ const verifyOtp = async (req, res, next) => {
             success: true,
             msg: "otp verified successfully",
             data: {
+                token: result.tokens.accessToken,
+                refreshToken: result.tokens.refreshToken,
                 user: result.user,
             },
         });
@@ -119,8 +121,9 @@ const refreshToken = async (req, res, next) => {
             success: true,
             msg: "token refreshed successfully",
             data: {
+                token: result.tokens.accessToken,
+                refreshToken: result.tokens.refreshToken,
                 user: result.user,
-                accessToken: result.tokens.accessToken,
             },
         });
     }
@@ -129,3 +132,4 @@ const refreshToken = async (req, res, next) => {
     }
 };
 exports.refreshToken = refreshToken;
+//# sourceMappingURL=AuthController.js.map

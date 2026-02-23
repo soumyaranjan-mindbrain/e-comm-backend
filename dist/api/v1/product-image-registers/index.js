@@ -36,3 +36,4 @@ router.get("/product/:productId", productImageRegisterController.getByProductId)
 // Get product image register by ID
 router.get("/:id", productImageRegisterController.getOne);
 exports.default = router;
+//# sourceMappingURL=index.js.map

@@ -5,7 +5,7 @@ import config from "../../config";
 import { compareOtp } from "../../util/crypto";
 
 export class VerifyOtpUseCase {
-  constructor(private customerRepository: CustomerRepository) {}
+  constructor(private customerRepository: CustomerRepository) { }
 
   async execute(
     mobileInput: string,
@@ -53,6 +53,7 @@ export class VerifyOtpUseCase {
 
     const accessToken = this.generateAccessToken(
       customer.id,
+      customer.comId ?? 0,
       customer.contactNo ?? "",
     );
     const refreshToken = this.generateRefreshToken(customer.id);
@@ -60,7 +61,7 @@ export class VerifyOtpUseCase {
     // Save refresh token to database
     await this.customerRepository.saveRefreshToken(customer.id, refreshToken);
 
-    return { 
+    return {
       user: {
         id: customer.id,
         mobile: customer.contactNo ?? "",
@@ -73,8 +74,8 @@ export class VerifyOtpUseCase {
     };
   }
 
-  private generateAccessToken(id: number, mobile: string): string {
-    return jwt.sign({ id, mobile }, config.jwtAccessSecret, {
+  private generateAccessToken(id: number, comId: number, mobile: string): string {
+    return jwt.sign({ id, comId, mobile }, config.jwtAccessSecret, {
       expiresIn: "15m",
     });
   }

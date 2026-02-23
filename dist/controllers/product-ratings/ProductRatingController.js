@@ -27,12 +27,10 @@ exports.getStats = exports.remove = exports.update = exports.create = exports.ge
 const productRatingUseCase = __importStar(require("../../usecases/product-ratings/ProductRatingUseCase"));
 const getAll = async (req, res, next) => {
     try {
-        const limit = req.query.limit
-            ? parseInt(req.query.limit)
-            : undefined;
-        const cursor = req.query.cursor
-            ? parseInt(req.query.cursor)
-            : undefined;
+        const parsedLimit = req.query.limit ? parseInt(req.query.limit) : undefined;
+        const parsedCursor = req.query.cursor ? parseInt(req.query.cursor) : undefined;
+        const limit = isNaN(parsedLimit) ? undefined : parsedLimit;
+        const cursor = isNaN(parsedCursor) ? undefined : parsedCursor;
         const result = await productRatingUseCase.getAllProductRatings(limit, cursor);
         res.status(200).json({
             success: true,
@@ -49,12 +47,10 @@ exports.getAll = getAll;
 const getByProductId = async (req, res, next) => {
     try {
         const productId = parseInt(req.params.productId);
-        const limit = req.query.limit
-            ? parseInt(req.query.limit)
-            : undefined;
-        const cursor = req.query.cursor
-            ? parseInt(req.query.cursor)
-            : undefined;
+        const parsedLimit = req.query.limit ? parseInt(req.query.limit) : undefined;
+        const parsedCursor = req.query.cursor ? parseInt(req.query.cursor) : undefined;
+        const limit = isNaN(parsedLimit) ? undefined : parsedLimit;
+        const cursor = isNaN(parsedCursor) ? undefined : parsedCursor;
         if (isNaN(productId)) {
             res.status(400).json({
                 success: false,
@@ -77,7 +73,12 @@ const getByProductId = async (req, res, next) => {
 exports.getByProductId = getByProductId;
 const getOne = async (req, res, next) => {
     try {
-        const rating = await productRatingUseCase.getProductRatingById(parseInt(req.params.id));
+        const id = parseInt(req.params.id);
+        if (isNaN(id)) {
+            res.status(400).json({ success: false, message: "Invalid ID." });
+            return;
+        }
+        const rating = await productRatingUseCase.getProductRatingById(id);
         res.status(200).json({
             success: true,
             data: rating,
@@ -110,8 +111,13 @@ const create = async (req, res, next) => {
 exports.create = create;
 const update = async (req, res, next) => {
     try {
+        const id = parseInt(req.params.id);
+        if (isNaN(id)) {
+            res.status(400).json({ success: false, message: "Invalid ID." });
+            return;
+        }
         const { productId, totalRatings, givenRatings, message, updatedBy } = req.body;
-        const rating = await productRatingUseCase.updateProductRating(parseInt(req.params.id), {
+        const rating = await productRatingUseCase.updateProductRating(id, {
             productId,
             totalRatings,
             givenRatings,
@@ -130,7 +136,12 @@ const update = async (req, res, next) => {
 exports.update = update;
 const remove = async (req, res, next) => {
     try {
-        await productRatingUseCase.deleteProductRating(parseInt(req.params.id));
+        const id = parseInt(req.params.id);
+        if (isNaN(id)) {
+            res.status(400).json({ success: false, message: "Invalid ID." });
+            return;
+        }
+        await productRatingUseCase.deleteProductRating(id);
         res.status(200).json({
             success: true,
             message: "Product rating deleted successfully.",
@@ -162,3 +173,4 @@ const getStats = async (req, res, next) => {
     }
 };
 exports.getStats = getStats;
+//# sourceMappingURL=ProductRatingController.js.map

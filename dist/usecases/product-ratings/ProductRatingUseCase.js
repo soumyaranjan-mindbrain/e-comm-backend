@@ -86,3 +86,4 @@ const getProductRatingStats = async (productId) => {
     return await productRatingRepository.getProductRatingStats(productId);
 };
 exports.getProductRatingStats = getProductRatingStats;
+//# sourceMappingURL=ProductRatingUseCase.js.map

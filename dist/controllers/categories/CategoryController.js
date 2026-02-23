@@ -27,12 +27,10 @@ exports.getOne = exports.getAll = void 0;
 const categoryUseCase = __importStar(require("../../usecases/categories/CategoryUseCase"));
 const getAll = async (req, res, next) => {
     try {
-        const limit = req.query.limit
-            ? parseInt(req.query.limit)
-            : undefined;
-        const cursor = req.query.cursor
-            ? parseInt(req.query.cursor)
-            : undefined;
+        const parsedLimit = req.query.limit ? parseInt(req.query.limit) : undefined;
+        const parsedCursor = req.query.cursor ? parseInt(req.query.cursor) : undefined;
+        const limit = isNaN(parsedLimit) ? undefined : parsedLimit;
+        const cursor = isNaN(parsedCursor) ? undefined : parsedCursor;
         const search = req.query.q;
         const result = await categoryUseCase.getAllCategories(limit, cursor, search);
         res.status(200).json({
@@ -49,7 +47,12 @@ const getAll = async (req, res, next) => {
 exports.getAll = getAll;
 const getOne = async (req, res, next) => {
     try {
-        const category = await categoryUseCase.getCategoryById(parseInt(req.params.id));
+        const id = parseInt(req.params.id);
+        if (isNaN(id)) {
+            res.status(400).json({ success: false, message: "Invalid ID." });
+            return;
+        }
+        const category = await categoryUseCase.getCategoryById(id);
         res.status(200).json({
             success: true,
             data: category,
@@ -60,3 +63,4 @@ const getOne = async (req, res, next) => {
     }
 };
 exports.getOne = getOne;
+//# sourceMappingURL=CategoryController.js.map

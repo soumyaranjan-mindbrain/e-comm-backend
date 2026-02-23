@@ -104,3 +104,4 @@ router.patch("/me", upload_middleware_1.upload.single("profileImage"), (0, valid
  */
 router.post("/upload-photo", upload_middleware_1.upload.single("profileImage"), profileController.uploadPhoto);
 exports.default = router;
+//# sourceMappingURL=index.js.map

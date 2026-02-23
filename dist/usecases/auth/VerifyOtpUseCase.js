@@ -42,7 +42,7 @@ class VerifyOtpUseCase {
         }
         // Clear OTP immediately after successful verification
         await this.customerRepository.updateOtp(customer.id, null, null);
-        const accessToken = this.generateAccessToken(customer.id, customer.contactNo ?? "");
+        const accessToken = this.generateAccessToken(customer.id, customer.comId ?? 0, customer.contactNo ?? "");
         const refreshToken = this.generateRefreshToken(customer.id);
         // Save refresh token to database
         await this.customerRepository.saveRefreshToken(customer.id, refreshToken);
@@ -58,8 +58,8 @@ class VerifyOtpUseCase {
             },
         };
     }
-    generateAccessToken(id, mobile) {
-        return jsonwebtoken_1.default.sign({ id, mobile }, config_1.default.jwtAccessSecret, {
+    generateAccessToken(id, comId, mobile) {
+        return jsonwebtoken_1.default.sign({ id, comId, mobile }, config_1.default.jwtAccessSecret, {
             expiresIn: "15m",
         });
     }
@@ -68,3 +68,4 @@ class VerifyOtpUseCase {
     }
 }
 exports.VerifyOtpUseCase = VerifyOtpUseCase;
+//# sourceMappingURL=VerifyOtpUseCase.js.map

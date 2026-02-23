@@ -29,3 +29,4 @@ const mailer = {
     send: mailtrapMailer.send,
 };
 exports.mailer = mailer;
+//# sourceMappingURL=index.js.map

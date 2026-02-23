@@ -92,9 +92,17 @@ export const getOne = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const result = await productUseCase.getProductDetail(
-      parseInt(req.params.id),
-    );
+    const productId = parseInt(req.params.id);
+
+    if (isNaN(productId)) {
+      res.status(400).json({
+        success: false,
+        message: "Invalid product ID",
+      });
+      return;
+    }
+
+    const result = await productUseCase.getProductDetail(productId);
 
     res.status(200).json({
       success: true,

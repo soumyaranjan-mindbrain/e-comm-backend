@@ -6,32 +6,42 @@ import AppError from "../errors/AppError";
 export interface AuthRequest extends Request {
   user?: {
     id: number;
+    comId?: number;
     username?: string;
     mobile?: string;
   };
+  file?: any;
+  files?: any;
 }
 
 const authenticateUser = (req: Request, res: Response, next: NextFunction) => {
-  const authHeader = req.headers.authorization;
+  // Try to get token from cookies first, then fallback to Authorization header
+  let token = req.cookies?.accessToken;
 
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return next(
-      AppError.unauthorized("Authentication token is missing or invalid"),
-    );
+  if (!token) {
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      token = authHeader.split(" ")[1];
+    }
   }
 
-  const token = authHeader.split(" ")[1];
+  if (!token) {
+    return next(
+      AppError.unauthorized("authentication token is missing or invalid"),
+    );
+  }
 
   try {
     const decoded = jwt.verify(token, config.jwtAccessSecret) as {
       id: number;
+      comId?: number;
       username?: string;
       mobile?: string;
     };
     (req as AuthRequest).user = decoded;
     next();
   } catch (error) {
-    next(AppError.unauthorized("Session expired or invalid token"));
+    next(AppError.unauthorized("session expired or invalid token"));
   }
 };
 

@@ -1,7 +1,12 @@
 import { Router } from "express";
-import * as authController from "../../../controllers/AuthController";
+import * as authController from "../../../controllers/auth/AuthController";
 import validateRequest from "../../../middleware/validate-request";
-import { sendOtpSchema, verifyOtpSchema } from "../../../data/request-schemas";
+import authenticateUser from "../../../middleware/authenticate-user";
+import {
+  sendOtpSchema,
+  verifyOtpSchema,
+  signupSchema,
+} from "../../../data/request-schemas";
 
 const router = Router();
 
@@ -27,7 +32,11 @@ const router = Router();
  *       200:
  *         description: OTP sent successfully
  */
-router.post("/send-otp", validateRequest(sendOtpSchema), authController.sendOtp);
+router.post(
+  "/send-otp",
+  validateRequest(sendOtpSchema),
+  authController.sendOtp,
+);
 
 /**
  * @openapi
@@ -55,9 +64,75 @@ router.post("/send-otp", validateRequest(sendOtpSchema), authController.sendOtp)
  *         description: Login successful
  */
 router.post(
-    "/verify-otp",
-    validateRequest(verifyOtpSchema),
-    authController.verifyOtp,
+  "/verify-otp",
+  validateRequest(verifyOtpSchema),
+  authController.verifyOtp,
 );
+
+/**
+ * @openapi
+ * /v1/auth/signup:
+ *   post:
+ *     tags:
+ *       - Auth
+ *     summary: Signup a new user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - fullName
+ *               - mobile
+ *               - email
+ *             properties:
+ *               fullName:
+ *                 type: string
+ *               mobile:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Signup successful
+ */
+router.post("/signup", validateRequest(signupSchema), authController.signup);
+
+/**
+ * @openapi
+ * /v1/auth/refresh-token:
+ *   post:
+ *     tags:
+ *       - Auth
+ *     summary: Refresh access token
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Token refreshed
+ */
+router.post("/refresh-token", authController.refreshToken);
+
+/**
+ * @openapi
+ * /v1/auth/logout:
+ *   post:
+ *     tags:
+ *       - Auth
+ *     summary: Logout user and clear session
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Logged out successfully
+ */
+router.post("/logout", authenticateUser, authController.logout);
 
 export default router;

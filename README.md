@@ -1,130 +1,86 @@
-# Backend Auto-Code
+# 🚀 BM2MALL Backend - Ultimate Docker Guide
 
-A production-ready **Node.js + Express.js + TypeScript** backend boilerplate featuring solid architecture, automated audit logging, and role-based access control.
-
----
-
-## 🛠 Prerequisites
-
-Before starting, ensure you have the following installed:
-
-*   **Node.js** (v20+ Recommended)
-*   **Docker & Docker Compose** (For MySQL database)
-*   **Git**
+Welcome to the **BM2MALL** backend repository. This project is built for high-performance e-commerce, and this guide will help you set it up on any new machine in less than 5 minutes.
 
 ---
 
-## 🚀 Quick Start (For New Developers)
+## 🛠️ Step 1: The Essentials
+Before you run any commands, these two must be installed:
 
-Follow these steps to get the project running on your local machine.
+1.  **Docker Desktop** (REQUIRED): [Download here](https://www.docker.com/products/docker-desktop)
+    *   *Pro Tip: Ensure the "Whale" icon in your taskbar is green before proceeding.*
+2.  **VS Code**: [Download here](https://code.visualstudio.com/)
 
-### 1. Clone & Install
-```bash
-git clone <repository-url>
-cd backend-auto-code
-npm install
+---
+
+## ⚡ Step 2: One-Command Setup
+Open your terminal inside the `scripts/` folder and follow these exact steps:
+
+### 1️⃣ Prepare Configuration
+We use a `.env` file to store database credentials safely.
+```powershell
+# Windows Users:
+copy env.example .env
+
+# Mac/Linux/Git Bash Users:
+cp env.example .env
 ```
 
-### 2. Environment Setup
-Create your local environment file:
-- **Windows**: `copy .env.example .env`
-- **Linux/Mac**: `cp .env.example .env`
-
-> [!IMPORTANT]
-> Open `.env` and ensure `APP_SECRET`, `JWT_ACCESS_SECRET`, and `JWT_REFRESH_SECRET` are populated with secure strings (min 32 chars).
-
-### 3. Spin up Database
-We use Docker to manage our MySQL instance for consistency.
+### 2️⃣ Launch the App
+This command builds everything (Database, API, and Management Tools) and starts them in the background.
 ```bash
-docker compose up -d db
-```
-*The database will be available at `localhost:33061` by default.*
-
-### 3a. Alternatively: Run Entire Stack with Docker
-If you want to run the application, database, and phpMyAdmin all together in Docker:
-```bash
-docker compose up -d
-```
-*This will build the app and start all services. The app will be on port `3000`.*
-
-### 4. Database Initialization
-Generate the Prisma client and apply existing migrations:
-```bash
-npx prisma generate
-npx prisma migrate dev
+docker-compose up -d --build
 ```
 
-### 5. Start Development
-If you chose step 3 (Local App + Docker DB), run:
+### 3️⃣ Sync Database (Run this after 20 seconds)
+Wait for the database to finish "booting up", then run:
 ```bash
-npm run dev
+docker exec scripts-app-1 npm run prisma:generate
 ```
-The API is now live at `http://localhost:3000`.  
-Check the health status: `http://localhost:3000/health`
 
 ---
 
-## 🗃️ Database Management
+## 🚦 Step 3: Flow Verification
+How do you know if it's working? Check these **3 Vital Links**:
 
-### phpMyAdmin
-When running via Docker Compose, you have access to a web interface for database management:
-- **URL**: `http://localhost:8080`
-- **Host**: `db`
-- **Username**: `root`
-- **Password**: `secret` (as defined in `.env`)
+| Service | Local Address | Verification Status |
+| :--- | :--- | :--- |
+| **Backend API** | [http://localhost:3000/health](http://localhost:3000/health) | Should show `{"ok":true, "environment":"development"}` |
+| **Interactive Docs** | [http://localhost:3000/api-docs](http://localhost:3000/api-docs) | Complete Swagger UI for testing API calls |
+| **Database Manager**| [http://localhost:8080](http://localhost:8080) | Login to **phpMyAdmin** to see live data |
 
----
-
-## 💻 OS Specific Instructions
-
-### 🪟 Windows Setup
-1. **Node.js**: Install via [official installer](https://nodejs.org/).
-2. **Docker**: Use [Docker Desktop](https://www.docker.com/products/docker-desktop). Ensure WSL2 backend is enabled.
-3. **Terminal**: Use PowerShell or Git Bash for a better experience.
-
-### 🐧 Linux (Ubuntu/Debian)
-1. **Node.js**:
-   ```bash
-   curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-   sudo apt install -y nodejs
-   ```
-2. **Docker**:
-   ```bash
-   sudo apt update
-   sudo apt install docker.io docker-compose-v2
-   sudo usermod -aG docker $USER
-   # Logout and back in for group changes
-   ```
+**🔑 phpMyAdmin Credentials:**
+- **Server:** `db`
+- **Username:** `root`
+- **Password:** `secret`
 
 ---
 
-## 📁 Key Project Features
+## 🧪 Developer Testing Mode
+We have built-in features to make testing easier for developers:
 
--   **Clean Architecture**: Separation of concerns between Controllers, Services, and Repositories.
--   **Audit Trail**: Automated logging for all User actions (Create, Update, Delete) via Prisma middleware/transactions.
--   **Role-Based Access**: Secure endpoints with `SUPERADMIN`, `ADMIN`, and `MANAGER` roles.
--   **Error Handling**: Centralized `AppError` factory for consistent API responses.
-
----
-
-## 📜 Available Scripts
-
-| Command | Description |
-| :--- | :--- |
-| `npm run dev` | Starts the app in watch mode (Hot-reload) |
-| `npm run build` | Compiles TypeScript to JavaScript in `/dist` |
-| `npm start` | Starts the production server from `/dist` |
-| `npx prisma studio` | Opens a GUI to view/edit your database |
-| `npm test` | Runs the test suite |
+*   **Hardcoded OTP Bypass:** In development mode, you can use OTP **`111111`** for any mobile number to login instantly without waiting for an SMS.
+*   **Seeded Data:** The database comes pre-loaded with **15+ Products** and categories like "Fashion", "Trending", and "Electronics".
 
 ---
 
-## 🤝 Troubleshooting
+## ⚠️ Advanced Troubleshooting (New Device Gotchas)
 
--   **Port Conflict**: If `3000` is taken, update `PORT` in `.env`.
--   **DB Connection**: If migrations fail, ensure the Docker container is running (`docker ps`).
--   **Prisma Errors**: If you see "Prisma Client not found", run `npx prisma generate`.
+| Error Message | Why it happens? | How to fix? |
+| :--- | :--- | :--- |
+| `Docker daemon is not running` | Docker is installed but not opened. | Launch Docker Desktop and wait for the green status. |
+| `Port 3000 is already in use` | Another server (like React) is running. | Stop other projects or run `docker-compose down`. |
+| `Can't connect to MySQL` | MySQL takes ~15s to import data (`init.sql`). | Just wait 15 seconds and try again. |
+| `PrismaClient failed` | Client wasn't generated during build. | Run `docker exec scripts-app-1 npm run prisma:generate`. |
+| `Permission Denied (PowerShell)` | Windows security blocks scripts. | Run `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass`. |
 
 ---
 
-**Developed for scalability and developer happiness.**
+## 🛠️ Maintenance Commands
+*   **Stop Project:** `docker-compose down` (Saves resources when not working).
+*   **Fresh Start:** `docker-compose up -d --build` (Use this if you change any code).
+*   **Check Logs:** `docker logs -f scripts-app-1` (See errors in real-time).
+
+---
+
+**Built with ❤️ for the BM2MALL E-commerce Ecosystem.**

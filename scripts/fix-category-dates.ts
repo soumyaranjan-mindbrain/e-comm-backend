@@ -22,7 +22,7 @@ async function fixCategoryDates() {
     `);
 
     console.log(
-      `Fixed ${insertDateResult1} insert_date values (YYYY-MM-DD format)`
+      `Fixed ${insertDateResult1} insert_date values (YYYY-MM-DD format)`,
     );
 
     // Fix insert_date column - Handle DD-MM-YYYY format (e.g., "14-10-2025")
@@ -36,7 +36,7 @@ async function fixCategoryDates() {
     `);
 
     console.log(
-      `Fixed ${insertDateResult2} insert_date values (DD-MM-YYYY format)`
+      `Fixed ${insertDateResult2} insert_date values (DD-MM-YYYY format)`,
     );
 
     // Ensure insert_date column type is DATETIME(3)
@@ -58,7 +58,7 @@ async function fixCategoryDates() {
     `);
 
     console.log(
-      `Fixed ${updateDateResult1} update_date values (YYYY-MM-DD format)`
+      `Fixed ${updateDateResult1} update_date values (YYYY-MM-DD format)`,
     );
 
     // Fix update_date column - Handle DD-MM-YYYY format
@@ -72,7 +72,7 @@ async function fixCategoryDates() {
     `);
 
     console.log(
-      `Fixed ${updateDateResult2} update_date values (DD-MM-YYYY format)`
+      `Fixed ${updateDateResult2} update_date values (DD-MM-YYYY format)`,
     );
 
     // Ensure update_date column type is DATETIME(3)

@@ -1,5 +1,5 @@
 import express from "express";
-import * as productImageRegisterController from "../../../controllers/ProductImageRegisterController";
+import * as productImageRegisterController from "../../../controllers/product-image-registers/ProductImageRegisterController";
 
 const router = express.Router();
 
@@ -8,8 +8,8 @@ router.get("/", productImageRegisterController.getAll);
 
 // Get product image registers by product ID
 router.get(
-    "/product/:productId",
-    productImageRegisterController.getByProductId
+  "/product/:productId",
+  productImageRegisterController.getByProductId,
 );
 
 // Get product image register by ID

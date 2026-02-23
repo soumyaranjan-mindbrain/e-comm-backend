@@ -6,7 +6,7 @@ import {
   aa13_customer_db_status,
   x1_app_product_register_is_display,
   caa1_shop_stock_item_db_status,
-  x2_app_product_img_register_status
+  x2_app_product_img_register_status,
 } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -23,6 +23,15 @@ async function main() {
   console.log("🌱 Starting Database Seeding (Office Schema - Enums Fixed)...");
 
   // 1. Clean up (Be careful with order due to FKs)
+  // Delete status history first
+  await (prisma as any).x10_app_order_status.deleteMany({});
+  // Delete order details
+  await (prisma as any).x9_app_order_details.deleteMany({});
+  // Delete order masters
+  await (prisma as any).x8_app_orders_master.deleteMany({});
+  // Delete cart
+  await (prisma as any).x5_app_cart.deleteMany({});
+
   await prisma.shopStockItem.deleteMany({});
   await prisma.productImageRegister.deleteMany({});
   await prisma.productRating.deleteMany({});
@@ -36,6 +45,7 @@ async function main() {
   for (const item of categoryData) {
     const cat = await prisma.category.create({
       data: {
+        comId: 1,
         catName: item.name,
         catCode: item.name.substring(0, 3).toUpperCase(),
         catDesc: item.desc,
@@ -51,6 +61,7 @@ async function main() {
   for (let i = 0; i < 10; i++) {
     const customer = await prisma.customer.create({
       data: {
+        comId: 100 + i, // Unique comId for each customer
         fullName: faker.person.fullName(),
         contactNo: i === 0 ? "1234567890" : faker.string.numeric(10),
         emailId: faker.internet.email(),
@@ -82,10 +93,15 @@ async function main() {
 
     const product = await prisma.productRegister.create({
       data: {
+        comId: 1,
         productName: faker.commerce.productName(),
         productId: uniqueProductId,
         shdesc: faker.commerce.productDescription(),
-        displaySection: faker.helpers.arrayElement(["Fashion", "Trending", "Featured"]),
+        displaySection: faker.helpers.arrayElement([
+          "Fashion",
+          "Trending",
+          "Featured",
+        ]),
         isDisplay: x1_app_product_register_is_display.ONE,
         ratings: 4.5,
       },

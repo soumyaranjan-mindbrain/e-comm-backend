@@ -1,0 +1,479 @@
+@baseUrl = http://localhost:3000/v1
+@token = your_jwt_token_here
+
+# ════════════════════════════════════════════════════════════════
+#  BM2MALL API TEST FILE
+#  Base URL : http://localhost:3000/v1
+#
+#  SETUP STEPS:
+#  Step 1 → Run "1.2 Send OTP"    (use your registered mobile)
+#  Step 2 → Run "1.3 Verify OTP"  (OTP = 111111 in dev mode)
+#  Step 3 → Copy data.token from response → paste into @token above
+#  Step 4 → Now all protected routes will work
+#
+#  CART RULE (IMPORTANT!):
+#  When adding to cart, productId ≠ product list `id`
+#  From GET /products/15 response:
+#    data.id        = 15    ← use this in product URLs
+#    data.productId = 5014  ← use THIS in cart requests
+# ════════════════════════════════════════════════════════════════
+
+
+### ════════════════════════════════════════════
+### 1. AUTHENTICATION
+### ════════════════════════════════════════════
+
+
+### 1.1 Register
+# ✏️  EDIT: Change fullName, mobile, email to your values
+# ─────────────────────────────────────────────
+POST {{baseUrl}}/auth/signup
+Content-Type: application/json
+
+{
+  "fullName": "Test User",
+  "mobile": "9876543210",
+  "email": "test@example.com"
+}
+
+# ✅ EXPECTED RESPONSE (201 Created):
+# {
+#   "success": true,
+#   "msg": "signup successful",
+#   "data": null
+# }
+#
+# ❌ ERROR (400) — mobile already registered:
+# { "success": false, "msg": "mobile number already registered." }
+
+###
+
+### 1.2 Send OTP
+# ✏️  EDIT: Change mobile to your registered number
+# ─────────────────────────────────────────────
+POST {{baseUrl}}/auth/send-otp
+Content-Type: application/json
+
+{
+  "mobile": "9876543210"
+}
+
+# ✅ EXPECTED RESPONSE (200 OK):
+# {
+#   "success": true,
+#   "msg": "otp sent successfully",
+#   "data": null
+# }
+#
+# ❌ ERROR (404) — number not registered:
+# { "success": false, "msg": "mobile number not registered. please signup first." }
+#
+# ❌ ERROR (429) — OTP requested too soon:
+# { "success": false, "msg": "please wait 60 seconds before requesting a new otp." }
+
+###
+
+### 1.3 Verify OTP  ← After running, copy data.token into @token above
+# ✏️  EDIT: Change mobile to your number (OTP stays 111111 in dev)
+# ─────────────────────────────────────────────
+POST {{baseUrl}}/auth/verify-otp
+Content-Type: application/json
+
+{
+  "mobile": "9876543210",
+  "otp": "111111"
+}
+
+# ✅ EXPECTED RESPONSE (200 OK):
+# {
+#   "success": true,
+#   "msg": "otp verified successfully",
+#   "data": {
+#     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+#     "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+#     "user": {
+#       "id": 15,
+#       "mobile": "9876543210",
+#       "name": "Test User"
+#     }
+#   }
+# }
+#
+# ❌ ERROR (400) — wrong otp:
+# { "success": false, "msg": "invalid otp" }
+#
+# ❌ ERROR (400) — otp expired:
+# { "success": false, "msg": "otp has expired" }
+
+###
+
+### 1.4 Logout
+# ✏️  ENSURE: @token is set from Verify OTP response
+# ─────────────────────────────────────────────
+POST {{baseUrl}}/auth/logout
+Authorization: Bearer {{token}}
+
+# ✅ EXPECTED RESPONSE (200 OK):
+# {
+#   "success": true,
+#   "msg": "logged out successfully",
+#   "data": null
+# }
+#
+# ❌ ERROR (401) — invalid/missing token:
+# { "success": false, "code": "ERR_AUTH", "msg": "unauthorized" }
+
+
+### ════════════════════════════════════════════
+### 2. PROFILE
+### ════════════════════════════════════════════
+
+
+### 2.1 Get My Profile
+# ✏️  ENSURE: @token is set
+# ─────────────────────────────────────────────
+GET {{baseUrl}}/profile/me
+Authorization: Bearer {{token}}
+
+# ✅ EXPECTED RESPONSE (200 OK):
+# {
+#   "success": true,
+#   "data": {
+#     "id": 15,
+#     "fullName": "Test User",
+#     "mobile": "9876543210",
+#     "email": "test@example.com",
+#     "profileImage": null
+#   }
+# }
+
+###
+
+### 2.2 Update Profile
+# ✏️  EDIT: Change fullName and email values as needed
+# ✏️  ENSURE: @token is set
+# Note: profileImage file upload only works via Postman/Thunder Client
+# ─────────────────────────────────────────────
+PATCH {{baseUrl}}/profile/me
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=----FormBoundary7MA4YWx
+
+------FormBoundary7MA4YWx
+Content-Disposition: form-data; name="fullName"
+
+John Updated
+------FormBoundary7MA4YWx
+Content-Disposition: form-data; name="email"
+
+john.updated@example.com
+------FormBoundary7MA4YWx--
+
+# ✅ EXPECTED RESPONSE (200 OK):
+# {
+#   "success": true,
+#   "data": {
+#     "id": 15,
+#     "fullName": "John Updated",
+#     "email": "john.updated@example.com",
+#     ...
+#   }
+# }
+
+
+### ════════════════════════════════════════════
+### 3. CATEGORIES
+### ════════════════════════════════════════════
+
+
+### 3.1 Get All Categories
+# No auth required. No body needed.
+# ─────────────────────────────────────────────
+GET {{baseUrl}}/categories
+
+# ✅ EXPECTED RESPONSE (200 OK):
+# {
+#   "success": true,
+#   "count": 5,
+#   "data": [
+#     { "id": 1, "catName": "Electronics", "slugs": "electronics" },
+#     { "id": 2, "catName": "Fashion",     "slugs": "fashion" },
+#     ...
+#   ],
+#   "nextCursor": null
+# }
+
+###
+
+### 3.2 Categories with Product
+# ✏️  EDIT: Change categoryId to an `id` from 3.1 response
+# ─────────────────────────────────────────────
+GET {{baseUrl}}/products?categoryId=1
+
+# ✅ EXPECTED RESPONSE (200 OK):
+# {
+#   "success": true,
+#   "count": 3,
+#   "data": [
+#     {
+#       "id": 15,
+#       "productId": 5014,
+#       "productName": "Tasty Bronze Chicken",
+#       "price": 969.88,
+#       "mrp": 1212.35,
+#       "inStock": true
+#     },
+#     ...
+#   ],
+#   "nextCursor": null
+# }
+
+
+### ════════════════════════════════════════════
+### 4. PRODUCT
+### ════════════════════════════════════════════
+
+
+### 4.1 Product List (All)
+# No auth required. No body needed.
+# ─────────────────────────────────────────────
+GET {{baseUrl}}/products
+
+# ✅ EXPECTED RESPONSE (200 OK):
+# {
+#   "success": true,
+#   "count": 15,
+#   "data": [
+#     {
+#       "id": 15,
+#       "productId": 5014,
+#       "productName": "Tasty Bronze Chicken",
+#       "price": 969.88,
+#       "mrp": 1212.35,
+#       "inStock": true,
+#       "images": [...]
+#     },
+#     ...
+#   ],
+#   "nextCursor": null
+# }
+
+###
+
+### 4.2 Product Search by Name
+# ✏️  EDIT: Change q= to search term you want
+# ─────────────────────────────────────────────
+GET {{baseUrl}}/products?q=chicken
+
+# ✅ EXPECTED RESPONSE (200 OK):
+# {
+#   "success": true,
+#   "count": 2,
+#   "data": [ { "id": 15, "productName": "Tasty Bronze Chicken", ... } ],
+#   "nextCursor": null
+# }
+
+###
+
+### 4.3 Product Filter by Price
+# ✏️  EDIT: Change minPrice/maxPrice as needed
+# ─────────────────────────────────────────────
+GET {{baseUrl}}/products?minPrice=100&maxPrice=2000
+
+# ✅ EXPECTED RESPONSE (200 OK):
+# { "success": true, "count": 15, "data": [...], "nextCursor": null }
+
+###
+
+### 4.4 Product Detail
+# ✏️  EDIT: Replace 15 with any product `id` from product list (data[].id)
+# 📌 NOTE the data.productId (e.g. 5014) in response — you need it for Cart!
+# ─────────────────────────────────────────────
+GET {{baseUrl}}/products/15
+
+# ✅ EXPECTED RESPONSE (200 OK):
+# {
+#   "success": true,
+#   "data": {
+#     "id": 15,
+#     "productId": 5014,          ← USE THIS in Cart requests
+#     "productName": "Tasty Bronze Chicken",
+#     "price": 969.88,
+#     "mrp": 1212.35,
+#     "inStock": true,
+#     "totalStock": 100,
+#     "images": [
+#       { "id": 15, "proimgs": "https://images.unsplash.com/..." }
+#     ],
+#     "variants": [
+#       { "id": 15, "price": 969.88, "mrp": 1212.35, "curQty": 100, "inStock": true }
+#     ]
+#   },
+#   "relatedProducts": [...]
+# }
+#
+# ❌ ERROR (400) — invalid/non-numeric ID:
+# { "success": false, "message": "Invalid product ID" }
+
+###
+
+### 4.5 Product Ratings
+# ✏️  EDIT: Replace 15 with the product `id` (data.id from product list)
+# ─────────────────────────────────────────────
+GET {{baseUrl}}/product-ratings/product/15
+
+# ✅ EXPECTED RESPONSE (200 OK):
+# {
+#   "success": true,
+#   "count": 2,
+#   "data": [
+#     { "id": 1, "givenRatings": 5, "message": "Great product!", "createdBy": 15 }
+#   ],
+#   "nextCursor": null
+# }
+
+###
+
+### 4.6 Product Rating Stats
+# ✏️  EDIT: Replace 15 with the product `id`
+# ─────────────────────────────────────────────
+GET {{baseUrl}}/product-ratings/product/15/stats
+
+# ✅ EXPECTED RESPONSE (200 OK):
+# {
+#   "success": true,
+#   "data": {
+#     "average": 4.5,
+#     "total": 10
+#   }
+# }
+
+
+### ════════════════════════════════════════════
+### 5. CART
+### ════════════════════════════════════════════
+# ⚠️  IMPORTANT — productId in Cart:
+#     From Product Detail → data.productId = 5014 (NOT data.id = 15)
+#     Use 5014 (or your real value) in ALL cart route bodies and URLs
+
+
+### 5.1 Get Cart
+# ✏️  ENSURE: @token is set
+# ─────────────────────────────────────────────
+GET {{baseUrl}}/cart
+Authorization: Bearer {{token}}
+
+# ✅ EXPECTED RESPONSE (200 OK) — cart has items:
+# {
+#   "success": true,
+#   "count": 1,
+#   "data": {
+#     "items": [
+#       {
+#         "cartId": 1,
+#         "productId": 5014,
+#         "productName": "Tasty Bronze Chicken",
+#         "productImage": null,
+#         "quantity": 1,
+#         "price": 969.88,
+#         "itemTotal": 969.88
+#       }
+#     ],
+#     "grandTotal": 969.88
+#   }
+# }
+#
+# ✅ EXPECTED RESPONSE — cart is empty:
+# { "success": true, "count": 0, "data": { "items": [], "grandTotal": 0 } }
+
+###
+
+### 5.2 Add to Cart
+# ✏️  EDIT: productId = data.productId from Product Detail (e.g. 5014)
+# ✏️  EDIT: quantity = number of items to add
+# ✏️  ENSURE: @token is set
+# ─────────────────────────────────────────────
+POST {{baseUrl}}/cart
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "productId": 5014,
+  "quantity": 1
+}
+
+# ✅ EXPECTED RESPONSE (200 OK):
+# {
+#   "success": true,
+#   "message": "Item added to cart successfully",
+#   "data": {
+#     "cartId": 1,
+#     "ItemId": 5014,
+#     "comId": 15,
+#     "quantity": 1,
+#     "isDeleted": false
+#   }
+# }
+#
+# ❌ ERROR (400) — missing productId or quantity:
+# { "success": false, "message": "productId and quantity are required" }
+
+###
+
+### 5.3 Update Cart (Change Quantity)
+# ✏️  EDIT: Replace 5014 in URL with productId from your cart items
+# ✏️  EDIT: quantity = new quantity value
+# ✏️  ENSURE: @token is set
+# ─────────────────────────────────────────────
+PUT {{baseUrl}}/cart/5014
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "quantity": 3
+}
+
+# ✅ EXPECTED RESPONSE (200 OK):
+# {
+#   "success": true,
+#   "message": "Cart quantity updated successfully",
+#   "data": {
+#     "cartId": 1,
+#     "ItemId": 5014,
+#     "comId": 15,
+#     "quantity": 3,
+#     "isDeleted": false
+#   }
+# }
+#
+# ❌ ERROR (400) — item not in cart:
+# { "success": false, "message": "Cart item not found" }
+
+###
+
+### 5.4 Remove from Cart (Single Item)
+# ✏️  EDIT: Replace 5014 in URL with productId from your cart items
+# ✏️  ENSURE: @token is set
+# ─────────────────────────────────────────────
+DELETE {{baseUrl}}/cart/5014
+Authorization: Bearer {{token}}
+
+# ✅ EXPECTED RESPONSE (200 OK):
+# {
+#   "success": true,
+#   "message": "Item removed from cart successfully"
+# }
+
+###
+
+### 5.5 Delete All Cart (Clear)
+# ✏️  ENSURE: @token is set
+# No body needed. Removes ALL items from cart.
+# ─────────────────────────────────────────────
+DELETE {{baseUrl}}/cart/clear/all
+Authorization: Bearer {{token}}
+
+# ✅ EXPECTED RESPONSE (200 OK):
+# {
+#   "success": true,
+#   "message": "Cart cleared successfully"
+# }

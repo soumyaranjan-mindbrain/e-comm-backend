@@ -1,7 +1,8 @@
-// Force restart server
+// Force restart - Merge Auth
 import express, { Request, Response } from "express";
 import cors from "cors";
 import helmet from "helmet";
+import cookieParser from "cookie-parser";
 import rateLimit from "express-rate-limit";
 import * as swaggerUi from "swagger-ui-express";
 import config from "./config";
@@ -13,11 +14,14 @@ import swaggerSpec from "./config/swagger";
 export const createServer = () => {
   const app = express();
 
+  // In development → no rate limit so testing is unrestricted
+  // In production  → 100 requests per minute per IP
   const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
-    standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-    legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+    windowMs: 60 * 1000, // 1 minute
+    limit: 100,
+    skip: () => config.env === "development" || config.env === "dev",
+    standardHeaders: true,
+    legacyHeaders: false,
   });
 
   app
@@ -25,9 +29,18 @@ export const createServer = () => {
     .use(limiter)
     .disable("x-powered-by")
     .use(morganMiddleware)
+    .use(cookieParser())
     .use(express.urlencoded({ extended: true }))
     .use(express.json())
-    .use(cors());
+    .use(
+      cors({
+        origin: (origin, callback) => {
+          // Allow all origins but echo back the origin for credentials support
+          callback(null, true);
+        },
+        credentials: true,
+      }),
+    );
 
   /**
    * @openapi

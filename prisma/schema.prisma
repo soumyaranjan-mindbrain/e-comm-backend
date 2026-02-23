@@ -8,8 +8,10 @@ datasource db {
 }
 
 model Customer {
-  id           Int                     @id @default(autoincrement())
-  comId        Int?                    @map("com_id")
+  id Int @id @default(autoincrement())
+
+  comId Int @unique @map("com_id")
+
   custType     String?                 @map("cust_type") @db.VarChar(10)
   partyCode    String?                 @map("party_code") @db.VarChar(10)
   fullName     String?                 @map("full_name") @db.VarChar(140)
@@ -33,13 +35,17 @@ model Customer {
   insertUser   String?                 @map("insert_user") @db.VarChar(120)
   updateDate   String?                 @map("update_date") @db.VarChar(40)
   updateUser   String?                 @map("update_user") @db.VarChar(120)
-  otp          String?                 @db.VarChar(6)
+  otp          String?                 @db.VarChar(255)
   otpValidUpto DateTime?               @map("otp_valid_upto") @db.DateTime(0)
-  
+  refreshToken String?                 @map("refresh_token") @db.VarChar(255)
+  profileImage String?                 @map("profile_image") @db.VarChar(255)
+  indate       DateTime?               @default(now()) @db.DateTime(0)
+
   addresses UserAddress[]
   ratings   ProductRating[]
+  orders    x8_app_orders_master[] @relation("CustomerOrders")
+  cart      x5_app_cart[]
 
-  @@index([id, custType, partyCode, fullName, alias, state], map: "id")
   @@map("aa13_customer_db")
 }
 
@@ -83,9 +89,10 @@ model ProductRegister {
   ratings        Decimal?                            @db.Decimal(2, 1)
   createdAt      DateTime?                           @default(now()) @map("created_at") @db.Timestamp(0)
   updatedAt      DateTime?                           @updatedAt @map("updated_at") @db.DateTime(0)
-  
-  images         ProductImageRegister[]
-  stockItems     ShopStockItem[]
+
+  images     ProductImageRegister[]
+  stockItems ShopStockItem[]
+  cart       x5_app_cart[]
 
   @@map("x1_app_product_register")
 }
@@ -98,7 +105,7 @@ model ProductImageRegister {
   created_at DateTime?                           @default(now()) @db.Timestamp(0)
   updated_at DateTime?                           @db.DateTime(0)
 
-  product    ProductRegister?                    @relation(fields: [productId], references: [productId])
+  product ProductRegister? @relation(fields: [productId], references: [productId])
 
   @@map("x2_app_product_img_register")
 }
@@ -114,7 +121,7 @@ model ProductRating {
   createdBy    Int?      @map("created_by")
   updatedBy    Int?      @map("updated_by")
 
-  customer     Customer? @relation(fields: [createdBy], references: [id])
+  customer Customer? @relation(fields: [createdBy], references: [id])
 
   @@map("x3_app_product_ratings")
 }
@@ -133,7 +140,7 @@ model UserAddress {
   createdBy       Int?      @map("created_by")
   updatedBy       Int?      @map("updated_by")
 
-  customer        Customer? @relation(fields: [userId], references: [id])
+  customer Customer? @relation(fields: [userId], references: [id])
 
   @@map("x4_app_user_addresses")
 }
@@ -186,7 +193,7 @@ model ShopStockItem {
   update_date         String?                        @db.VarChar(40)
   update_user         String?                        @db.VarChar(120)
 
-  product             ProductRegister?               @relation(fields: [itemId], references: [productId])
+  product ProductRegister? @relation(fields: [itemId], references: [productId])
 
   @@index([barCode], map: "bar_code")
   @@index([id, barCode, shopId, partyId, itemId, brandId, design_id, color_id, fabric_id, catId, unit_id], map: "id")
@@ -1595,15 +1602,26 @@ model u3_shop_user_permission_db {
 }
 
 model x10_app_order_status {
-  id           Int                          @id @default(autoincrement())
+  id Int @id @default(autoincrement())
+
+  order_id        String @db.VarChar(50)
+  order_detail_id Int?
+
+  comId        Int?   @map("com_id")
   product_id   Int?
-  user_id      Int?
-  order_status String?                      @db.VarChar(50)
-  status       x10_app_order_status_status?
-  created_at   DateTime?                    @default(now()) @db.Timestamp(0)
-  updated_at   DateTime?                    @db.DateTime(0)
-  created_by   Int?
-  updated_by   Int?
+  order_status String @db.VarChar(50)
+
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  updated_at DateTime? @db.DateTime(0)
+
+  created_by Int?
+  updated_by Int?
+
+  orderMaster x8_app_orders_master @relation("OrderToStatuses", fields: [order_id], references: [order_id])
+
+  orderDetail x9_app_order_details? @relation("DetailToStatus", fields: [order_detail_id], references: [id])
+
+  @@map("x10_app_order_status")
 }
 
 model x11_app_payment_details {
@@ -1630,15 +1648,25 @@ model x12_app_user_bm_coins {
 }
 
 model x5_app_cart {
-  id         Int                   @id @default(autoincrement())
-  product_id Int?
-  user_id    Int?
-  qnty       Int?
-  isdelete   x5_app_cart_isdelete? @default(ZERO)
-  created_at DateTime?             @default(now()) @db.Timestamp(0)
-  updated_at DateTime?             @db.DateTime(0)
-  created_by Int?
-  updated_by Int?
+  cartId Int @id @default(autoincrement()) @map("cart_id")
+
+  ItemId Int @map("product_id")
+  comId  Int @map("com_id")
+
+  quantity  Int     @default(1) @map("qnty")
+  isDeleted Boolean @default(false) @map("isdelete")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  createdBy Int? @map("created_by")
+  updatedBy Int? @map("updated_by")
+
+  customer Customer?        @relation(fields: [comId], references: [comId])
+  product  ProductRegister? @relation(fields: [ItemId], references: [productId])
+
+  @@unique([comId, ItemId], name: "comId_ItemId")
+  @@map("x5_app_cart")
 }
 
 model x7_app_users_coupon_code {
@@ -1653,34 +1681,56 @@ model x7_app_users_coupon_code {
 }
 
 model x8_app_orders_master {
-  id                      Int       @id @default(autoincrement())
-  order_id                String?   @unique(map: "order_id") @db.VarChar(50)
-  user_id                 Int?
-  total_amount            Decimal?  @db.Decimal(10, 2)
-  discounted_amount       Decimal?  @db.Decimal(10, 2)
-  del_charge_amount       Decimal?  @db.Decimal(10, 2)
-  tax_amount_b_coins      Decimal?  @db.Decimal(10, 2)
-  net_amount_payment_mode String?   @db.VarChar(50)
-  created_at              DateTime? @default(now()) @db.Timestamp(0)
-  updated_at              DateTime? @db.DateTime(0)
-  created_by              Int?
-  updated_by              Int?
+  id       Int    @id @default(autoincrement())
+  order_id String @unique @db.VarChar(50)
+
+  comId Int? @map("com_id")
+
+  total_amount            Decimal? @db.Decimal(10, 2)
+  discounted_amount       Decimal? @db.Decimal(10, 2)
+  del_charge_amount       Decimal? @db.Decimal(10, 2)
+  tax_amount_b_coins      Decimal? @db.Decimal(10, 2)
+  net_amount_payment_mode String?  @db.VarChar(50)
+
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  updated_at DateTime? @db.DateTime(0)
+
+  created_by Int?
+  updated_by Int?
+
+  Customer Customer? @relation("CustomerOrders", fields: [comId], references: [comId])
+
+  orderDetails x9_app_order_details[] @relation("OrderToOrderDetails")
+
+  orderStatus x10_app_order_status[] @relation("OrderToStatuses")
+
+  @@map("x8_app_orders_master")
 }
 
 model x9_app_order_details {
-  id           Int       @id @default(autoincrement())
-  order_id     String?   @db.VarChar(50)
-  user_id      Int?
+  id       Int    @id @default(autoincrement())
+  order_id String @db.VarChar(50)
+  comId    Int    @map("com_id")
+
   product_id   Int?
-  rate         Decimal?  @db.Decimal(10, 2)
-  gst_rate     Decimal?  @db.Decimal(10, 2)
-  gst_percent  Decimal?  @db.Decimal(5, 2)
-  coupon_price Decimal?  @db.Decimal(10, 2)
-  net_amount   Decimal?  @db.Decimal(10, 2)
-  created_at   DateTime? @default(now()) @db.Timestamp(0)
-  updated_at   DateTime? @db.DateTime(0)
-  created_by   Int?
-  updated_by   Int?
+  qnty         Int
+  rate         Decimal? @db.Decimal(10, 2)
+  gst_rate     Decimal? @db.Decimal(10, 2)
+  gst_percent  Decimal? @db.Decimal(5, 2)
+  coupon_price Decimal? @db.Decimal(10, 2)
+  net_amount   Decimal? @db.Decimal(10, 2)
+
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  updated_at DateTime? @db.DateTime(0)
+
+  created_by Int?
+  updated_by Int?
+
+  order x8_app_orders_master @relation("OrderToOrderDetails", fields: [order_id], references: [order_id])
+
+  orderStatus x10_app_order_status[] @relation("DetailToStatus")
+
+  @@map("x9_app_order_details")
 }
 
 model z1_excel_import_purchase_master {
@@ -1994,12 +2044,10 @@ enum u3_shop_user_permission_db_edit_status {
 enum x10_app_order_status_status {
   ZERO @map("0")
   ONE  @map("1")
+  TWO  @map("2")
 }
 
-enum x5_app_cart_isdelete {
-  ZERO @map("0")
-  ONE  @map("1")
-}
+
 
 enum z3_barcode_field_settings_db_design_status {
   ONE  @map("1")

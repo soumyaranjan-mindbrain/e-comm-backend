@@ -1,0 +1,1 @@
+{"version":3,"file":"morgan-middleware.js","sourceRoot":"","sources":["../../src/middleware/morgan-middleware.ts"],"names":[],"mappings":";;;;;AAAA,oDAA4B;AAC5B,uDAA+B;AAE/B,MAAM,gBAAgB,GAAG,IAAA,gBAAM,EAC7B,+DAA+D,EAC/D;IACE,MAAM,EAAE;QACN,KAAK,EAAE,CAAC,OAAO,EAAE,EAAE,CAAC,gBAAM,CAAC,IAAI,CAAC,OAAO,CAAC,IAAI,EAAE,CAAC;KAChD;CACF,CACF,CAAC;AAEF,kBAAe,gBAAgB,CAAC"}

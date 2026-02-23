@@ -19,7 +19,7 @@ async function normalizeProductData() {
       WHERE is_display IS NULL
     `);
     console.log(
-      `✅ Updated ${isDisplayResult} product records: Set isDisplay NULL -> "1"`
+      `✅ Updated ${isDisplayResult} product records: Set isDisplay NULL -> "1"`,
     );
 
     // 2. Normalize ProductRegister updatedAt: Set NULL to createdAt
@@ -29,7 +29,7 @@ async function normalizeProductData() {
       WHERE updated_at IS NULL
     `);
     console.log(
-      `✅ Updated ${productRegisterUpdatedAtResult} product records: Set updatedAt NULL -> createdAt`
+      `✅ Updated ${productRegisterUpdatedAtResult} product records: Set updatedAt NULL -> createdAt`,
     );
 
     // 3. Normalize ProductImageRegister updatedAt: Set NULL to createdAt
@@ -39,7 +39,7 @@ async function normalizeProductData() {
       WHERE updated_at IS NULL
     `);
     console.log(
-      `✅ Updated ${productImageUpdatedAtResult} product image records: Set updatedAt NULL -> createdAt`
+      `✅ Updated ${productImageUpdatedAtResult} product image records: Set updatedAt NULL -> createdAt`,
     );
 
     // 4. Normalize ProductRating updatedAt: Set NULL to createdAt
@@ -49,7 +49,7 @@ async function normalizeProductData() {
       WHERE updated_at IS NULL
     `);
     console.log(
-      `✅ Updated ${productRatingUpdatedAtResult} product rating records: Set updatedAt NULL -> createdAt`
+      `✅ Updated ${productRatingUpdatedAtResult} product rating records: Set updatedAt NULL -> createdAt`,
     );
 
     // 5. Normalize UserAddress updatedAt: Set NULL to createdAt
@@ -59,7 +59,7 @@ async function normalizeProductData() {
       WHERE updated_at IS NULL
     `);
     console.log(
-      `✅ Updated ${userAddressUpdatedAtResult} user address records: Set updatedAt NULL -> createdAt`
+      `✅ Updated ${userAddressUpdatedAtResult} user address records: Set updatedAt NULL -> createdAt`,
     );
 
     // Verify the normalization
@@ -71,7 +71,7 @@ async function normalizeProductData() {
       WHERE is_display IS NULL
     `);
     console.log(
-      `\n📊 Verification: ${nullIsDisplayCount[0].count} products with NULL isDisplay remaining (should be 0)`
+      `\n📊 Verification: ${nullIsDisplayCount[0].count} products with NULL isDisplay remaining (should be 0)`,
     );
 
     const nullUpdatedAtCount = await prisma.$queryRawUnsafe<
@@ -84,7 +84,7 @@ async function normalizeProductData() {
         (SELECT COUNT(*) FROM x4_app_user_addresses WHERE updated_at IS NULL) as count
     `);
     console.log(
-      `📊 Verification: ${nullUpdatedAtCount[0].count} records with NULL updatedAt remaining (should be 0)`
+      `📊 Verification: ${nullUpdatedAtCount[0].count} records with NULL updatedAt remaining (should be 0)`,
     );
 
     console.log("\n✅ Data normalization completed successfully!");

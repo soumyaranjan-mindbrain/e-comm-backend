@@ -136,6 +136,9 @@ model UserAddress {
   townCity        String?   @map("town_city") @db.VarChar(100)
   state           String?   @db.VarChar(100)
   pincode         String?   @db.VarChar(20)
+  receiversName   String?   @map("receivers_name") @db.VarChar(150)
+  receiversNumber String?   @map("receivers_number") @db.VarChar(20)
+  saveAs          String?   @map("save_as") @db.VarChar(20)
   isDefault       Boolean?  @default(false) @map("is_default")
   createdAt       DateTime? @default(now()) @map("created_at") @db.Timestamp(0)
   updatedAt       DateTime? @updatedAt @map("updated_at") @db.DateTime(0)
@@ -146,6 +149,7 @@ model UserAddress {
 
   @@map("x4_app_user_addresses")
 }
+
 
 model ShopStockItem {
   id                  Int                            @id @default(autoincrement())

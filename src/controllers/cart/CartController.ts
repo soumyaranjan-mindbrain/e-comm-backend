@@ -18,7 +18,7 @@ export const addToCart = async (
     if (productId === undefined || quantity === undefined) {
       res.status(400).json({
         success: false,
-        msg: "productId and quantity are required",
+        message: "productId and quantity are required",
       });
       return;
     }
@@ -29,7 +29,7 @@ export const addToCart = async (
     if (isNaN(numProductId) || isNaN(numQuantity) || numQuantity < 1) {
       res.status(400).json({
         success: false,
-        msg: "valid productId and quantity (min 1) are required",
+        message: "valid productId and quantity (min 1) are required",
       });
       return;
     }
@@ -38,7 +38,7 @@ export const addToCart = async (
 
     res.status(200).json({
       success: true,
-      msg: "item added to cart successfully",
+      message: "item added to cart successfully",
       data: result,
     });
   } catch (error) {
@@ -100,7 +100,7 @@ export const updateCartQuantity = async (
     if (isNaN(itemId)) {
       res.status(400).json({
         success: false,
-        msg: "valid itemId is required",
+        message: "valid itemId is required",
       });
       return;
     }
@@ -108,7 +108,7 @@ export const updateCartQuantity = async (
     if (quantity === undefined || isNaN(Number(quantity)) || Number(quantity) < 1) {
       res.status(400).json({
         success: false,
-        msg: "valid quantity (min 1) is required",
+        message: "valid quantity (min 1) is required",
       });
       return;
     }
@@ -117,7 +117,7 @@ export const updateCartQuantity = async (
 
     res.status(200).json({
       success: true,
-      msg: "cart quantity updated successfully",
+      message: "cart quantity updated successfully",
       data: result,
     });
   } catch (error) {
@@ -138,7 +138,7 @@ export const removeFromCart = async (
     if (isNaN(itemId)) {
       res.status(400).json({
         success: false,
-        msg: "valid itemId is required",
+        message: "valid itemId is required",
       });
       return;
     }
@@ -147,7 +147,7 @@ export const removeFromCart = async (
 
     res.status(200).json({
       success: true,
-      msg: "item removed from cart successfully",
+      message: "item removed from cart successfully",
     });
   } catch (error) {
     next(error);
@@ -166,7 +166,7 @@ export const clearCart = async (
 
     res.status(200).json({
       success: true,
-      msg: "cart cleared successfully",
+      message: "cart cleared successfully",
     });
   } catch (error) {
     next(error);

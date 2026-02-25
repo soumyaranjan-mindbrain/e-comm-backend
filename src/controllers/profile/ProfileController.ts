@@ -17,7 +17,7 @@ export const getProfile = async (
   try {
     const userId = (req as AuthRequest).user?.id;
     if (!userId) {
-      res.status(401).json({ success: false, msg: "unauthorized", data: null });
+      res.status(401).json({ success: false, message: "unauthorized", data: null });
       return;
     }
 
@@ -25,7 +25,7 @@ export const getProfile = async (
 
     res.status(200).json({
       success: true,
-      msg: "profile fetched successfully",
+      message: "profile fetched successfully",
       data: profile,
     });
   } catch (error) {
@@ -41,7 +41,7 @@ export const updateProfile = async (
   try {
     const userId = (req as AuthRequest).user?.id;
     if (!userId) {
-      res.status(401).json({ success: false, msg: "unauthorized", data: null });
+      res.status(401).json({ success: false, message: "unauthorized", data: null });
       return;
     }
 
@@ -49,7 +49,7 @@ export const updateProfile = async (
 
     res.status(200).json({
       success: true,
-      msg: "profile updated successfully",
+      message: "profile updated successfully",
       data: profile,
     });
   } catch (error) {
@@ -65,12 +65,12 @@ export const uploadPhoto = async (
   try {
     const userId = (req as AuthRequest).user?.id;
     if (!userId) {
-      res.status(401).json({ success: false, msg: "unauthorized", data: null });
+      res.status(401).json({ success: false, message: "unauthorized", data: null });
       return;
     }
 
     if (!req.file) {
-      res.status(400).json({ success: false, msg: "no file uploaded" });
+      res.status(400).json({ success: false, message: "no file uploaded" });
       return;
     }
 
@@ -87,7 +87,7 @@ export const uploadPhoto = async (
 
     res.status(200).json({
       success: true,
-      msg: "photo uploaded and profile updated successfully",
+      message: "photo uploaded and profile updated successfully",
       data: {
         profileImage: imageUrl,
         user: profile,

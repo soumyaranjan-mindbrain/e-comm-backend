@@ -1,9 +1,22 @@
 import { OrderReturnRepository } from "../../data/repositories/return/OrderReturnRepository";
+import { WalletService } from "../../services/WalletService";
 
 const repo = new OrderReturnRepository();
+const walletService = new WalletService();
 
 export const createReturnUseCase = async (data: any) => {
-    return repo.createReturn(data);
+    const result = await repo.createReturn(data);
+
+    // COIN LOGIC: Reversal on return
+    try {
+        if (data.orderId && data.comId) {
+            await walletService.handleReturn(data.orderId, data.comId, data.refundAmount || 0);
+        }
+    } catch (err) {
+        console.error("Error reversing coins on return:", err);
+    }
+
+    return result;
 };
 
 export const getAllReturnsUseCase = async () => {

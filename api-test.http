@@ -595,3 +595,191 @@ Content-Type: application/json
 {
   "status": "REJECTED"
 }
+
+
+### ════════════════════════════════════════════
+### 8. WALLET (USER)
+### ════════════════════════════════════════════
+
+### 8.1 Get My Wallet
+GET {{baseUrl}}/wallet
+Authorization: Bearer {{token}}
+
+### 8.2 Get Transactions
+GET {{baseUrl}}/wallet/transactions
+Authorization: Bearer {{token}}
+
+### 8.3 Validate Redemption
+POST {{baseUrl}}/wallet/validate
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "cartTotal": 1500
+}
+
+
+### ════════════════════════════════════════════
+### 9. COIN ADMIN
+### ════════════════════════════════════════════
+
+### 9.1 Set/Update Config
+PUT {{baseUrl}}/admin/wallet/config
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "minEligibleAmount": 100,
+  "maxEligibleAmount": 1000,
+  "rewardPercentMin": 5,
+  "rewardPercentMax": 8,
+  "maxCoinsPerOrder": 50,
+  "redeemPercentLimit": 10,
+  "returnPeriodDays": 7
+}
+
+### 9.2 Get Config
+GET {{baseUrl}}/admin/wallet/config
+Authorization: Bearer {{token}}
+
+### 9.3 Get Analytics
+GET {{baseUrl}}/admin/wallet/analytics
+Authorization: Bearer {{token}}
+
+### 9.4 Manual Trigger Activation
+POST {{baseUrl}}/admin/wallet/trigger-activation
+Authorization: Bearer {{token}}
+
+
+### ════════════════════════════════════════════
+### 10. COUPON CODES
+### ════════════════════════════════════════════
+
+@couponId = 1
+
+### 10.1 Create Coupon
+# ✏️  EDIT: Fill coupon details as needed
+# Auth NOT required for creation
+# ─────────────────────────────────────────────
+POST {{baseUrl}}/coupon-codes
+Content-Type: application/json
+
+{
+  "name": "NEWUSER10",
+  "description": "10% discount for new users",
+  "termsConditions": "Valid once per user",
+  "validCategory": "Electronics",
+  "validBrand": "Samsung",
+  "validEdition": "2025",
+  "validItem": "Mobile",
+  "validPrice": 500,
+  "validDate": "2026-12-31",
+  "issuedQnty": 100,
+  "userQnty": 1
+}
+
+# ✅ EXPECTED RESPONSE (201 Created):
+# {
+#   "success": true,
+#   "message": "Coupon created successfully",
+#   "data": {
+#     "id": 1,
+#     "name": "NEWUSER10",
+#     "description": "10% discount for new users",
+#     "validPrice": "500",
+#     ...
+#   }
+# }
+#
+# ❌ ERROR (400) — name missing:
+# { "success": false, "message": "coupon name required" }
+
+###
+
+### 10.2 Get All Coupons
+# ✏️  ENSURE: @token is set
+# ─────────────────────────────────────────────
+GET {{baseUrl}}/coupon-codes
+Authorization: Bearer {{token}}
+
+# ✅ EXPECTED RESPONSE (200 OK):
+# {
+#   "success": true,
+#   "count": 1,
+#   "data": [
+#     { "id": 1, "name": "NEWUSER10", "description": "...", ... }
+#   ]
+# }
+
+###
+
+### 10.3 Get Coupon by ID
+# ✏️  EDIT: Change @couponId to target coupon id
+# ✏️  ENSURE: @token is set
+# ─────────────────────────────────────────────
+GET {{baseUrl}}/coupon-codes/{{couponId}}
+Authorization: Bearer {{token}}
+
+# ✅ EXPECTED RESPONSE (200 OK):
+# { "success": true, "data": { "id": 1, "name": "NEWUSER10", ... } }
+#
+# ❌ ERROR (404) — not found:
+# { "success": false, "message": "coupon not found" }
+
+###
+
+### 10.4 Search Coupon by Name
+# ✏️  EDIT: Change q= to search term
+# ✏️  ENSURE: @token is set
+# ─────────────────────────────────────────────
+GET {{baseUrl}}/coupon-codes/search?q=NEW
+Authorization: Bearer {{token}}
+
+# ✅ EXPECTED RESPONSE (200 OK):
+# {
+#   "success": true,
+#   "count": 1,
+#   "searchTerm": "NEW",
+#   "data": [ { "id": 1, "name": "NEWUSER10", ... } ]
+# }
+#
+# ❌ ERROR (400) — no search term:
+# { "success": false, "message": "Search term is required. Please provide 'q' query parameter." }
+
+###
+
+### 10.5 Update Coupon
+# ✏️  EDIT: Change @couponId and update fields as needed
+# ✏️  ENSURE: @token is set
+# ─────────────────────────────────────────────
+PUT {{baseUrl}}/coupon-codes/{{couponId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "description": "Updated description",
+  "validPrice": 1000,
+  "issuedQnty": 200
+}
+
+# ✅ EXPECTED RESPONSE (200 OK):
+# {
+#   "success": true,
+#   "message": "Coupon updated successfully",
+#   "data": { "id": 1, "description": "Updated description", ... }
+# }
+
+###
+
+### 10.6 Delete Coupon
+# ✏️  EDIT: Change @couponId to target coupon id
+# ✏️  ENSURE: @token is set
+# ─────────────────────────────────────────────
+DELETE {{baseUrl}}/coupon-codes/{{couponId}}
+Authorization: Bearer {{token}}
+
+# ✅ EXPECTED RESPONSE (200 OK):
+# { "success": true, "message": "Coupon deleted successfully" }
+#
+# ❌ ERROR (404) — not found:
+# { "success": false, "message": "coupon not found" }

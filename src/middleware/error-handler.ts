@@ -27,7 +27,7 @@ export default function errorHandler(
     res.status(422).json({
       success: false,
       code: "ERR_VALIDATION",
-      msg: fieldErrors,
+      message: fieldErrors,
     });
     return;
   }
@@ -37,7 +37,7 @@ export default function errorHandler(
     res.status(error.statusCode).json({
       success: false,
       code: error.code,
-      msg: error.message.toLowerCase(),
+      message: error.message.toLowerCase(),
     });
     return;
   }
@@ -47,7 +47,7 @@ export default function errorHandler(
     res.status(error.statusCode).json({
       success: false,
       code: "code" in error ? (error.code as string) : "ERR_AUTH",
-      msg: error.message.toLowerCase(),
+      message: error.message.toLowerCase(),
     });
     return;
   }
@@ -56,6 +56,6 @@ export default function errorHandler(
   res.status(500).json({
     success: false,
     code: "ERR_SERVER",
-    msg: (getErrorMessage(error) || "internal server error").toLowerCase(),
+    message: (getErrorMessage(error) || "internal server error").toLowerCase(),
   });
 }

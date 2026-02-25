@@ -12,6 +12,8 @@ import couponCodeRouter from "./coupon-codes";
 import cartRouter from "./cart";
 import orderRouter from "./order/order";
 import orderReturnRouter from "./return/OrderReturnRouter";
+import walletRouter from "./wallet/WalletRouter";
+import adminWalletRouter from "./wallet/AdminWalletRouter";
 
 const v1: Router = express.Router();
 
@@ -28,5 +30,7 @@ v1.use("/coupon-codes", couponCodeRouter);
 v1.use("/cart", cartRouter);
 v1.use("/orders", orderRouter);
 v1.use("/order-returns", orderReturnRouter);
+v1.use("/wallet", walletRouter);
+v1.use("/admin/wallet", adminWalletRouter);
 
 export default v1;

@@ -25,6 +25,7 @@ export interface OrderInput {
   del_charge_amount?: number;
   tax_amount_b_coins?: number;
   payment_mode: string;
+  coinsToRedeem?: number;
 }
 
 export class OrderRepository {
@@ -35,15 +36,29 @@ export class OrderRepository {
     const orderId = randomUUID();
 
     return await prisma.$transaction(async (tx: any) => {
+      let finalDiscount = data.discounted_amount || 0;
+
+      // --- WALLET REDEMPTION ---
+      if (data.coinsToRedeem && data.coinsToRedeem > 0) {
+        const { WalletService } = require("../../../services/WalletService");
+        const walletService = new WalletService();
+        const redeemed = await walletService.redeemCoins(
+          data.comId,
+          orderId,
+          data.coinsToRedeem,
+          data.total_amount,
+          tx
+        );
+        finalDiscount += redeemed;
+      }
+
       // 1. Create Order Master
       const order = await tx.x8_app_orders_master.create({
         data: {
           order_id: orderId,
           comId: data.comId,
           total_amount: new Prisma.Decimal(data.total_amount),
-          discounted_amount: data.discounted_amount
-            ? new Prisma.Decimal(data.discounted_amount)
-            : new Prisma.Decimal(0),
+          discounted_amount: new Prisma.Decimal(finalDiscount),
           del_charge_amount: data.del_charge_amount
             ? new Prisma.Decimal(data.del_charge_amount)
             : new Prisma.Decimal(0),
@@ -53,6 +68,7 @@ export class OrderRepository {
           net_amount_payment_mode: data.payment_mode,
         },
       });
+      // ... rest of the logic remains same
 
       // 2. Create Order Details
       await tx.x9_app_order_details.createMany({

@@ -63,7 +63,7 @@ export const searchProducts = async (
     if (!searchTerm || searchTerm.trim() === "") {
       res.status(400).json({
         success: false,
-        msg: "search term is required",
+        message: "search term is required",
       });
       return;
     }
@@ -91,7 +91,7 @@ export const getOne = async (
     if (isNaN(productId)) {
       res.status(400).json({
         success: false,
-        msg: "invalid product id",
+        message: "invalid product id",
       });
       return;
     }

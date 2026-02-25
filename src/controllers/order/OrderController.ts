@@ -19,7 +19,7 @@ export const createOrderController = async (
   try {
     const user = (req as any).user;
     if (!user || user.comId === undefined) {
-      res.status(401).json({ success: false, msg: "Authentication required or missing comId" });
+      res.status(401).json({ success: false, message: "Authentication required or missing comId" });
       return;
     }
 
@@ -31,12 +31,12 @@ export const createOrderController = async (
     const result = await createOrderUseCase(orderData);
     res.status(201).json({
       success: true,
-      msg: "order placed successfully",
+      message: "order placed successfully",
       data: result
     });
   } catch (err: any) {
     console.error(err);
-    res.status(500).json({ success: false, msg: err.message || "failed to create order" });
+    res.status(500).json({ success: false, message: err.message || "failed to create order" });
   }
 };
 
@@ -56,12 +56,12 @@ export const cancelOrderController = async (
     const result = await cancelOrderUseCase(orderId, updated_by);
     res.status(200).json({
       success: true,
-      msg: "order cancelled successfully",
+      message: "order cancelled successfully",
       data: result
     });
   } catch (err: any) {
     console.error(err);
-    res.status(500).json({ success: false, msg: err.message || "failed to cancel order" });
+    res.status(500).json({ success: false, message: err.message || "failed to cancel order" });
   }
 };
 
@@ -79,17 +79,17 @@ export const getOrderController = async (
     const { orderId } = req.params;
     const order = await getOrderUseCase(orderId);
     if (!order) {
-      res.status(404).json({ success: false, msg: "order not found" });
+      res.status(404).json({ success: false, message: "order not found" });
       return;
     }
     res.status(200).json({
       success: true,
-      msg: "order fetched successfully",
+      message: "order fetched successfully",
       data: order
     });
   } catch (err: any) {
     console.error(err);
-    res.status(500).json({ success: false, msg: err.message || "failed to fetch order" });
+    res.status(500).json({ success: false, message: err.message || "failed to fetch order" });
   }
 };
 
@@ -108,12 +108,12 @@ export const trackOrderController = async (
     const history = await trackOrderUseCase(orderId);
     res.status(200).json({
       success: true,
-      msg: "order tracking history fetched",
+      message: "order tracking history fetched",
       data: history
     });
   } catch (err: any) {
     console.error(err);
-    res.status(500).json({ success: false, msg: err.message || "failed to track order" });
+    res.status(500).json({ success: false, message: err.message || "failed to track order" });
   }
 };
 
@@ -132,18 +132,18 @@ export const updateOrderStatusController = async (
     const { status, updated_by } = req.body;
 
     if (!Object.values(OrderStatus).includes(status)) {
-      res.status(400).json({ success: false, msg: "invalid order status" });
+      res.status(400).json({ success: false, message: "invalid order status" });
       return;
     }
 
     const result = await updateOrderStatusUseCase(orderId, status, updated_by);
     res.status(200).json({
       success: true,
-      msg: "order status updated successfully",
+      message: "order status updated successfully",
       data: result
     });
   } catch (err: any) {
     console.error(err);
-    res.status(500).json({ success: false, msg: err.message || "failed to update order status" });
+    res.status(500).json({ success: false, message: err.message || "failed to update order status" });
   }
 };

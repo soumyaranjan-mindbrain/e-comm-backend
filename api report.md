@@ -782,3 +782,240 @@ Authorization: Bearer <token>
 ```
 
 Valid statuses: `APPROVED`, `REJECTED`.
+
+---
+
+## Wallet API
+
+All wallet routes need `Authorization: Bearer <token>`.
+
+### Get Wallet Balance
+```
+GET /v1/wallet
+```
+Response:
+```json
+{
+  "success": true,
+  "data": {
+    "coinBalance": 150,
+    "pendingCoinBalance": 50
+  }
+}
+```
+
+### Get Transaction History
+```
+GET /v1/wallet/transactions?skip=0&take=20
+```
+
+### Validate Redemption
+```
+POST /v1/wallet/validate
+{ "cartTotal": 1000 }
+```
+
+---
+
+## Admin Wallet Management
+
+### Get Active Config
+```
+GET /v1/admin/wallet/config
+```
+
+### Update Config
+```
+PUT /v1/admin/wallet/config
+{
+  "minEligibleAmount": 100,
+  "maxEligibleAmount": 1000,
+  "rewardPercentMin": 5,
+  "rewardPercentMax": 8,
+  "maxCoinsPerOrder": 50,
+  "redeemPercentLimit": 10,
+  "returnPeriodDays": 7
+}
+```
+
+### Liability Analytics
+```
+GET /v1/admin/wallet/analytics
+```
+
+---
+
+## Coupon Codes
+
+Base Route: `/v1/coupon-codes`
+
+### Create Coupon
+
+```
+POST /v1/coupon-codes
+Content-Type: application/json
+```
+
+No auth required for creation.
+
+```json
+{
+  "name": "NEWUSER10",
+  "description": "10% discount for new users",
+  "termsConditions": "Valid once per user",
+  "validCategory": "Electronics",
+  "validBrand": "Samsung",
+  "validEdition": "2025",
+  "validItem": "Mobile",
+  "validPrice": 500,
+  "validDate": "2026-12-31",
+  "issuedQnty": 100,
+  "userQnty": 1
+}
+```
+
+Success response:
+
+```json
+{
+  "success": true,
+  "message": "Coupon created successfully",
+  "data": {
+    "id": 1,
+    "name": "NEWUSER10",
+    "description": "10% discount for new users",
+    "validPrice": "500",
+    "validDate": "2026-12-31T00:00:00.000Z",
+    "issuedQnty": 100,
+    "userQnty": 1,
+    "createdBy": null
+  }
+}
+```
+
+If name is missing:
+
+```json
+{ "success": false, "message": "coupon name required" }
+```
+
+---
+
+### Get All Coupons
+
+```
+GET /v1/coupon-codes
+Authorization: Bearer <token>
+```
+
+```json
+{
+  "success": true,
+  "count": 1,
+  "data": [
+    {
+      "id": 1,
+      "name": "NEWUSER10",
+      "description": "10% discount for new users",
+      "validPrice": "500",
+      "validDate": "2026-12-31T00:00:00.000Z"
+    }
+  ]
+}
+```
+
+---
+
+### Get Coupon by ID
+
+```
+GET /v1/coupon-codes/:id
+Authorization: Bearer <token>
+```
+
+```json
+{ "success": true, "data": { "id": 1, "name": "NEWUSER10", ... } }
+```
+
+If not found:
+
+```json
+{ "success": false, "message": "coupon not found" }
+```
+
+---
+
+### Search Coupon by Name
+
+```
+GET /v1/coupon-codes/search?q=NEW
+Authorization: Bearer <token>
+```
+
+```json
+{
+  "success": true,
+  "count": 1,
+  "searchTerm": "NEW",
+  "data": [ { "id": 1, "name": "NEWUSER10", ... } ]
+}
+```
+
+If `q` is missing or empty:
+
+```json
+{ "success": false, "message": "Search term is required. Please provide 'q' query parameter." }
+```
+
+---
+
+### Update Coupon
+
+```
+PUT /v1/coupon-codes/:id
+Authorization: Bearer <token>
+```
+
+```json
+{
+  "description": "Updated description",
+  "validPrice": 1000,
+  "issuedQnty": 200
+}
+```
+
+Success:
+
+```json
+{
+  "success": true,
+  "message": "Coupon updated successfully",
+  "data": { "id": 1, "description": "Updated description", ... }
+}
+```
+
+If not found:
+
+```json
+{ "success": false, "message": "coupon not found" }
+```
+
+---
+
+### Delete Coupon
+
+```
+DELETE /v1/coupon-codes/:id
+Authorization: Bearer <token>
+```
+
+```json
+{ "success": true, "message": "Coupon deleted successfully" }
+```
+
+If not found:
+
+```json
+{ "success": false, "message": "coupon not found" }
+```
+

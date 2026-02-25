@@ -25,7 +25,7 @@ export const sendOtp = async (
 
     res.status(200).json({
       success: true,
-      msg: result.message.toLowerCase(),
+      message: result.message.toLowerCase(),
       data: null,
     });
   } catch (error) {
@@ -62,7 +62,7 @@ export const verifyOtp = async (
 
     res.status(200).json({
       success: true,
-      msg: "otp verified successfully",
+      message: "otp verified successfully",
       data: {
         user: result.user,
       },
@@ -83,7 +83,7 @@ export const signup = async (
 
     res.status(201).json({
       success: true,
-      msg: result.message.toLowerCase(),
+      message: result.message.toLowerCase(),
       data: null,
     });
   } catch (error) {
@@ -142,7 +142,7 @@ export const refreshToken = async (
 
     res.status(200).json({
       success: true,
-      msg: "token refreshed successfully",
+      message: "token refreshed successfully",
       data: {
         user: result.user,
       },

@@ -19,7 +19,7 @@ export const getMine = async (
     if (!customerId) {
       res
         .status(401)
-        .json({ success: false, code: "ERR_AUTH", msg: "unauthorized" });
+        .json({ success: false, code: "ERR_AUTH", message: "unauthorized" });
       return;
     }
 
@@ -31,7 +31,7 @@ export const getMine = async (
 
     res.status(200).json({
       success: true,
-      msg: "addresses fetched successfully",
+      message: "addresses fetched successfully",
       data: result.data,
       nextCursor: result.nextCursor,
     });
@@ -53,7 +53,7 @@ export const getOne = async (
       res.status(400).json({
         success: false,
         code: "ERR_BAD_REQUEST",
-        msg: "invalid request",
+        message: "invalid request",
       });
       return;
     }
@@ -63,13 +63,13 @@ export const getOne = async (
     if ((address as any).userId !== customerId) {
       res
         .status(403)
-        .json({ success: false, code: "ERR_FORBIDDEN", msg: "forbidden" });
+        .json({ success: false, code: "ERR_FORBIDDEN", message: "forbidden" });
       return;
     }
 
     res.status(200).json({
       success: true,
-      msg: "address fetched successfully",
+      message: "address fetched successfully",
       data: address,
     });
   } catch (error) {
@@ -87,7 +87,7 @@ export const create = async (
     if (!customerId) {
       res
         .status(401)
-        .json({ success: false, code: "ERR_AUTH", msg: "unauthorized" });
+        .json({ success: false, code: "ERR_AUTH", message: "unauthorized" });
       return;
     }
 
@@ -99,7 +99,7 @@ export const create = async (
 
     res.status(201).json({
       success: true,
-      msg: "address created successfully",
+      message: "address created successfully",
       data: userAddress,
     });
   } catch (error) {
@@ -120,7 +120,7 @@ export const update = async (
       res.status(400).json({
         success: false,
         code: "ERR_BAD_REQUEST",
-        msg: "invalid request",
+        message: "invalid request",
       });
       return;
     }
@@ -133,7 +133,7 @@ export const update = async (
 
     res.status(200).json({
       success: true,
-      msg: "address updated successfully",
+      message: "address updated successfully",
       data: userAddress,
     });
   } catch (error) {
@@ -154,7 +154,7 @@ export const remove = async (
       res.status(400).json({
         success: false,
         code: "ERR_BAD_REQUEST",
-        msg: "invalid request",
+        message: "invalid request",
       });
       return;
     }
@@ -163,7 +163,7 @@ export const remove = async (
 
     res.status(200).json({
       success: true,
-      msg: "address deleted successfully",
+      message: "address deleted successfully",
       data: null,
     });
   } catch (error) {

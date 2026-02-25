@@ -20,25 +20,16 @@ const categoryData = [
 ];
 
 async function main() {
-  console.log("🌱 Starting Database Seeding (Office Schema - Enums Fixed)...");
+  console.log("🌱 Checking database state...");
 
-  // 1. Clean up (Be careful with order due to FKs)
-  // Delete status history first
-  await (prisma as any).x10_app_order_status.deleteMany({});
-  // Delete order details
-  await (prisma as any).x9_app_order_details.deleteMany({});
-  // Delete order masters
-  await (prisma as any).x8_app_orders_master.deleteMany({});
-  // Delete cart
-  await (prisma as any).x5_app_cart.deleteMany({});
+  // 1. Check if database already has data
+  const customerCount = await prisma.customer.count();
+  if (customerCount > 0) {
+    console.log(`✅ Database already has ${customerCount} customers. Skipping seeding to protect existing data.`);
+    return;
+  }
 
-  await prisma.shopStockItem.deleteMany({});
-  await prisma.productImageRegister.deleteMany({});
-  await prisma.productRating.deleteMany({});
-  await prisma.productRegister.deleteMany({});
-  await prisma.userAddress.deleteMany({});
-  await prisma.customer.deleteMany({});
-  await prisma.category.deleteMany({});
+  console.log("🌱 Starting Database Seeding (Empty DB detected)...");
 
   // 2. Seed Categories
   const createdCategories = [];

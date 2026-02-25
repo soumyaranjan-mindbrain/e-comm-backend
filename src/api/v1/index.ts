@@ -11,6 +11,7 @@ import userAddressRouter from "./user-addresses";
 import couponCodeRouter from "./coupon-codes";
 import cartRouter from "./cart";
 import orderRouter from "./order/order";
+import orderReturnRouter from "./return/OrderReturnRouter";
 
 const v1: Router = express.Router();
 
@@ -26,5 +27,6 @@ v1.use("/user-addresses", userAddressRouter);
 v1.use("/coupon-codes", couponCodeRouter);
 v1.use("/cart", cartRouter);
 v1.use("/orders", orderRouter);
+v1.use("/order-returns", orderReturnRouter);
 
 export default v1;

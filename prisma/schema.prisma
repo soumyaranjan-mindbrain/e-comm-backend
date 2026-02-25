@@ -1669,6 +1669,24 @@ model x5_app_cart {
   @@map("x5_app_cart")
 }
 
+model OrderReturn {
+  id           Int      @id @default(autoincrement())
+  orderId      String   @map("order_id")
+  productId    Int      @map("product_id")
+  comId        Int      @map("com_id")
+  returnReason String   @map("return_reason")
+  pickupDate   DateTime @map("pickup_date")
+  refundAmount Float    @map("refund_amount")
+  status       String   @default("PENDING")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@index([orderId])
+  @@index([productId])
+  @@index([comId])
+  @@map("x13_app_order_return")
+}
+
 model x7_app_users_coupon_code {
   id         Int                              @id @default(autoincrement())
   user_id    Int?

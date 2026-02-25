@@ -693,3 +693,92 @@ Success:
   "data": { ... }
 }
 ```
+
+---
+
+## Order Returns
+
+All return routes need `Authorization: Bearer <token>`.
+
+### Create Return Request
+
+```
+POST /v1/order-returns
+Authorization: Bearer <token>
+```
+
+```json
+{
+  "orderId": "e73b7504-5507-4d30-a38a-ae9faf3d74de",
+  "productId": 5014,
+  "comId": 15,
+  "returnReason": "Product damaged during shipping",
+  "pickupDate": "2026-03-01",
+  "refundAmount": 750
+}
+```
+
+Success response:
+
+```json
+{
+  "success": true,
+  "message": "Return request created",
+  "data": {
+    "id": 1,
+    "orderId": "e73b7504-5507-4d30-a38a-ae9faf3d74de",
+    "productId": 5014,
+    "status": "PENDING",
+    ...
+  }
+}
+```
+
+---
+
+### Get All Returns
+
+```
+GET /v1/order-returns
+Authorization: Bearer <token>
+```
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "orderId": "e73b7504-5507-4d30-a38a-ae9faf3d74de",
+      "status": "PENDING",
+      ...
+    }
+  ]
+}
+```
+
+---
+
+### Get Return by ID
+
+```
+GET /v1/order-returns/1
+Authorization: Bearer <token>
+```
+
+---
+
+### Update Return Status (Admin)
+
+```
+PATCH /v1/order-returns/1
+Authorization: Bearer <token>
+```
+
+```json
+{
+  "status": "APPROVED"
+}
+```
+
+Valid statuses: `APPROVED`, `REJECTED`.

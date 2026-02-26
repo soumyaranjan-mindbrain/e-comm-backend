@@ -123,6 +123,31 @@ Authorization: Bearer {{token}}
 # ❌ ERROR (401) — invalid/missing token:
 # { "success": false, "code": "ERR_AUTH", "msg": "unauthorized" }
 
+###
+
+# 1.5 Refresh Token
+# ✏️ ENSURE: @token is set from Verify OTP response
+# ⚠️ Optional: You can also send refreshToken in body, otherwise cookie will be used
+### ════════════════════════════════════════════
+
+POST {{baseUrl}}/auth/refresh-token
+Content-Type: application/json
+ 
+# ✅ EXPECTED RESPONSE (200 OK):
+# {
+# "success": true,
+# "msg": "token refreshed successfully",
+# "data": {
+# "user": {
+# "id": 15,
+# "mobile": "9876543210",
+# "name": "Test User"
+# }
+# }
+# }
+//❌ ERROR (401) — missing/invalid/expired refresh token:
+// { "success": false, "msg": "Invalid or expired refresh token" }  only add this endpoint
+
 
 ### ════════════════════════════════════════════
 ### 2. PROFILE

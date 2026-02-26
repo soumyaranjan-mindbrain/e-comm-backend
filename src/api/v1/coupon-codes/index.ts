@@ -1,6 +1,8 @@
 import express from "express";
 import * as couponCodeController from "../../../controllers/coupon-codes/CouponCodeController";
 import validateRequest from "../../../middleware/validate-request";
+import authenticateUser from "../../../middleware/authenticate-user";
+import authorizeAdmin from "../../../middleware/authorize-admin";
 import {
   createCouponCodeSchema,
   updateCouponCodeSchema,
@@ -8,18 +10,20 @@ import {
 
 const router = express.Router();
 
-// Search coupon codes by name: GET /coupon-codes/search?q=term&limit=50
-router.get("/search", couponCodeController.search);
+// Publicly available (authenticated)
+router.get("/search", authenticateUser, couponCodeController.search);
+router.get("/", authenticateUser, couponCodeController.getAll);
+router.get("/:id", authenticateUser, couponCodeController.getOne);
 
-// Get all coupon codes (optional: ?limit=20, ?cursor=id)
-router.get("/", couponCodeController.getAll);
-
-// Get coupon code by ID
-router.get("/:id", couponCodeController.getOne);
+/**
+ * ADMIN ONLY ROUTES
+ */
 
 // Create a new coupon code
 router.post(
   "/",
+  authenticateUser,
+  authorizeAdmin,
   validateRequest(createCouponCodeSchema),
   couponCodeController.create,
 );
@@ -27,11 +31,13 @@ router.post(
 // Update a coupon code
 router.put(
   "/:id",
+  authenticateUser,
+  authorizeAdmin,
   validateRequest(updateCouponCodeSchema),
   couponCodeController.update,
 );
 
 // Delete a coupon code
-router.delete("/:id", couponCodeController.remove);
+router.delete("/:id", authenticateUser, authorizeAdmin, couponCodeController.remove);
 
 export default router;

@@ -75,7 +75,7 @@ export const uploadPhoto = async (
     }
 
     // 1. Upload to Cloudinary
-    const imageUrl = await cloudinaryService.uploadImage(
+    const { url: imageUrl } = await cloudinaryService.uploadImage(
       req.file.buffer,
       "bm2mall/profiles",
     );

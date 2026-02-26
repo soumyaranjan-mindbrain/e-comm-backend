@@ -125,8 +125,20 @@ model ProductRating {
   updatedBy    Int?      @map("updated_by")
 
   customer Customer? @relation(fields: [createdBy], references: [id])
+  reviewImages ProductRatingImage[]
 
   @@map("x3_app_product_ratings")
+}
+
+model ProductRatingImage {
+  id                 Int       @id @default(autoincrement())
+  productRating      ProductRating @relation(fields: [productRatingId], references: [id])
+  productRatingId    Int       @map("product_rating_id")
+  url                String    @db.VarChar(500)
+  cloudinaryPublicId String?   @map("cloudinary_public_id") @db.VarChar(255)
+  createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamp(0)
+
+  @@map("x3_app_product_rating_images")
 }
 
 model UserAddress {

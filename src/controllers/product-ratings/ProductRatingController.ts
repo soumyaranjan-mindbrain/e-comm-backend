@@ -1,6 +1,21 @@
 import { Request, Response, NextFunction } from "express";
 import * as productRatingUseCase from "../../usecases/product-ratings/ProductRatingUseCase";
 
+const mapProductRatingResponse = (rating: any) => ({
+  id: rating.id,
+  productId: rating.productId,
+  totalRatings: rating.totalRatings,
+  givenRatings: rating.givenRatings,
+  message: rating.message,
+  customerName: rating.customer?.fullName ?? "Anonymous",
+  customerAvatar: rating.customer?.profileImage ?? null,
+  reviewDate: rating.createdAt ? rating.createdAt.toISOString() : null,
+  reviewImages: (rating.reviewImages ?? []).map((img: any) => ({
+    url: img.url,
+    cloudinaryPublicId: img.cloudinaryPublicId,
+  })),
+});
+
 export const getAll = async (
   req: Request,
   res: Response,
@@ -18,10 +33,12 @@ export const getAll = async (
       cursor,
     );
 
+    const data = result.data.map(mapProductRatingResponse);
+
     res.status(200).json({
       success: true,
-      count: result.data.length,
-      data: result.data,
+      count: data.length,
+      data,
       nextCursor: result.nextCursor,
     });
   } catch (error) {
@@ -56,10 +73,12 @@ export const getByProductId = async (
       cursor,
     );
 
+    const data = result.data.map(mapProductRatingResponse);
+
     res.status(200).json({
       success: true,
-      count: result.data.length,
-      data: result.data,
+      count: data.length,
+      data,
       nextCursor: result.nextCursor,
     });
   } catch (error) {
@@ -82,7 +101,7 @@ export const getOne = async (
 
     res.status(200).json({
       success: true,
-      data: rating,
+      data: mapProductRatingResponse(rating),
     });
   } catch (error) {
     next(error);
@@ -104,6 +123,7 @@ export const create = async (
       givenRatings,
       message,
       createdBy,
+      reviewImages: req.body.reviewImages,
     });
 
     res.status(201).json({

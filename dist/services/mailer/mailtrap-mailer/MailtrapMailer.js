@@ -25,3 +25,4 @@ const send = async (mailNotification) => {
     });
 };
 exports.send = send;
+//# sourceMappingURL=MailtrapMailer.js.map

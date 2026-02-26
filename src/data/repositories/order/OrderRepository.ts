@@ -1,5 +1,4 @@
 import prisma from "../../../prisma-client";
-import { randomUUID } from "crypto";
 import { Prisma } from "@prisma/client";
 
 export enum OrderStatus {
@@ -40,7 +39,15 @@ export class OrderRepository {
    * Create an order with details and initial status
    */
   async createOrder(data: OrderInput) {
-    const orderId = randomUUID();
+    // 1. Get the latest record to determine the next sequential ID
+    // We do this outside the main transaction to get the "absolute" next ID
+    const lastOrder = await prisma.x8_app_orders_master.findFirst({
+      orderBy: { id: "desc" },
+      select: { id: true },
+    });
+
+    const nextId = (lastOrder?.id || 0) + 1;
+    const orderId = `#BM00${nextId}`;
 
     return await prisma.$transaction(async (tx: any) => {
       let finalDiscount = data.discounted_amount || 0;
@@ -75,7 +82,6 @@ export class OrderRepository {
           net_amount_payment_mode: data.payment_mode,
         },
       });
-      // ... rest of the logic remains same
 
       // 2. Create Order Details
       await tx.x9_app_order_details.createMany({
@@ -108,10 +114,8 @@ export class OrderRepository {
   async updateStatusByOrderId(
     orderId: string,
     status: OrderStatus,
-    updated_by?: number,
+    updated_by?: number
   ) {
-    // We add a new entry to the tracking table instead of updating many
-    // Because x10_app_order_status is a tracking table (multiple entries per order_id)
     return (prisma as any).x10_app_order_status.create({
       data: {
         order_id: orderId,
@@ -128,7 +132,7 @@ export class OrderRepository {
     return this.updateStatusByOrderId(
       orderId,
       OrderStatus.CANCELLED,
-      updated_by,
+      updated_by
     );
   }
 

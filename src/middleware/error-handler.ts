@@ -53,6 +53,8 @@ export default function errorHandler(
   }
 
   // Handle generic errors
+  console.error("[ErrorHandler] Unhandled Error:", error);
+
   res.status(500).json({
     success: false,
     code: "ERR_SERVER",

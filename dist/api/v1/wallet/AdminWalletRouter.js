@@ -16,3 +16,4 @@ router.get("/analytics", WalletAdminController_1.WalletAdminController.getAnalyt
 router.get("/negative-accounts", WalletAdminController_1.WalletAdminController.getNegativeAccounts);
 router.post("/trigger-activation", WalletAdminController_1.WalletAdminController.triggerActivation);
 exports.default = router;
+//# sourceMappingURL=AdminWalletRouter.js.map

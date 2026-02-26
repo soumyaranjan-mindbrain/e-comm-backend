@@ -8,6 +8,11 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+export type CloudinaryUploadResult = {
+  url: string;
+  publicId: string;
+};
+
 export class CloudinaryService {
   /**
    * Uploads a buffer to Cloudinary
@@ -17,24 +22,35 @@ export class CloudinaryService {
   async uploadImage(
     fileBuffer: Buffer,
     folder: string = "bm2mall/profiles",
-  ): Promise<string> {
+  ): Promise<CloudinaryUploadResult> {
+    console.log(`[CloudinaryService] Starting upload to folder: ${folder}, buffer size: ${fileBuffer.length} bytes`);
+
     return new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
           folder: folder,
-          resource_type: "image",
+          resource_type: "auto", // Automatically detect file type
         },
         (error, result) => {
-          if (error) return reject(error);
-          if (!result) return reject(new Error("Cloudinary upload failed"));
-          resolve(result.secure_url);
+          if (error) {
+            console.error(`[CloudinaryService] Upload error:`, error);
+            return reject(error);
+          }
+          if (!result) {
+            console.error(`[CloudinaryService] No result from Cloudinary`);
+            return reject(new Error("Cloudinary upload failed"));
+          }
+
+          console.log(`[CloudinaryService] Upload successful: ${result.secure_url}`);
+          resolve({
+            url: result.secure_url,
+            publicId: result.public_id,
+          });
         },
       );
 
-      const stream = new Readable();
-      stream.push(fileBuffer);
-      stream.push(null);
-      stream.pipe(uploadStream);
+      // More robust stream creation
+      Readable.from(fileBuffer).pipe(uploadStream);
     });
   }
 

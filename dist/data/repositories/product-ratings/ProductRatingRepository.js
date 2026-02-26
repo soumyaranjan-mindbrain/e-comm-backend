@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getProductRatingStats = exports.deleteProductRating = exports.updateProductRating = exports.createProductRating = exports.getAllProductRatings = exports.getProductRatingsByProductId = exports.getProductRatingById = void 0;
+exports.getProductRatingStats = exports.deleteProductRating = exports.updateProductRating = exports.getProductRatingByIdWithRelations = exports.createProductRatingImages = exports.createProductRating = exports.getAllProductRatings = exports.getProductRatingsByProductId = exports.getProductRatingById = void 0;
 const prisma_client_1 = __importDefault(require("../../../prisma-client"));
 const getProductRatingById = async (id) => {
     return prisma_client_1.default.productRating.findUnique({
@@ -23,6 +23,7 @@ const getProductRatingsByProductId = async (productId, limit = 20, cursor) => {
                     profileImage: true,
                 },
             },
+            reviewImages: true,
         },
         orderBy: { createdAt: "desc" },
         take,
@@ -38,6 +39,15 @@ const getAllProductRatings = async (limit = 20, cursor) => {
     const ratings = await prisma_client_1.default.productRating.findMany({
         where: cursor ? { id: { lt: cursor } } : undefined,
         orderBy: { createdAt: "desc" },
+        include: {
+            customer: {
+                select: {
+                    fullName: true,
+                    profileImage: true,
+                },
+            },
+            reviewImages: true,
+        },
         take,
     });
     const hasMore = ratings.length > limit;
@@ -58,6 +68,36 @@ const createProductRating = async (data) => {
     });
 };
 exports.createProductRating = createProductRating;
+const createProductRatingImages = async (productRatingId, images) => {
+    if (images.length === 0) {
+        return 0;
+    }
+    const data = images.map((image) => ({
+        productRatingId,
+        url: image.url,
+        cloudinaryPublicId: image.cloudinaryPublicId,
+    }));
+    const result = await prisma_client_1.default.productRatingImage.createMany({
+        data,
+    });
+    return result.count;
+};
+exports.createProductRatingImages = createProductRatingImages;
+const getProductRatingByIdWithRelations = async (id) => {
+    return prisma_client_1.default.productRating.findUnique({
+        where: { id },
+        include: {
+            customer: {
+                select: {
+                    fullName: true,
+                    profileImage: true,
+                },
+            },
+            reviewImages: true,
+        },
+    });
+};
+exports.getProductRatingByIdWithRelations = getProductRatingByIdWithRelations;
 const updateProductRating = async (id, data) => {
     return prisma_client_1.default.productRating.update({
         where: { id },
@@ -104,3 +144,4 @@ const getProductRatingStats = async (productId) => {
     };
 };
 exports.getProductRatingStats = getProductRatingStats;
+//# sourceMappingURL=ProductRatingRepository.js.map

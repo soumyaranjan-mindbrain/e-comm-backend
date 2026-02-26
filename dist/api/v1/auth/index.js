@@ -145,3 +145,4 @@ router.post("/refresh-token", authController.refreshToken);
  */
 router.post("/logout", authenticate_user_1.default, authController.logout);
 exports.default = router;
+//# sourceMappingURL=index.js.map

@@ -25,6 +25,20 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getStats = exports.remove = exports.update = exports.create = exports.getOne = exports.getByProductId = exports.getAll = void 0;
 const productRatingUseCase = __importStar(require("../../usecases/product-ratings/ProductRatingUseCase"));
+const mapProductRatingResponse = (rating) => ({
+    id: rating.id,
+    productId: rating.productId,
+    totalRatings: rating.totalRatings,
+    givenRatings: rating.givenRatings,
+    message: rating.message,
+    customerName: rating.customer?.fullName ?? "Anonymous",
+    customerAvatar: rating.customer?.profileImage ?? null,
+    reviewDate: rating.createdAt ? rating.createdAt.toISOString() : null,
+    reviewImages: (rating.reviewImages ?? []).map((img) => ({
+        url: img.url,
+        cloudinaryPublicId: img.cloudinaryPublicId,
+    })),
+});
 const getAll = async (req, res, next) => {
     try {
         const parsedLimit = req.query.limit ? parseInt(req.query.limit) : undefined;
@@ -32,10 +46,11 @@ const getAll = async (req, res, next) => {
         const limit = isNaN(parsedLimit) ? undefined : parsedLimit;
         const cursor = isNaN(parsedCursor) ? undefined : parsedCursor;
         const result = await productRatingUseCase.getAllProductRatings(limit, cursor);
+        const data = result.data.map(mapProductRatingResponse);
         res.status(200).json({
             success: true,
-            count: result.data.length,
-            data: result.data,
+            count: data.length,
+            data,
             nextCursor: result.nextCursor,
         });
     }
@@ -59,10 +74,11 @@ const getByProductId = async (req, res, next) => {
             return;
         }
         const result = await productRatingUseCase.getProductRatingsByProductId(productId, limit, cursor);
+        const data = result.data.map(mapProductRatingResponse);
         res.status(200).json({
             success: true,
-            count: result.data.length,
-            data: result.data,
+            count: data.length,
+            data,
             nextCursor: result.nextCursor,
         });
     }
@@ -81,7 +97,7 @@ const getOne = async (req, res, next) => {
         const rating = await productRatingUseCase.getProductRatingById(id);
         res.status(200).json({
             success: true,
-            data: rating,
+            data: mapProductRatingResponse(rating),
         });
     }
     catch (error) {
@@ -98,6 +114,7 @@ const create = async (req, res, next) => {
             givenRatings,
             message,
             createdBy,
+            reviewImages: req.body.reviewImages,
         });
         res.status(201).json({
             success: true,
@@ -173,3 +190,4 @@ const getStats = async (req, res, next) => {
     }
 };
 exports.getStats = getStats;
+//# sourceMappingURL=ProductRatingController.js.map

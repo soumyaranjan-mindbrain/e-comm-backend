@@ -29,12 +29,20 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const nodemailer_1 = __importDefault(require("nodemailer"));
 const config_1 = __importDefault(require("@/config"));
 const mailtrapMailer = __importStar(require("@/services/mailer/mailtrap-mailer/MailtrapMailer"));
-const sendMailMock = jest.fn().mockResolvedValue("Email sent successfully");
-jest.mock("nodemailer", () => ({
-    createTransport: jest.fn(() => ({
-        sendMail: sendMailMock,
-    })),
-}));
+jest.mock("nodemailer", () => {
+    const sendMailMock = jest.fn().mockResolvedValue("Email sent successfully");
+    return {
+        __esModule: true,
+        default: {
+            createTransport: jest.fn(() => ({
+                sendMail: sendMailMock,
+            })),
+        },
+        sendMailMock,
+    };
+});
+const mockedNodemailer = jest.requireMock("nodemailer");
+const sendMailMock = mockedNodemailer.sendMailMock;
 describe("MailtrapMailer", () => {
     afterEach(() => {
         jest.clearAllMocks();
@@ -65,3 +73,4 @@ describe("MailtrapMailer", () => {
         });
     });
 });
+//# sourceMappingURL=MailtrapMailer.test.js.map

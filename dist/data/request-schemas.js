@@ -122,6 +122,7 @@ exports.createProductRatingSchema = joi_1.default.object({
     totalRatings: joi_1.default.number().integer().min(0).optional(),
     givenRatings: joi_1.default.number().integer().min(1).max(5).optional(),
     message: joi_1.default.string().optional().allow("", null),
+    reviewImages: joi_1.default.array().items(joi_1.default.string()).optional(),
     createdBy: joi_1.default.number().integer().optional(),
 });
 exports.updateProductRatingSchema = joi_1.default.object({
@@ -129,6 +130,7 @@ exports.updateProductRatingSchema = joi_1.default.object({
     totalRatings: joi_1.default.number().integer().min(0).optional(),
     givenRatings: joi_1.default.number().integer().min(1).max(5).optional(),
     message: joi_1.default.string().optional().allow("", null),
+    reviewImages: joi_1.default.array().items(joi_1.default.string()).optional(),
     updatedBy: joi_1.default.number().integer().optional(),
 });
 exports.productFilterSchema = joi_1.default.object({
@@ -141,3 +143,4 @@ exports.productFilterSchema = joi_1.default.object({
     limit: joi_1.default.number().integer().min(1).max(100).optional(),
     cursor: joi_1.default.number().integer().optional(),
 });
+//# sourceMappingURL=request-schemas.js.map

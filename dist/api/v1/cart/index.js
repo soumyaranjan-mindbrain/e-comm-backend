@@ -18,3 +18,4 @@ router.delete("/:itemId", authenticate_user_1.default, CartController_1.removeFr
 // Clear full cart
 router.delete("/clear/all", authenticate_user_1.default, CartController_1.clearCart);
 exports.default = router;
+//# sourceMappingURL=index.js.map

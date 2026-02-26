@@ -63,3 +63,4 @@ const getOne = async (req, res, next) => {
     }
 };
 exports.getOne = getOne;
+//# sourceMappingURL=CategoryController.js.map

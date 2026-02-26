@@ -58,7 +58,7 @@ const uploadPhoto = async (req, res, next) => {
             return;
         }
         // 1. Upload to Cloudinary
-        const imageUrl = await CloudinaryService_1.cloudinaryService.uploadImage(req.file.buffer, "bm2mall/profiles");
+        const { url: imageUrl } = await CloudinaryService_1.cloudinaryService.uploadImage(req.file.buffer, "bm2mall/profiles");
         // 2. Update profile in database
         const profile = await updateProfileUseCase.execute(userId, {
             profileImage: imageUrl,
@@ -77,3 +77,4 @@ const uploadPhoto = async (req, res, next) => {
     }
 };
 exports.uploadPhoto = uploadPhoto;
+//# sourceMappingURL=ProfileController.js.map

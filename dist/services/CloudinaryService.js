@@ -25,7 +25,10 @@ class CloudinaryService {
                     return reject(error);
                 if (!result)
                     return reject(new Error("Cloudinary upload failed"));
-                resolve(result.secure_url);
+                resolve({
+                    url: result.secure_url,
+                    publicId: result.public_id,
+                });
             });
             const stream = new stream_1.Readable();
             stream.push(fileBuffer);
@@ -61,3 +64,4 @@ class CloudinaryService {
 }
 exports.CloudinaryService = CloudinaryService;
 exports.cloudinaryService = new CloudinaryService();
+//# sourceMappingURL=CloudinaryService.js.map

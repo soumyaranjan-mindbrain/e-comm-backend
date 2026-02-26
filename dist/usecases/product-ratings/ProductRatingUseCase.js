@@ -29,8 +29,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getProductRatingStats = exports.deleteProductRating = exports.updateProductRating = exports.createProductRating = exports.getAllProductRatings = exports.getProductRatingsByProductId = exports.getProductRatingById = void 0;
 const productRatingRepository = __importStar(require("../../data/repositories/product-ratings/ProductRatingRepository"));
 const AppError_1 = __importDefault(require("../../errors/AppError"));
+const CloudinaryService_1 = require("../../services/CloudinaryService");
 const getProductRatingById = async (id) => {
-    const rating = await productRatingRepository.getProductRatingById(id);
+    const rating = await productRatingRepository.getProductRatingByIdWithRelations(id);
     if (!rating) {
         throw AppError_1.default.notFound("Product rating not found.");
     }
@@ -56,7 +57,17 @@ const createProductRating = async (data) => {
             throw AppError_1.default.badRequest("Given rating must be between 1 and 5.");
         }
     }
-    return await productRatingRepository.createProductRating(data);
+    const { reviewImages, ...ratingPayload } = data;
+    const rating = await productRatingRepository.createProductRating(ratingPayload);
+    const sanitizedImages = await processReviewImages(reviewImages);
+    if (sanitizedImages.length > 0) {
+        await productRatingRepository.createProductRatingImages(rating.id, sanitizedImages);
+    }
+    const ratingWithRelations = await productRatingRepository.getProductRatingByIdWithRelations(rating.id);
+    if (!ratingWithRelations) {
+        throw AppError_1.default.internal("Unable to fetch created product rating.");
+    }
+    return ratingWithRelations;
 };
 exports.createProductRating = createProductRating;
 const updateProductRating = async (id, data) => {
@@ -86,3 +97,52 @@ const getProductRatingStats = async (productId) => {
     return await productRatingRepository.getProductRatingStats(productId);
 };
 exports.getProductRatingStats = getProductRatingStats;
+const isHttpUrl = (value) => /^https?:\/\//i.test(value.trim());
+const extractBase64Data = (value) => {
+    if (value.includes(",")) {
+        return value.split(",").pop() ?? "";
+    }
+    return value;
+};
+const processReviewImages = async (reviewImages) => {
+    if (!reviewImages || reviewImages.length === 0) {
+        return [];
+    }
+    const validatedImages = [];
+    for (const image of reviewImages) {
+        const trimmed = image.trim();
+        if (!trimmed)
+            continue;
+        if (isHttpUrl(trimmed)) {
+            validatedImages.push({ url: trimmed });
+            continue;
+        }
+        const base64Data = extractBase64Data(trimmed);
+        if (!base64Data) {
+            throw AppError_1.default.badRequest("Invalid review image payload.");
+        }
+        let buffer;
+        try {
+            buffer = Buffer.from(base64Data, "base64");
+        }
+        catch (error) {
+            throw AppError_1.default.badRequest("Unable to decode review image data.");
+        }
+        if (!buffer.length) {
+            throw AppError_1.default.badRequest("Review image data is empty.");
+        }
+        let uploadResult;
+        try {
+            uploadResult = await CloudinaryService_1.cloudinaryService.uploadImage(buffer, "bm2mall/reviews");
+        }
+        catch (error) {
+            throw AppError_1.default.internal("Failed to upload review image.");
+        }
+        validatedImages.push({
+            url: uploadResult.url,
+            cloudinaryPublicId: uploadResult.publicId,
+        });
+    }
+    return validatedImages;
+};
+//# sourceMappingURL=ProductRatingUseCase.js.map

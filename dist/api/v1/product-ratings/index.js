@@ -46,3 +46,4 @@ router.put("/:id", (0, validate_request_1.default)(request_schemas_1.updateProdu
 // Delete a product rating
 router.delete("/:id", productRatingController.remove);
 exports.default = router;
+//# sourceMappingURL=index.js.map

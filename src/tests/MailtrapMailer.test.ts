@@ -3,13 +3,21 @@ import config from "@/config";
 import * as mailtrapMailer from "@/services/mailer/mailtrap-mailer/MailtrapMailer";
 import { IMailNotification } from "@/services/mailer/interface";
 
-const sendMailMock = jest.fn().mockResolvedValue("Email sent successfully");
+jest.mock("nodemailer", () => {
+  const sendMailMock = jest.fn().mockResolvedValue("Email sent successfully");
+  return {
+    __esModule: true,
+    default: {
+      createTransport: jest.fn(() => ({
+        sendMail: sendMailMock,
+      })),
+    },
+    sendMailMock,
+  };
+});
 
-jest.mock("nodemailer", () => ({
-  createTransport: jest.fn(() => ({
-    sendMail: sendMailMock,
-  })),
-}));
+const mockedNodemailer = jest.requireMock("nodemailer");
+const sendMailMock: jest.Mock = mockedNodemailer.sendMailMock;
 
 describe("MailtrapMailer", () => {
   afterEach(() => {

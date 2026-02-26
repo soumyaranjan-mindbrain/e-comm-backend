@@ -168,6 +168,27 @@ No body needed.
 
 ---
 
+### Refresh Token
+
+```
+POST /v1/auth/refresh-token
+```
+
+Optional: Send `refreshToken` in body, otherwise cookie will be used.
+
+Success:
+
+```json
+{
+  "success": true,
+  "msg": "token refreshed successfully",
+  "data": {
+    "user": { "id": 15, "mobile": "9876543210", "name": "Test User" }
+  }
+}
+```
+
+
 ## Profile
 
 ### Get My Profile
@@ -215,6 +236,30 @@ For the profile image, use Postman or Thunder Client — can't easily test file 
     "id": 15,
     "fullName": "John Updated",
     "email": "john.updated@example.com"
+  }
+}
+```
+
+---
+
+### Upload Profile Photo
+
+```
+POST /v1/profile/upload-photo
+Authorization: Bearer <token>
+Content-Type: multipart/form-data
+```
+
+Upload a file directly to Cloudinary and get the public URL. Ideal for profile avatars.
+
+Success:
+
+```json
+{
+  "success": true,
+  "msg": "Profile photo uploaded successfully",
+  "data": {
+    "url": "https://res.cloudinary.com/deiz1hfev/image/upload/v12345/avatar.jpg"
   }
 }
 ```
@@ -365,7 +410,7 @@ If you pass a non-numeric ID like `/products/abc`:
 
 ### Product Ratings
 
-Get all ratings for a product:
+Get all ratings for a product (paginated, includes reviewer info and images):
 
 ```
 GET /v1/product-ratings/product/15
@@ -380,14 +425,48 @@ Replace `15` with the product `id`.
   "data": [
     {
       "id": 1,
+      "productId": 15,
       "givenRatings": 5,
       "message": "Really good product, happy with the purchase.",
-      "createdBy": 15
+      "customerName": "Jenny Wilson",
+      "customerAvatar": "https://res.cloudinary.com/deiz1hfev/image/upload/v12345/profile.jpg",
+      "reviewDate": "2025-09-13T10:01:00.000Z",
+      "reviewImages": [
+        {
+          "url": "https://res.cloudinary.com/deiz1hfev/image/upload/v12345/review-photo.jpg",
+          "cloudinaryPublicId": "bm2mall/reviews/review-photo"
+        }
+      ]
     }
   ],
   "nextCursor": null
 }
 ```
+
+Each review now returns the formatted `reviewDate`, the reviewer’s display name/avatar, and zero or more `reviewImages` (each includes the Cloudinary public ID for future reference). Missing customer data shows `customerName: "Anonymous"` and `customerAvatar: null`.
+
+### Create a product rating
+
+```
+POST /v1/product-ratings
+```
+
+Payload:
+
+```json
+{
+  "productId": 15,
+  "givenRatings": 5,
+  "message": "Loved the fabric and fit.",
+  "createdBy": 15,
+  "reviewImages": [
+    "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD...",
+    "https://res.cloudinary.com/deiz1hfev/image/upload/v12345/old-photo.jpg"
+  ]
+}
+```
+
+The `reviewImages` array accepts either base64 data (uploaded to Cloudinary automatically) or pre-uploaded Cloudinary URLs. The response mirrors the GET shape, including `customerName`, `customerAvatar`, `reviewDate`, and `reviewImages`.
 
 Get rating summary/stats:
 
@@ -572,7 +651,24 @@ Authorization: Bearer <token>
 
 No body needed.
 
+### Update Order Status
+
+```
+PATCH /v1/orders/{{orderId}}/status
+Authorization: Bearer <token>
+```
+
+Payload (Valid: PENDING, CONFIRMED, SHIPPED, DELIVERED, CANCELLED):
+
+```json
+{
+  "status": "CONFIRMED",
+  "updated_by": 1
+}
+```
+
 ---
+
 
 ## Orders
 
@@ -843,7 +939,17 @@ PUT /v1/admin/wallet/config
 GET /v1/admin/wallet/analytics
 ```
 
+### Manual Trigger Activation
+
+```
+POST /v1/admin/wallet/trigger-activation
+Authorization: Bearer <token>
+```
+
+Used to manually re-evaluate rewards or statuses.
+
 ---
+
 
 ## Coupon Codes
 

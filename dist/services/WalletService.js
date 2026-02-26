@@ -149,3 +149,4 @@ class WalletService {
     }
 }
 exports.WalletService = WalletService;
+//# sourceMappingURL=WalletService.js.map

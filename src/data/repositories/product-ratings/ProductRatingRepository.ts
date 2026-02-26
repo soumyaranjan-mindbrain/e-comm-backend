@@ -1,5 +1,9 @@
 import prisma from "../../../prisma-client";
-import { ProductRating as PrismaProductRating, Prisma } from "@prisma/client";
+import {
+  ProductRating as PrismaProductRating,
+  Prisma,
+  ProductRatingImage as PrismaProductRatingImage,
+} from "@prisma/client";
 
 export interface CursorPaginationResult<T> {
   data: T[];
@@ -20,6 +24,11 @@ export interface UpdateProductRatingData {
   givenRatings?: number;
   message?: string;
   updatedBy?: number;
+}
+
+export interface CreateProductRatingImageData {
+  url: string;
+  cloudinaryPublicId?: string | null;
 }
 
 export const getProductRatingById = async (
@@ -47,6 +56,7 @@ export const getProductRatingsByProductId = async (
           profileImage: true,
         },
       },
+      reviewImages: true,
     },
     orderBy: { createdAt: "desc" },
     take,
@@ -69,6 +79,15 @@ export const getAllProductRatings = async (
   const ratings = await prisma.productRating.findMany({
     where: cursor ? { id: { lt: cursor } } : undefined,
     orderBy: { createdAt: "desc" },
+    include: {
+      customer: {
+        select: {
+          fullName: true,
+          profileImage: true,
+        },
+      },
+      reviewImages: true,
+    },
     take,
   });
 
@@ -90,6 +109,44 @@ export const createProductRating = async (
       givenRatings: data.givenRatings,
       message: data.message,
       createdBy: data.createdBy,
+    },
+  });
+};
+
+export const createProductRatingImages = async (
+  productRatingId: number,
+  images: CreateProductRatingImageData[],
+): Promise<number> => {
+  if (images.length === 0) {
+    return 0;
+  }
+
+  const data = images.map((image) => ({
+    productRatingId,
+    url: image.url,
+    cloudinaryPublicId: image.cloudinaryPublicId,
+  }));
+
+  const result = await prisma.productRatingImage.createMany({
+    data,
+  });
+
+  return result.count;
+};
+
+export const getProductRatingByIdWithRelations = async (
+  id: number,
+): Promise<PrismaProductRating | null> => {
+  return prisma.productRating.findUnique({
+    where: { id },
+    include: {
+      customer: {
+        select: {
+          fullName: true,
+          profileImage: true,
+        },
+      },
+      reviewImages: true,
     },
   });
 };

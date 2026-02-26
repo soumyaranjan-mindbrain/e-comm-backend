@@ -188,3 +188,4 @@ const searchProductRegistersByName = async (searchTerm, limit) => {
     });
 };
 exports.searchProductRegistersByName = searchProductRegistersByName;
+//# sourceMappingURL=ProductRegisterRepository.js.map

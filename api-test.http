@@ -172,7 +172,7 @@ Authorization: Bearer {{token}}
 #   }
 # }
 
-###
+
 
 ### 2.2 Update Profile
 # ✏️  EDIT: Change fullName and email values as needed
@@ -202,6 +202,28 @@ john.updated@example.com
 #     "email": "john.updated@example.com",
 #     ...
 #   }
+# }
+
+### 2.3 Upload Profile Photo
+# ✏️  ENSURE: @token is set
+# Note: File upload only works via Postman/Thunder Client / VS Code Rest Client
+# ─────────────────────────────────────────────
+POST {{baseUrl}}/profile/upload-photo
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=----FormBoundaryPhoto
+
+------FormBoundaryPhoto
+Content-Disposition: form-data; name="profileImage"; filename="avatar.jpg"
+Content-Type: image/jpeg
+
+< ./avatar.jpg
+------FormBoundaryPhoto--
+
+# ✅ EXPECTED RESPONSE (200 OK):
+# {
+#   "success": true,
+#   "msg": "Profile photo uploaded successfully",
+#   "data": { "url": "https://res.cloudinary.com/..." }
 # }
 
 
@@ -351,13 +373,62 @@ GET {{baseUrl}}/product-ratings/product/15
 #   "success": true,
 #   "count": 2,
 #   "data": [
-#     { "id": 1, "givenRatings": 5, "message": "Great product!", "createdBy": 15 }
+#     {
+#       "id": 1,
+#       "productId": 15,
+#       "givenRatings": 5,
+#       "message": "Great product!",
+#       "customerName": "Jenny Wilson",
+#       "customerAvatar": "https://res.cloudinary.com/deiz1hfev/image/upload/v12345/profile.jpg",
+#       "reviewDate": "2025-09-13T10:01:00.000Z",
+#       "reviewImages": [
+#         {
+#           "url": "https://res.cloudinary.com/deiz1hfev/image/upload/v12345/review-photo.jpg",
+#           "cloudinaryPublicId": "bm2mall/reviews/review-photo"
+#         }
+#       ]
+#     }
 #   ],
 #   "nextCursor": null
 # }
 
 ###
+### 4.5.1 Create a Product Rating
+# âœï¸  POST with `productId`, `givenRatings`, optional `message`, and `reviewImages`
+POST {{baseUrl}}/product-ratings
 
+{
+  "productId": 15,
+  "givenRatings": 5,
+  "message": "Fabric and fit were spot-on!",
+  "createdBy": 15,
+  "reviewImages": [
+    "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD...",
+    "https://res.cloudinary.com/deiz1hfev/image/upload/v12345/old-photo.jpg"
+  ]
+}
+
+# âœ… EXPECTED RESPONSE (201 Created):
+# {
+#   "success": true,
+#   "data": {
+#     "id": 42,
+#     "productId": 15,
+#     "givenRatings": 5,
+#     "message": "Fabric and fit were spot-on!",
+#     "customerName": "Jenny Wilson",
+#     "customerAvatar": "https://res.cloudinary.com/deiz1hfev/image/upload/v12345/profile.jpg",
+#     "reviewDate": "2025-09-13T10:15:00.000Z",
+#     "reviewImages": [
+#       {
+#         "url": "https://res.cloudinary.com/deiz1hfev/image/upload/v12345/review-photo.jpg",
+#         "cloudinaryPublicId": "bm2mall/reviews/review-photo"
+#       }
+#     ]
+#   }
+# }
+
+###
 ### 4.6 Product Rating Stats
 # ✏️  EDIT: Replace 15 with the product `id`
 # ─────────────────────────────────────────────

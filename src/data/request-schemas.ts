@@ -127,6 +127,7 @@ export const createProductRatingSchema = Joi.object({
   totalRatings: Joi.number().integer().min(0).optional(),
   givenRatings: Joi.number().integer().min(1).max(5).optional(),
   message: Joi.string().optional().allow("", null),
+  reviewImages: Joi.array().items(Joi.string()).optional(),
   createdBy: Joi.number().integer().optional(),
 });
 
@@ -135,6 +136,7 @@ export const updateProductRatingSchema = Joi.object({
   totalRatings: Joi.number().integer().min(0).optional(),
   givenRatings: Joi.number().integer().min(1).max(5).optional(),
   message: Joi.string().optional().allow("", null),
+  reviewImages: Joi.array().items(Joi.string()).optional(),
   updatedBy: Joi.number().integer().optional(),
 });
 

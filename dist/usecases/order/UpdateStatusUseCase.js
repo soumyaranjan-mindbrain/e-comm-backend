@@ -24,3 +24,4 @@ const updateOrderStatusUseCase = async (orderId, status, updated_by) => {
     return { message: "Status Updated Successfully", updatedStatus };
 };
 exports.updateOrderStatusUseCase = updateOrderStatusUseCase;
+//# sourceMappingURL=UpdateStatusUseCase.js.map

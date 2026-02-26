@@ -61,6 +61,7 @@ export class VerifyOtpUseCase {
       customer.id,
       customer.comId,
       customer.contactNo ?? "",
+      (customer as any).role || "USER",
     );
     const refreshToken = this.generateRefreshToken(customer.id);
 
@@ -80,8 +81,8 @@ export class VerifyOtpUseCase {
     };
   }
 
-  private generateAccessToken(id: number, comId: number, mobile: string): string {
-    return jwt.sign({ id, comId, mobile }, config.jwtAccessSecret, {
+  private generateAccessToken(id: number, comId: number, mobile: string, role: string): string {
+    return jwt.sign({ id, comId, mobile, role }, config.jwtAccessSecret, {
       expiresIn: "15m",
     });
   }

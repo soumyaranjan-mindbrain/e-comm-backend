@@ -9,6 +9,7 @@ export interface AuthRequest extends Request {
     comId?: number;
     username?: string;
     mobile?: string;
+    role?: string;
   };
   file?: any;
   files?: any;
@@ -37,6 +38,7 @@ const authenticateUser = (req: Request, res: Response, next: NextFunction) => {
       comId?: number;
       username?: string;
       mobile?: string;
+      role?: string;
     };
     (req as AuthRequest).user = decoded;
     next();

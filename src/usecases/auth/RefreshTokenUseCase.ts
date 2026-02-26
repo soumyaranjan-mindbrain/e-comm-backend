@@ -6,9 +6,7 @@ import config from "../../config";
 export class RefreshTokenUseCase {
     constructor(private customerRepository: CustomerRepository) { }
 
-    async execute(
-        incomingRefreshToken: string,
-    ): Promise<{
+    async execute(incomingRefreshToken: string): Promise<{
         user: { id: number; mobile: string; name: string };
         tokens: { accessToken: string; refreshToken: string };
     }> {
@@ -17,36 +15,43 @@ export class RefreshTokenUseCase {
         }
 
         let decoded: any;
+
         try {
             decoded = jwt.verify(incomingRefreshToken, config.jwtRefreshSecret);
-        } catch (error) {
+        } catch {
             throw AppError.unauthorized("Invalid or expired refresh token");
         }
 
         const userId = decoded.id;
+
         const customer = await this.customerRepository.findById(userId);
 
         if (!customer) {
             throw AppError.unauthorized("User not found");
         }
 
-        // Verify token matches database (strict security)
+        // ✅ verify refresh token from DB
         if (customer.refreshToken !== incomingRefreshToken) {
-            // Possible token reuse attack! Logic could be added here to invalidate all tokens.
             throw AppError.unauthorized("Invalid refresh token");
         }
 
-        // Generate new Link
+        /**
+         * ✅ ACCESS TOKEN MUST CONTAIN:
+         * id + comId + mobile + role
+         */
         const newAccessToken = this.generateAccessToken(
             customer.id,
+            customer.comId,
             customer.contactNo ?? "",
+            (customer as any).role || "USER",
         );
 
-        // Rotate Refresh Token (Extend session for another 7 days)
         const newRefreshToken = this.generateRefreshToken(customer.id);
 
-        // Save new refresh token to DB
-        await this.customerRepository.saveRefreshToken(customer.id, newRefreshToken);
+        await this.customerRepository.saveRefreshToken(
+            customer.id,
+            newRefreshToken,
+        );
 
         return {
             user: {
@@ -61,12 +66,30 @@ export class RefreshTokenUseCase {
         };
     }
 
-    private generateAccessToken(id: number, mobile: string): string {
-        return jwt.sign({ id, mobile }, config.jwtAccessSecret, {
-            expiresIn: "15m",
-        });
+    /**
+     * ✅ ACCESS TOKEN
+     */
+    private generateAccessToken(
+        id: number,
+        comId: number,
+        mobile: string,
+        role: string,
+    ): string {
+        return jwt.sign(
+            {
+                id,
+                comId,
+                mobile,
+                role,
+            },
+            config.jwtAccessSecret,
+            { expiresIn: "15m" },
+        );
     }
 
+    /**
+     * ✅ REFRESH TOKEN
+     */
     private generateRefreshToken(id: number): string {
         return jwt.sign({ id }, config.jwtRefreshSecret, { expiresIn: "7d" });
     }

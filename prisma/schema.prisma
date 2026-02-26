@@ -39,6 +39,7 @@ model Customer {
   otpValidUpto DateTime?               @map("otp_valid_upto") @db.DateTime(0)
   refreshToken String?                 @map("refresh_token") @db.VarChar(255)
   profileImage String?                 @map("profile_image") @db.VarChar(255)
+  role         String                  @default("USER") @db.VarChar(20)
   indate       DateTime?               @default(now()) @db.DateTime(0)
 
   coinBalance        Float @default(0) @map("coin_balance")

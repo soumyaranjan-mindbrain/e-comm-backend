@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.OrderRepository = exports.OrderStatus = void 0;
 const prisma_client_1 = __importDefault(require("../../../prisma-client"));
 const crypto_1 = require("crypto");
-const { Prisma } = require("@prisma/client");
+const client_1 = require("@prisma/client");
 var OrderStatus;
 (function (OrderStatus) {
     OrderStatus["PENDING"] = "PENDING";
@@ -22,32 +22,39 @@ class OrderRepository {
     async createOrder(data) {
         const orderId = (0, crypto_1.randomUUID)();
         return await prisma_client_1.default.$transaction(async (tx) => {
+            let finalDiscount = data.discounted_amount || 0;
+            // --- WALLET REDEMPTION ---
+            if (data.coinsToRedeem && data.coinsToRedeem > 0) {
+                const { WalletService } = require("../../../services/WalletService");
+                const walletService = new WalletService();
+                const redeemed = await walletService.redeemCoins(data.comId, orderId, data.coinsToRedeem, data.total_amount, tx);
+                finalDiscount += redeemed;
+            }
             // 1. Create Order Master
             const order = await tx.x8_app_orders_master.create({
                 data: {
                     order_id: orderId,
                     comId: data.comId,
-                    total_amount: new Prisma.Decimal(data.total_amount),
-                    discounted_amount: data.discounted_amount
-                        ? new Prisma.Decimal(data.discounted_amount)
-                        : new Prisma.Decimal(0),
+                    total_amount: new client_1.Prisma.Decimal(data.total_amount),
+                    discounted_amount: new client_1.Prisma.Decimal(finalDiscount),
                     del_charge_amount: data.del_charge_amount
-                        ? new Prisma.Decimal(data.del_charge_amount)
-                        : new Prisma.Decimal(0),
+                        ? new client_1.Prisma.Decimal(data.del_charge_amount)
+                        : new client_1.Prisma.Decimal(0),
                     tax_amount_b_coins: data.tax_amount_b_coins
-                        ? new Prisma.Decimal(data.tax_amount_b_coins)
-                        : new Prisma.Decimal(0),
+                        ? new client_1.Prisma.Decimal(data.tax_amount_b_coins)
+                        : new client_1.Prisma.Decimal(0),
                     net_amount_payment_mode: data.payment_mode,
                 },
             });
+            // ... rest of the logic remains same
             // 2. Create Order Details
             await tx.x9_app_order_details.createMany({
                 data: data.items.map((item) => ({
                     order_id: orderId,
                     product_id: item.productId,
                     qnty: item.qnty,
-                    rate: new Prisma.Decimal(item.rate),
-                    net_amount: new Prisma.Decimal(item.net_amount),
+                    rate: new client_1.Prisma.Decimal(item.rate),
+                    net_amount: new client_1.Prisma.Decimal(item.net_amount),
                     comId: data.comId,
                 })),
             });
@@ -92,6 +99,29 @@ class OrderRepository {
                 orderDetails: true,
                 orderStatus: true,
             },
+        });
+    }
+    /**
+     * Get all orders with optional pagination and filters
+     */
+    async getAllOrders(params = {}) {
+        const { page = 1, limit = 50, status, comId } = params;
+        const where = {};
+        if (status)
+            where.status = status;
+        if (comId !== undefined)
+            where.comId = comId;
+        return prisma_client_1.default.x8_app_orders_master.findMany({
+            where,
+            include: {
+                orderDetails: true,
+                orderStatus: true,
+            },
+            orderBy: {
+                created_at: "desc",
+            },
+            skip: (page - 1) * limit,
+            take: limit,
         });
     }
     /**

@@ -7,7 +7,10 @@ require("module-alias/register");
 require("reflect-metadata");
 const server_1 = require("./server");
 const config_1 = __importDefault(require("./config"));
+const WalletCron_1 = require("./tasks/WalletCron");
 const server = (0, server_1.createServer)();
+// Start background tasks
+(0, WalletCron_1.initWalletTasks)();
 server.listen(config_1.default.port, "0.0.0.0", () => {
     console.log(`api running on ${config_1.default.port}`);
 });

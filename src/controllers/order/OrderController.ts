@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { createOrderUseCase } from "../../usecases/order/CreateOrderUseCase";
 import { cancelOrderUseCase } from "../../usecases/order/CancelOrderUseCase";
 import { getOrderUseCase } from "../../usecases/order/GetOrderUseCase";
+import { getAllOrdersUseCase } from "../../usecases/order/GetAllOrderUseCase";
 import { trackOrderUseCase } from "../../usecases/order/TrackOrderUseCase";
 import { updateOrderStatusUseCase } from "../../usecases/order/UpdateStatusUseCase";
 import { OrderStatus } from "../../data/repositories/order/OrderRepository";
@@ -90,6 +91,41 @@ export const getOrderController = async (
   } catch (err: any) {
     console.error(err);
     res.status(500).json({ success: false, message: err.message || "failed to fetch order" });
+  }
+};
+
+// ==========================================
+// GET ALL ORDERS
+// ==========================================
+/**
+ * Get all orders (optionally with pagination)
+ */
+export const getAllOrdersController = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const user = (req as any).user;
+    const { page = 1, limit = 50, status } = req.query;
+
+    const result = await getAllOrdersUseCase({
+      page: Number(page),
+      limit: Number(limit),
+      status: status as string | undefined,
+      comId: user?.comId,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "orders fetched successfully",
+      data: result,
+    });
+  } catch (err: any) {
+    console.error(err);
+    res.status(500).json({
+      success: false,
+      message: err.message || "failed to fetch orders",
+    });
   }
 };
 

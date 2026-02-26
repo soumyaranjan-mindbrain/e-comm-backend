@@ -17,7 +17,7 @@ class LogoutUseCase {
         await this.customerRepository.clearRefreshToken(userId);
         return {
             success: true,
-            msg: "logged out successfully",
+            message: "logged out successfully",
         };
     }
 }

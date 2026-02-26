@@ -77,7 +77,7 @@ const searchProducts = async (req, res, next) => {
         if (!searchTerm || searchTerm.trim() === "") {
             res.status(400).json({
                 success: false,
-                msg: "search term is required",
+                message: "search term is required",
             });
             return;
         }
@@ -99,7 +99,7 @@ const getOne = async (req, res, next) => {
         if (isNaN(productId)) {
             res.status(400).json({
                 success: false,
-                msg: "invalid product id",
+                message: "invalid product id",
             });
             return;
         }

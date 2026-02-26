@@ -37,13 +37,13 @@ const getMine = async (req, res, next) => {
         if (!customerId) {
             res
                 .status(401)
-                .json({ success: false, code: "ERR_AUTH", msg: "unauthorized" });
+                .json({ success: false, code: "ERR_AUTH", message: "unauthorized" });
             return;
         }
         const result = await userAddressUseCase.getUserAddressesByCustomerId(customerId, limit, cursor);
         res.status(200).json({
             success: true,
-            msg: "addresses fetched successfully",
+            message: "addresses fetched successfully",
             data: result.data,
             nextCursor: result.nextCursor,
         });
@@ -61,7 +61,7 @@ const getOne = async (req, res, next) => {
             res.status(400).json({
                 success: false,
                 code: "ERR_BAD_REQUEST",
-                msg: "invalid request",
+                message: "invalid request",
             });
             return;
         }
@@ -69,12 +69,12 @@ const getOne = async (req, res, next) => {
         if (address.userId !== customerId) {
             res
                 .status(403)
-                .json({ success: false, code: "ERR_FORBIDDEN", msg: "forbidden" });
+                .json({ success: false, code: "ERR_FORBIDDEN", message: "forbidden" });
             return;
         }
         res.status(200).json({
             success: true,
-            msg: "address fetched successfully",
+            message: "address fetched successfully",
             data: address,
         });
     }
@@ -89,7 +89,7 @@ const create = async (req, res, next) => {
         if (!customerId) {
             res
                 .status(401)
-                .json({ success: false, code: "ERR_AUTH", msg: "unauthorized" });
+                .json({ success: false, code: "ERR_AUTH", message: "unauthorized" });
             return;
         }
         const userAddress = await userAddressUseCase.createUserAddress({
@@ -99,7 +99,7 @@ const create = async (req, res, next) => {
         });
         res.status(201).json({
             success: true,
-            msg: "address created successfully",
+            message: "address created successfully",
             data: userAddress,
         });
     }
@@ -116,7 +116,7 @@ const update = async (req, res, next) => {
             res.status(400).json({
                 success: false,
                 code: "ERR_BAD_REQUEST",
-                msg: "invalid request",
+                message: "invalid request",
             });
             return;
         }
@@ -127,7 +127,7 @@ const update = async (req, res, next) => {
         });
         res.status(200).json({
             success: true,
-            msg: "address updated successfully",
+            message: "address updated successfully",
             data: userAddress,
         });
     }
@@ -144,14 +144,14 @@ const remove = async (req, res, next) => {
             res.status(400).json({
                 success: false,
                 code: "ERR_BAD_REQUEST",
-                msg: "invalid request",
+                message: "invalid request",
             });
             return;
         }
         await userAddressUseCase.deleteUserAddress(id, customerId);
         res.status(200).json({
             success: true,
-            msg: "address deleted successfully",
+            message: "address deleted successfully",
             data: null,
         });
     }

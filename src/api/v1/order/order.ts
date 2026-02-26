@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   createOrderController,
+  getAllOrdersController,
   getOrderController,
   updateOrderStatusController,
   trackOrderController,
@@ -14,6 +15,7 @@ const router = Router();
 router.use(authenticateUser);
 
 router.post("/", createOrderController);
+router.get("/", getAllOrdersController);
 router.get("/:orderId", getOrderController);
 router.patch("/:orderId/status", updateOrderStatusController);
 router.get("/:orderId/track", trackOrderController);

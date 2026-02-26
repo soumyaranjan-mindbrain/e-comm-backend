@@ -505,7 +505,7 @@ Authorization: Bearer {{token}}
 ### 6. ORDERS
 ### ════════════════════════════════════════════
 
-@orderId = dc34ef7f-38b0-4f33-bdc9-5d6ead9af6a5
+@orderId = 746202ad-0fad-4619-b31a-babc72316835
 
 ### 6.1 Create Order
 # ✏️  ENSURE: @token is set
@@ -539,14 +539,22 @@ GET {{baseUrl}}/orders/{{orderId}}
 Authorization: Bearer {{token}}
 
 
-### 6.3 Track Order (Status History)
+### 6.3 Get All Orders
+# ✏️  ENSURE: @token is set
+# Optional query params: page, limit, status
+# ─────────────────────────────────────────────
+GET {{baseUrl}}/orders
+Authorization: Bearer {{token}}
+
+
+### 6.4 Track Order (Status History)
 # ✏️  ENSURE: @token and @orderId are set
 # ─────────────────────────────────────────────
 GET {{baseUrl}}/orders/{{orderId}}/track
 Authorization: Bearer {{token}}
 
 
-### 6.4 Update Order Status
+### 6.5 Update Order Status
 # ✏️  ENSURE: @token and @orderId are set
 # ✏️  EDIT: Valid statuses: "PENDING", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED"
 # ─────────────────────────────────────────────
@@ -560,7 +568,7 @@ Content-Type: application/json
 }
 
 
-### 6.5 Cancel Order
+### 6.6 Cancel Order
 # ✏️  ENSURE: @token and @orderId are set
 # ─────────────────────────────────────────────
 PATCH {{baseUrl}}/orders/{{orderId}}/cancel

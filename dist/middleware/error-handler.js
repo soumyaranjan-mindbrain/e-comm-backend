@@ -23,7 +23,7 @@ function errorHandler(error, req, res, next) {
         res.status(422).json({
             success: false,
             code: "ERR_VALIDATION",
-            msg: fieldErrors,
+            message: fieldErrors,
         });
         return;
     }
@@ -32,7 +32,7 @@ function errorHandler(error, req, res, next) {
         res.status(error.statusCode).json({
             success: false,
             code: error.code,
-            msg: error.message.toLowerCase(),
+            message: error.message.toLowerCase(),
         });
         return;
     }
@@ -41,7 +41,7 @@ function errorHandler(error, req, res, next) {
         res.status(error.statusCode).json({
             success: false,
             code: "code" in error ? error.code : "ERR_AUTH",
-            msg: error.message.toLowerCase(),
+            message: error.message.toLowerCase(),
         });
         return;
     }
@@ -49,6 +49,6 @@ function errorHandler(error, req, res, next) {
     res.status(500).json({
         success: false,
         code: "ERR_SERVER",
-        msg: ((0, utils_1.getErrorMessage)(error) || "internal server error").toLowerCase(),
+        message: ((0, utils_1.getErrorMessage)(error) || "internal server error").toLowerCase(),
     });
 }

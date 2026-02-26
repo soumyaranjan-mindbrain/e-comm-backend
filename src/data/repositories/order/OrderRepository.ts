@@ -28,6 +28,13 @@ export interface OrderInput {
   coinsToRedeem?: number;
 }
 
+export interface GetAllOrdersParams {
+  page?: number;
+  limit?: number;
+  status?: string;
+  comId?: number;
+}
+
 export class OrderRepository {
   /**
    * Create an order with details and initial status
@@ -135,6 +142,30 @@ export class OrderRepository {
         orderDetails: true,
         orderStatus: true,
       },
+    });
+  }
+
+  /**
+   * Get all orders with optional pagination and filters
+   */
+  async getAllOrders(params: GetAllOrdersParams = {}) {
+    const { page = 1, limit = 50, status, comId } = params;
+
+    const where: any = {};
+    if (status) where.status = status;
+    if (comId !== undefined) where.comId = comId;
+
+    return (prisma as any).x8_app_orders_master.findMany({
+      where,
+      include: {
+        orderDetails: true,
+        orderStatus: true,
+      },
+      orderBy: {
+        created_at: "desc",
+      },
+      skip: (page - 1) * limit,
+      take: limit,
     });
   }
 

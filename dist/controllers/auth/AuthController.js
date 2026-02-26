@@ -23,7 +23,7 @@ const sendOtp = async (req, res, next) => {
         const result = await sendOtpUseCase.execute(mobile);
         res.status(200).json({
             success: true,
-            msg: result.message.toLowerCase(),
+            message: result.message.toLowerCase(),
             data: null,
         });
     }
@@ -53,7 +53,7 @@ const verifyOtp = async (req, res, next) => {
         });
         res.status(200).json({
             success: true,
-            msg: "otp verified successfully",
+            message: "otp verified successfully",
             data: {
                 user: result.user,
             },
@@ -70,7 +70,7 @@ const signup = async (req, res, next) => {
         const result = await signupUseCase.execute({ fullName, mobile, email });
         res.status(201).json({
             success: true,
-            msg: result.message.toLowerCase(),
+            message: result.message.toLowerCase(),
             data: null,
         });
     }
@@ -117,7 +117,7 @@ const refreshToken = async (req, res, next) => {
         });
         res.status(200).json({
             success: true,
-            msg: "token refreshed successfully",
+            message: "token refreshed successfully",
             data: {
                 user: result.user,
             },

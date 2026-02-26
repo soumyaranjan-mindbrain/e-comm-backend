@@ -42,7 +42,10 @@ class VerifyOtpUseCase {
         }
         // Clear OTP immediately after successful verification
         await this.customerRepository.updateOtp(customer.id, null, null);
-        const accessToken = this.generateAccessToken(customer.id, customer.comId ?? 0, customer.contactNo ?? "");
+        if (customer.comId === null || customer.comId === undefined) {
+            throw AppError_1.default.internal("customer record is misconfigured (missing comId). please contact support.");
+        }
+        const accessToken = this.generateAccessToken(customer.id, customer.comId, customer.contactNo ?? "");
         const refreshToken = this.generateRefreshToken(customer.id);
         // Save refresh token to database
         await this.customerRepository.saveRefreshToken(customer.id, refreshToken);

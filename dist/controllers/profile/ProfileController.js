@@ -12,13 +12,13 @@ const getProfile = async (req, res, next) => {
     try {
         const userId = req.user?.id;
         if (!userId) {
-            res.status(401).json({ success: false, msg: "unauthorized", data: null });
+            res.status(401).json({ success: false, message: "unauthorized", data: null });
             return;
         }
         const profile = await getProfileUseCase.execute(userId);
         res.status(200).json({
             success: true,
-            msg: "profile fetched successfully",
+            message: "profile fetched successfully",
             data: profile,
         });
     }
@@ -31,13 +31,13 @@ const updateProfile = async (req, res, next) => {
     try {
         const userId = req.user?.id;
         if (!userId) {
-            res.status(401).json({ success: false, msg: "unauthorized", data: null });
+            res.status(401).json({ success: false, message: "unauthorized", data: null });
             return;
         }
         const profile = await updateProfileUseCase.execute(userId, req.body);
         res.status(200).json({
             success: true,
-            msg: "profile updated successfully",
+            message: "profile updated successfully",
             data: profile,
         });
     }
@@ -50,11 +50,11 @@ const uploadPhoto = async (req, res, next) => {
     try {
         const userId = req.user?.id;
         if (!userId) {
-            res.status(401).json({ success: false, msg: "unauthorized", data: null });
+            res.status(401).json({ success: false, message: "unauthorized", data: null });
             return;
         }
         if (!req.file) {
-            res.status(400).json({ success: false, msg: "no file uploaded" });
+            res.status(400).json({ success: false, message: "no file uploaded" });
             return;
         }
         // 1. Upload to Cloudinary
@@ -65,7 +65,7 @@ const uploadPhoto = async (req, res, next) => {
         });
         res.status(200).json({
             success: true,
-            msg: "photo uploaded and profile updated successfully",
+            message: "photo uploaded and profile updated successfully",
             data: {
                 profileImage: imageUrl,
                 user: profile,

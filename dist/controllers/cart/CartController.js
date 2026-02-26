@@ -12,7 +12,7 @@ const addToCart = async (req, res, next) => {
         if (productId === undefined || quantity === undefined) {
             res.status(400).json({
                 success: false,
-                msg: "productId and quantity are required",
+                message: "productId and quantity are required",
             });
             return;
         }
@@ -21,14 +21,14 @@ const addToCart = async (req, res, next) => {
         if (isNaN(numProductId) || isNaN(numQuantity) || numQuantity < 1) {
             res.status(400).json({
                 success: false,
-                msg: "valid productId and quantity (min 1) are required",
+                message: "valid productId and quantity (min 1) are required",
             });
             return;
         }
         const result = await cartRepository.addToCart(comId, numProductId, numQuantity);
         res.status(200).json({
             success: true,
-            msg: "item added to cart successfully",
+            message: "item added to cart successfully",
             data: result,
         });
     }
@@ -80,21 +80,21 @@ const updateCartQuantity = async (req, res, next) => {
         if (isNaN(itemId)) {
             res.status(400).json({
                 success: false,
-                msg: "valid itemId is required",
+                message: "valid itemId is required",
             });
             return;
         }
         if (quantity === undefined || isNaN(Number(quantity)) || Number(quantity) < 1) {
             res.status(400).json({
                 success: false,
-                msg: "valid quantity (min 1) is required",
+                message: "valid quantity (min 1) is required",
             });
             return;
         }
         const result = await cartRepository.updateQuantity(comId, itemId, Number(quantity));
         res.status(200).json({
             success: true,
-            msg: "cart quantity updated successfully",
+            message: "cart quantity updated successfully",
             data: result,
         });
     }
@@ -111,14 +111,14 @@ const removeFromCart = async (req, res, next) => {
         if (isNaN(itemId)) {
             res.status(400).json({
                 success: false,
-                msg: "valid itemId is required",
+                message: "valid itemId is required",
             });
             return;
         }
         await cartRepository.removeCartItem(comId, itemId);
         res.status(200).json({
             success: true,
-            msg: "item removed from cart successfully",
+            message: "item removed from cart successfully",
         });
     }
     catch (error) {
@@ -133,7 +133,7 @@ const clearCart = async (req, res, next) => {
         await cartRepository.clearCart(comId);
         res.status(200).json({
             success: true,
-            msg: "cart cleared successfully",
+            message: "cart cleared successfully",
         });
     }
     catch (error) {

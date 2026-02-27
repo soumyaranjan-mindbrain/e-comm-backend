@@ -190,4 +190,3 @@ const getStats = async (req, res, next) => {
     }
 };
 exports.getStats = getStats;
-//# sourceMappingURL=ProductRatingController.js.map

@@ -16,24 +16,28 @@ class CloudinaryService {
      * @param folder Folder name in Cloudinary
      */
     async uploadImage(fileBuffer, folder = "bm2mall/profiles") {
+        console.log(`[CloudinaryService] Starting upload to folder: ${folder}, buffer size: ${fileBuffer.length} bytes`);
         return new Promise((resolve, reject) => {
             const uploadStream = cloudinary_1.v2.uploader.upload_stream({
                 folder: folder,
-                resource_type: "image",
+                resource_type: "auto", // Automatically detect file type
             }, (error, result) => {
-                if (error)
+                if (error) {
+                    console.error(`[CloudinaryService] Upload error:`, error);
                     return reject(error);
-                if (!result)
+                }
+                if (!result) {
+                    console.error(`[CloudinaryService] No result from Cloudinary`);
                     return reject(new Error("Cloudinary upload failed"));
+                }
+                console.log(`[CloudinaryService] Upload successful: ${result.secure_url}`);
                 resolve({
                     url: result.secure_url,
                     publicId: result.public_id,
                 });
             });
-            const stream = new stream_1.Readable();
-            stream.push(fileBuffer);
-            stream.push(null);
-            stream.pipe(uploadStream);
+            // More robust stream creation
+            stream_1.Readable.from(fileBuffer).pipe(uploadStream);
         });
     }
     /**
@@ -64,4 +68,3 @@ class CloudinaryService {
 }
 exports.CloudinaryService = CloudinaryService;
 exports.cloudinaryService = new CloudinaryService();
-//# sourceMappingURL=CloudinaryService.js.map

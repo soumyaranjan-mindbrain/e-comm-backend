@@ -5,7 +5,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.OrderRepository = exports.OrderStatus = void 0;
 const prisma_client_1 = __importDefault(require("../../../prisma-client"));
-const crypto_1 = require("crypto");
 const client_1 = require("@prisma/client");
 var OrderStatus;
 (function (OrderStatus) {
@@ -20,7 +19,14 @@ class OrderRepository {
      * Create an order with details and initial status
      */
     async createOrder(data) {
-        const orderId = (0, crypto_1.randomUUID)();
+        // 1. Get the latest record to determine the next sequential ID
+        // We do this outside the main transaction to get the "absolute" next ID
+        const lastOrder = await prisma_client_1.default.x8_app_orders_master.findFirst({
+            orderBy: { id: "desc" },
+            select: { id: true },
+        });
+        const nextId = (lastOrder?.id || 0) + 1;
+        const orderId = `#BM00${nextId}`;
         return await prisma_client_1.default.$transaction(async (tx) => {
             let finalDiscount = data.discounted_amount || 0;
             // --- WALLET REDEMPTION ---
@@ -44,9 +50,9 @@ class OrderRepository {
                         ? new client_1.Prisma.Decimal(data.tax_amount_b_coins)
                         : new client_1.Prisma.Decimal(0),
                     net_amount_payment_mode: data.payment_mode,
+                    status: OrderStatus.PENDING,
                 },
             });
-            // ... rest of the logic remains same
             // 2. Create Order Details
             await tx.x9_app_order_details.createMany({
                 data: data.items.map((item) => ({
@@ -73,14 +79,21 @@ class OrderRepository {
      * Update order status
      */
     async updateStatusByOrderId(orderId, status, updated_by) {
-        // We add a new entry to the tracking table instead of updating many
-        // Because x10_app_order_status is a tracking table (multiple entries per order_id)
-        return prisma_client_1.default.x10_app_order_status.create({
-            data: {
-                order_id: orderId,
-                order_status: status,
-                updated_by: updated_by,
-            },
+        return await prisma_client_1.default.$transaction(async (tx) => {
+            // 1. Create history record
+            const history = await tx.x10_app_order_status.create({
+                data: {
+                    order_id: orderId,
+                    order_status: status,
+                    updated_by: updated_by,
+                },
+            });
+            // 2. Update master record for easy display/filter
+            await tx.x8_app_orders_master.update({
+                where: { order_id: orderId },
+                data: { status: status },
+            });
+            return history;
         });
     }
     /**
@@ -135,4 +148,3 @@ class OrderRepository {
     }
 }
 exports.OrderRepository = OrderRepository;
-//# sourceMappingURL=OrderRepository.js.map

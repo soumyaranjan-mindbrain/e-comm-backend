@@ -33,4 +33,3 @@ const searchCoupons = (q) => prisma_client_1.default.couponCode.findMany({
     orderBy: { createdAt: "desc" },
 });
 exports.searchCoupons = searchCoupons;
-//# sourceMappingURL=CouponCodeRepository.js.map

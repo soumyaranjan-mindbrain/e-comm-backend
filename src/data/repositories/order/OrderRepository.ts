@@ -80,6 +80,7 @@ export class OrderRepository {
             ? new Prisma.Decimal(data.tax_amount_b_coins)
             : new Prisma.Decimal(0),
           net_amount_payment_mode: data.payment_mode,
+          status: OrderStatus.PENDING,
         },
       });
 
@@ -116,12 +117,23 @@ export class OrderRepository {
     status: OrderStatus,
     updated_by?: number
   ) {
-    return (prisma as any).x10_app_order_status.create({
-      data: {
-        order_id: orderId,
-        order_status: status,
-        updated_by: updated_by,
-      },
+    return await prisma.$transaction(async (tx) => {
+      // 1. Create history record
+      const history = await tx.x10_app_order_status.create({
+        data: {
+          order_id: orderId,
+          order_status: status,
+          updated_by: updated_by,
+        },
+      });
+
+      // 2. Update master record for easy display/filter
+      await tx.x8_app_orders_master.update({
+        where: { order_id: orderId },
+        data: { status: status },
+      });
+
+      return history;
     });
   }
 

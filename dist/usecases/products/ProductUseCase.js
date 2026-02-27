@@ -148,4 +148,3 @@ const getFilteredProducts = async (filters) => {
     };
 };
 exports.getFilteredProducts = getFilteredProducts;
-//# sourceMappingURL=ProductUseCase.js.map

@@ -36,4 +36,3 @@ const logger = winston_1.default.createLogger({
 // });
 // logger.add(fileRotateTransport);
 exports.default = logger;
-//# sourceMappingURL=logger.js.map

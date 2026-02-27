@@ -81,4 +81,3 @@ const getOne = async (req, res, next) => {
     }
 };
 exports.getOne = getOne;
-//# sourceMappingURL=ProductImageRegisterController.js.map

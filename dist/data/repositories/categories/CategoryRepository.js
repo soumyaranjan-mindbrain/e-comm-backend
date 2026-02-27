@@ -40,4 +40,3 @@ const getAllCategories = async (limit = 20, cursor, search) => {
     };
 };
 exports.getAllCategories = getAllCategories;
-//# sourceMappingURL=CategoryRepository.js.map

@@ -141,4 +141,3 @@ const clearCart = async (req, res, next) => {
     }
 };
 exports.clearCart = clearCart;
-//# sourceMappingURL=CartController.js.map

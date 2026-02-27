@@ -45,7 +45,7 @@ class VerifyOtpUseCase {
         if (customer.comId === null || customer.comId === undefined) {
             throw AppError_1.default.internal("customer record is misconfigured (missing comId). please contact support.");
         }
-        const accessToken = this.generateAccessToken(customer.id, customer.comId, customer.contactNo ?? "");
+        const accessToken = this.generateAccessToken(customer.id, customer.comId, customer.contactNo ?? "", customer.role || "USER");
         const refreshToken = this.generateRefreshToken(customer.id);
         // Save refresh token to database
         await this.customerRepository.saveRefreshToken(customer.id, refreshToken);
@@ -61,8 +61,8 @@ class VerifyOtpUseCase {
             },
         };
     }
-    generateAccessToken(id, comId, mobile) {
-        return jsonwebtoken_1.default.sign({ id, comId, mobile }, config_1.default.jwtAccessSecret, {
+    generateAccessToken(id, comId, mobile, role) {
+        return jsonwebtoken_1.default.sign({ id, comId, mobile, role }, config_1.default.jwtAccessSecret, {
             expiresIn: "15m",
         });
     }
@@ -71,4 +71,3 @@ class VerifyOtpUseCase {
     }
 }
 exports.VerifyOtpUseCase = VerifyOtpUseCase;
-//# sourceMappingURL=VerifyOtpUseCase.js.map

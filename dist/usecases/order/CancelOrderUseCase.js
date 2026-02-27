@@ -7,4 +7,3 @@ const cancelOrderUseCase = async (orderId, updated_by) => {
     return repo.cancelOrder(orderId, updated_by);
 };
 exports.cancelOrderUseCase = cancelOrderUseCase;
-//# sourceMappingURL=CancelOrderUseCase.js.map

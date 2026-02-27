@@ -20,7 +20,7 @@ class RefreshTokenUseCase {
         try {
             decoded = jsonwebtoken_1.default.verify(incomingRefreshToken, config_1.default.jwtRefreshSecret);
         }
-        catch (error) {
+        catch {
             throw AppError_1.default.unauthorized("Invalid or expired refresh token");
         }
         const userId = decoded.id;
@@ -28,16 +28,16 @@ class RefreshTokenUseCase {
         if (!customer) {
             throw AppError_1.default.unauthorized("User not found");
         }
-        // Verify token matches database (strict security)
+        // ✅ verify refresh token from DB
         if (customer.refreshToken !== incomingRefreshToken) {
-            // Possible token reuse attack! Logic could be added here to invalidate all tokens.
             throw AppError_1.default.unauthorized("Invalid refresh token");
         }
-        // Generate new Link
-        const newAccessToken = this.generateAccessToken(customer.id, customer.contactNo ?? "");
-        // Rotate Refresh Token (Extend session for another 7 days)
+        /**
+         * ✅ ACCESS TOKEN MUST CONTAIN:
+         * id + comId + mobile + role
+         */
+        const newAccessToken = this.generateAccessToken(customer.id, customer.comId, customer.contactNo ?? "", customer.role || "USER");
         const newRefreshToken = this.generateRefreshToken(customer.id);
-        // Save new refresh token to DB
         await this.customerRepository.saveRefreshToken(customer.id, newRefreshToken);
         return {
             user: {
@@ -51,14 +51,22 @@ class RefreshTokenUseCase {
             },
         };
     }
-    generateAccessToken(id, mobile) {
-        return jsonwebtoken_1.default.sign({ id, mobile }, config_1.default.jwtAccessSecret, {
-            expiresIn: "15m",
-        });
+    /**
+     * ✅ ACCESS TOKEN
+     */
+    generateAccessToken(id, comId, mobile, role) {
+        return jsonwebtoken_1.default.sign({
+            id,
+            comId,
+            mobile,
+            role,
+        }, config_1.default.jwtAccessSecret, { expiresIn: "15m" });
     }
+    /**
+     * ✅ REFRESH TOKEN
+     */
     generateRefreshToken(id) {
         return jsonwebtoken_1.default.sign({ id }, config_1.default.jwtRefreshSecret, { expiresIn: "7d" });
     }
 }
 exports.RefreshTokenUseCase = RefreshTokenUseCase;
-//# sourceMappingURL=RefreshTokenUseCase.js.map

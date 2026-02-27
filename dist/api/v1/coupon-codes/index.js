@@ -29,19 +29,21 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const couponCodeController = __importStar(require("../../../controllers/coupon-codes/CouponCodeController"));
 const validate_request_1 = __importDefault(require("../../../middleware/validate-request"));
+const authenticate_user_1 = __importDefault(require("../../../middleware/authenticate-user"));
+const authorize_admin_1 = __importDefault(require("../../../middleware/authorize-admin"));
 const request_schemas_1 = require("../../../data/request-schemas");
 const router = express_1.default.Router();
-// Search coupon codes by name: GET /coupon-codes/search?q=term&limit=50
-router.get("/search", couponCodeController.search);
-// Get all coupon codes (optional: ?limit=20, ?cursor=id)
-router.get("/", couponCodeController.getAll);
-// Get coupon code by ID
-router.get("/:id", couponCodeController.getOne);
+// Publicly available (authenticated)
+router.get("/search", authenticate_user_1.default, couponCodeController.search);
+router.get("/", authenticate_user_1.default, couponCodeController.getAll);
+router.get("/:id", authenticate_user_1.default, couponCodeController.getOne);
+/**
+ * ADMIN ONLY ROUTES
+ */
 // Create a new coupon code
-router.post("/", (0, validate_request_1.default)(request_schemas_1.createCouponCodeSchema), couponCodeController.create);
+router.post("/", authenticate_user_1.default, authorize_admin_1.default, (0, validate_request_1.default)(request_schemas_1.createCouponCodeSchema), couponCodeController.create);
 // Update a coupon code
-router.put("/:id", (0, validate_request_1.default)(request_schemas_1.updateCouponCodeSchema), couponCodeController.update);
+router.put("/:id", authenticate_user_1.default, authorize_admin_1.default, (0, validate_request_1.default)(request_schemas_1.updateCouponCodeSchema), couponCodeController.update);
 // Delete a coupon code
-router.delete("/:id", couponCodeController.remove);
+router.delete("/:id", authenticate_user_1.default, authorize_admin_1.default, couponCodeController.remove);
 exports.default = router;
-//# sourceMappingURL=index.js.map

@@ -24,4 +24,3 @@ exports.upload = (0, multer_1.default)({
     },
     fileFilter: fileFilter,
 });
-//# sourceMappingURL=upload-middleware.js.map

@@ -74,4 +74,3 @@ const getCategoryById = async (id) => {
     return category;
 };
 exports.getCategoryById = getCategoryById;
-//# sourceMappingURL=CategoryUseCase.js.map

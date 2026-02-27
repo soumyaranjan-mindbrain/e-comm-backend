@@ -71,4 +71,3 @@ const updateReturnStatus = async (req, res, next) => {
     }
 };
 exports.updateReturnStatus = updateReturnStatus;
-//# sourceMappingURL=OrderReturnController.js.map

@@ -46,10 +46,10 @@ function errorHandler(error, req, res, next) {
         return;
     }
     // Handle generic errors
+    console.error("[ErrorHandler] Unhandled Error:", error);
     res.status(500).json({
         success: false,
         code: "ERR_SERVER",
         message: ((0, utils_1.getErrorMessage)(error) || "internal server error").toLowerCase(),
     });
 }
-//# sourceMappingURL=error-handler.js.map

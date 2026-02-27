@@ -167,4 +167,3 @@ const updateOrderStatusController = async (req, res) => {
     }
 };
 exports.updateOrderStatusController = updateOrderStatusController;
-//# sourceMappingURL=OrderController.js.map

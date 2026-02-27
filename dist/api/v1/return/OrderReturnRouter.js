@@ -18,4 +18,3 @@ router.get("/:returnId", OrderReturnController_1.getReturnById);
 // PATCH /v1/order-returns/:returnId → approve/reject return
 router.patch("/:returnId", OrderReturnController_1.updateReturnStatus);
 exports.default = router;
-//# sourceMappingURL=OrderReturnRouter.js.map

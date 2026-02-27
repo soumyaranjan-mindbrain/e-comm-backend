@@ -47,7 +47,7 @@ export class OrderRepository {
     });
 
     const nextId = (lastOrder?.id || 0) + 1;
-    const orderId = `#BM00${nextId}`;
+    const orderId = `BM00${nextId}`;
 
     return await prisma.$transaction(async (tx: any) => {
       let finalDiscount = data.discounted_amount || 0;

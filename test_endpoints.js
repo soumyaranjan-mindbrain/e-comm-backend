@@ -173,6 +173,10 @@ async function runTests() {
         await request('Cancel Order', `/orders/${encodedOrderId}/cancel`, 'PATCH', { updated_by: userId }, getAuthHeader());
         const cDetail = await request('Final Detail', `/orders/${encodedOrderId}`, 'GET', null, getAuthHeader());
         console.log(`  Final Master Status: ${cDetail?.data?.status}`);
+
+        // New Tests: Get All Orders & Track Order
+        await request('Get All Orders', '/orders', 'GET', null, getAuthHeader());
+        await request('Track Order History', `/orders/${encodedOrderId}/track`, 'GET', null, getAuthHeader());
     }
 
     console.log('\n--- API TESTS COMPLETED ---\n');

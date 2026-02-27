@@ -642,7 +642,7 @@ Authorization: Bearer {{token}}
 ### 6. ORDERS
 ### ════════════════════════════════════════════
 
-@orderId = 746202ad-0fad-4619-b31a-babc72316835
+@orderId = BM0010
 
 ### 6.1 Create Order
 # ✏️  ENSURE: @token is set

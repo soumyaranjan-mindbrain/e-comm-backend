@@ -88,6 +88,35 @@ async function runTests() {
 
     const getAuthHeader = () => token ? { 'Authorization': `Bearer ${token}` } : {};
 
+    // 2. USER ADDRESSES
+    let addressId = null;
+    if (token) {
+        console.log('\n[Phase 2: User Addresses]');
+        const createAddr = await request('Add Address', '/user-addresses', 'POST', {
+            address: "123 Main Street",
+            townCity: "Bangalore",
+            state: "Karnataka",
+            pincode: "560001",
+            receiversName: "Test User",
+            receiversNumber: "9876543210",
+            saveAs: "Home",
+            isDefault: true
+        }, getAuthHeader());
+
+        if (createAddr && createAddr.data) {
+            addressId = createAddr.data.id;
+        }
+
+        await request('Get My Addresses', '/user-addresses/me', 'GET', null, getAuthHeader());
+
+        if (addressId) {
+            await request('Update Address', `/user-addresses/${addressId}`, 'PATCH', {
+                address: "456 Updated Lane",
+                saveAs: "Work"
+            }, getAuthHeader());
+        }
+    }
+
     // 3. CATEGORIES
     console.log('\n[Phase 3: Categories]');
     const catData = await request('Get Categories', '/categories');

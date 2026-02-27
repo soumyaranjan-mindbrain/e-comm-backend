@@ -26,6 +26,12 @@ router.put(
   userAddressController.update,
 );
 
+router.patch(
+  "/:id",
+  validateRequest(updateUserAddressSchema),
+  userAddressController.update,
+);
+
 router.delete("/:id", userAddressController.remove);
 
 export default router;

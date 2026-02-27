@@ -225,6 +225,74 @@ Content-Type: image/jpeg
 # }
 
 
+### 2.4 Get My Addresses
+# ✏️  ENSURE: @token is set
+# ─────────────────────────────────────────────
+GET {{baseUrl}}/user-addresses/me
+Authorization: Bearer {{token}}
+
+# ✅ EXPECTED RESPONSE (200 OK):
+# {
+#   "success": true,
+#   "message": "addresses fetched successfully",
+#   "data": [...],
+#   "nextCursor": null
+# }
+
+
+### 2.5 Add Address
+# ✏️  ENSURE: @token is set
+# ─────────────────────────────────────────────
+POST {{baseUrl}}/user-addresses
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "address": "123 Main Street, Suite 500",
+  "townCity": "Bangalore",
+  "state": "Karnataka",
+  "pincode": "560001",
+  "receiversName": "Test Receiver",
+  "receiversNumber": "9876543210",
+  "saveAs": "Home",
+  "isDefault": true
+}
+
+# ✅ EXPECTED RESPONSE (201 Created):
+# {
+#   "success": true,
+#   "message": "address created successfully",
+#   "data": { "id": 1, ... }
+# }
+
+
+### 2.6 Update Address
+# ✏️  EDIT: Change :id to the address ID from the previous response
+# ✏️  ENSURE: @token is set
+# ─────────────────────────────────────────────
+PATCH {{baseUrl}}/user-addresses/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "address": "456 Updated Lane",
+  "townCity": "Bangalore",
+  "state": "Karnataka",
+  "pincode": "560001",
+  "receiversName": "Updated Receiver",
+  "receiversNumber": "9876543210",
+  "saveAs": "Work",
+  "isDefault": false
+}
+
+# ✅ EXPECTED RESPONSE (200 OK):
+# {
+#   "success": true,
+#   "message": "address updated successfully",
+#   "data": { ... }
+# }
+
+
 ### ════════════════════════════════════════════
 ### 3. CATEGORIES
 ### ════════════════════════════════════════════

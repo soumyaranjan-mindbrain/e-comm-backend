@@ -89,6 +89,8 @@ exports.createUserAddressSchema = joi_1.default.object({
         .valid("Home", "Work", "Other")
         .optional()
         .allow("", null),
+    state: joi_1.default.string().max(100).optional().allow("", null),
+    isDefault: joi_1.default.boolean().optional(),
     createdBy: joi_1.default.number().integer().optional(),
 });
 exports.updateUserAddressSchema = joi_1.default.object({
@@ -114,6 +116,8 @@ exports.updateUserAddressSchema = joi_1.default.object({
         .valid("Home", "Work", "Other")
         .optional()
         .allow("", null),
+    state: joi_1.default.string().max(100).optional().allow("", null),
+    isDefault: joi_1.default.boolean().optional(),
     updatedBy: joi_1.default.number().integer().optional(),
 });
 // --- Product Rating Schemas ---

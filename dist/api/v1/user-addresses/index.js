@@ -37,5 +37,6 @@ router.get("/me", userAddressController.getMine);
 router.get("/:id", userAddressController.getOne);
 router.post("/", (0, validate_request_1.default)(request_schemas_1.createUserAddressSchema), userAddressController.create);
 router.put("/:id", (0, validate_request_1.default)(request_schemas_1.updateUserAddressSchema), userAddressController.update);
+router.patch("/:id", (0, validate_request_1.default)(request_schemas_1.updateUserAddressSchema), userAddressController.update);
 router.delete("/:id", userAddressController.remove);
 exports.default = router;

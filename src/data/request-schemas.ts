@@ -91,6 +91,8 @@ export const createUserAddressSchema = Joi.object({
     .valid("Home", "Work", "Other")
     .optional()
     .allow("", null),
+  state: Joi.string().max(100).optional().allow("", null),
+  isDefault: Joi.boolean().optional(),
   createdBy: Joi.number().integer().optional(),
 });
 
@@ -118,6 +120,8 @@ export const updateUserAddressSchema = Joi.object({
     .valid("Home", "Work", "Other")
     .optional()
     .allow("", null),
+  state: Joi.string().max(100).optional().allow("", null),
+  isDefault: Joi.boolean().optional(),
   updatedBy: Joi.number().integer().optional(),
 });
 

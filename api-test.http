@@ -89,8 +89,6 @@ Content-Type: application/json
 #   "success": true,
 #   "msg": "otp verified successfully",
 #   "data": {
-#     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-#     "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
 #     "user": {
 #       "id": 15,
 #       "mobile": "9876543210",

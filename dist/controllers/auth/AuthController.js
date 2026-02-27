@@ -36,6 +36,7 @@ const verifyOtp = async (req, res, next) => {
     try {
         const { mobile, otp } = req.body;
         const result = await verifyOtpUseCase.execute(mobile, otp);
+        const { user } = result;
         const isProduction = config_1.default.env === "production";
         // Set Access Token Cookie (15 Minutes)
         res.cookie("accessToken", result.tokens.accessToken, {
@@ -51,11 +52,12 @@ const verifyOtp = async (req, res, next) => {
             sameSite: "lax",
             maxAge: 7 * 24 * 60 * 60 * 1000,
         });
+        // Never expose the raw access / refresh tokens in the response body.
         res.status(200).json({
             success: true,
             message: "otp verified successfully",
             data: {
-                user: result.user,
+                user,
             },
         });
     }
@@ -128,4 +130,3 @@ const refreshToken = async (req, res, next) => {
     }
 };
 exports.refreshToken = refreshToken;
-//# sourceMappingURL=AuthController.js.map

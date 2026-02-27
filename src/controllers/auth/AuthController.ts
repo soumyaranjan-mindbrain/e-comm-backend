@@ -41,6 +41,7 @@ export const verifyOtp = async (
   try {
     const { mobile, otp } = req.body;
     const result = await verifyOtpUseCase.execute(mobile, otp);
+    const { user } = result;
 
     const isProduction = config.env === "production";
 
@@ -60,11 +61,12 @@ export const verifyOtp = async (
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
+    // Never expose the raw access / refresh tokens in the response body.
     res.status(200).json({
       success: true,
       message: "otp verified successfully",
       data: {
-        user: result.user,
+        user,
       },
     });
   } catch (error) {

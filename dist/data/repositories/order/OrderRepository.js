@@ -80,12 +80,18 @@ class OrderRepository {
      */
     async updateStatusByOrderId(orderId, status, updated_by) {
         return await prisma_client_1.default.$transaction(async (tx) => {
+            // Get order details to get comId
+            const order = await tx.x8_app_orders_master.findUnique({
+                where: { order_id: orderId },
+                select: { comId: true },
+            });
             // 1. Create history record
             const history = await tx.x10_app_order_status.create({
                 data: {
                     order_id: orderId,
                     order_status: status,
                     updated_by: updated_by,
+                    comId: order?.comId,
                 },
             });
             // 2. Update master record for easy display/filter

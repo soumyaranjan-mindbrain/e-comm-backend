@@ -800,73 +800,6 @@ Content-Type: application/json
 }
 
 
-### ════════════════════════════════════════════
-### 11. NOTIFICATIONS
-### ════════════════════════════════════════════
-
-### 11.1 Get All Notifications
-GET {{baseUrl}}/notifications
-Authorization: Bearer {{token}}
-
-### 11.2 Mark as Read
-# Replace :id with real notification id
-PATCH {{baseUrl}}/notifications/1/read
-Authorization: Bearer {{token}}
-
-### 11.3 Mark All as Read
-PATCH {{baseUrl}}/notifications/read-all
-Authorization: Bearer {{token}}
-
-### 11.4 Delete Notification
-# Replace :id with real notification id
-DELETE {{baseUrl}}/notifications/1
-Authorization: Bearer {{token}}
-
-
-### ════════════════════════════════════════════
-### 12. FAQ
-### ════════════════════════════════════════════
-
-### 12.1 Get All FAQs
-GET {{baseUrl}}/faq
-
-### 12.2 Get FAQ Categories
-GET {{baseUrl}}/faq/categories
-
-
-### ════════════════════════════════════════════
-### 13. POLICIES
-### ════════════════════════════════════════════
-
-### 13.1 Terms & Conditions
-GET {{baseUrl}}/policies/terms
-
-### 13.2 Return & Refund Policy
-GET {{baseUrl}}/policies/returns
-
-### 13.3 Shipping Policy
-GET {{baseUrl}}/policies/shipping
-
-
-### ════════════════════════════════════════════
-### 14. CONTACT
-### ════════════════════════════════════════════
-
-### 14.1 Get Contact Info
-GET {{baseUrl}}/contact/info
-
-### 14.2 Submit Enquiry
-POST {{baseUrl}}/contact/enquiry
-Content-Type: application/json
-
-{
-  "fullName": "John Doe",
-  "email": "john@example.com",
-  "phone": "9876543210",
-  "subject": "Bulk Order Enquiry",
-  "message": "I want to order 100 items for my retail shop. Can you provide a special discount?"
-}
-
 
 ### ════════════════════════════════════════════
 ### 9. COIN ADMIN
@@ -1032,3 +965,72 @@ Authorization: Bearer {{token}}
 #
 # ❌ ERROR (404) — not found:
 # { "success": false, "message": "coupon not found" }
+
+
+### ════════════════════════════════════════════
+### 11. NOTIFICATIONS
+### ════════════════════════════════════════════
+
+### 11.1 Get All Notifications
+GET {{baseUrl}}/notifications
+Authorization: Bearer {{token}}
+
+### 11.2 Mark as Read
+# Replace :id with real notification id
+PATCH {{baseUrl}}/notifications/1/read
+Authorization: Bearer {{token}}
+
+### 11.3 Mark All as Read
+PATCH {{baseUrl}}/notifications/read-all
+Authorization: Bearer {{token}}
+
+### 11.4 Delete Notification
+# Replace :id with real notification id
+DELETE {{baseUrl}}/notifications/1
+Authorization: Bearer {{token}}
+
+
+### ════════════════════════════════════════════
+### 12. FAQ
+### ════════════════════════════════════════════
+
+### 12.1 Get All FAQs
+GET {{baseUrl}}/faq
+
+### 12.2 Get FAQ Categories
+GET {{baseUrl}}/faq/categories
+
+
+### ════════════════════════════════════════════
+### 13. POLICIES
+### ════════════════════════════════════════════
+
+### 13.1 Terms & Conditions
+GET {{baseUrl}}/policies/terms
+
+### 13.2 Return & Refund Policy
+GET {{baseUrl}}/policies/returns
+
+### 13.3 Shipping Policy
+GET {{baseUrl}}/policies/shipping
+
+
+### ════════════════════════════════════════════
+### 14. CONTACT
+### ════════════════════════════════════════════
+
+### 14.1 Get Contact Info
+GET {{baseUrl}}/contact/info
+
+### 14.2 Submit Enquiry
+POST {{baseUrl}}/contact/enquiry
+Content-Type: application/json
+
+{
+  "fullName": "John Doe",
+  "email": "john@example.com",
+  "phone": "9876543210",
+  "subject": "Bulk Order Enquiry",
+  "message": "I want to order 100 items for my retail shop. Can you provide a special discount?"
+}
+

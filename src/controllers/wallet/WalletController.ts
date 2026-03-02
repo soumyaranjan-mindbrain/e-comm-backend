@@ -1,4 +1,4 @@
-import { Response } from "express";
+import { Request, Response } from "express";
 import { WalletRepository } from "../../data/repositories/wallet/WalletRepository";
 import { AuthRequest } from "../../middleware/authenticate-user";
 
@@ -79,6 +79,21 @@ export class WalletController {
                     currentBalance: balances?.coinBalance || 0,
                     isNegative: (balances?.coinBalance || 0) < 0
                 }
+            });
+        } catch (error: any) {
+            res.status(500).json({ success: false, message: error.message });
+        }
+    }
+
+    /**
+     * GET /v1/wallet/config
+     */
+    static async getWalletConfig(req: Request, res: Response): Promise<void> {
+        try {
+            const config = await repo.getActiveConfig();
+            res.status(200).json({
+                success: true,
+                data: config
             });
         } catch (error: any) {
             res.status(500).json({ success: false, message: error.message });

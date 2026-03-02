@@ -24,9 +24,8 @@ export const cancelOrderUseCase = async (
     throw AppError.notFound(`Order with ID ${orderId} not found`);
   }
 
-  // Get current status (last entry)
-  const currentStatusEntries = await orderRepo.trackOrder(orderId);
-  const currentStatus = currentStatusEntries[currentStatusEntries.length - 1]?.order_status;
+  // Get current status (latest entry — orderStatus is ordered desc)
+  const currentStatus = order.orderStatus[0]?.order_status;
 
   if (currentStatus === OrderStatus.CANCELLED) {
     throw AppError.badRequest("Order is already cancelled");
@@ -37,7 +36,7 @@ export const cancelOrderUseCase = async (
   }
 
   // 2. Perform cancellation
-  const result = await orderRepo.updateStatusWithDetails(orderId, OrderStatus.CANCELLED, details);
+  const result = await orderRepo.cancelOrder(orderId, details);
 
   // Re-fetch full order for consistent response
   const updatedOrder = await orderRepo.getOrder(orderId);
@@ -52,7 +51,6 @@ export const cancelOrderUseCase = async (
     num_items,
     status: result.order_status,
     cancel_reason: result.cancel_reason,
-    // Ensure summary fields are at the top level
     total_amount: updatedOrder?.total_amount,
     tax: updatedOrder?.tax_amount_b_coins,
     payment_method: updatedOrder?.net_amount_payment_mode,

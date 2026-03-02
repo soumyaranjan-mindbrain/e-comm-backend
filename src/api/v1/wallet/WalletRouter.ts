@@ -7,8 +7,9 @@ const router = Router();
 // All user wallet routes are protected
 router.use(authenticateUser);
 
-router.get("/", WalletController.getWalletBalance);
-router.get("/transactions", WalletController.getTransactionHistory);
-router.post("/validate", WalletController.validateRedemption);
+router.get("/balance", WalletController.getWalletBalance);
+router.get("/history", WalletController.getTransactionHistory);
+router.get("/config", WalletController.getWalletConfig);
+router.post("/validate-redeem", WalletController.validateRedemption);
 
 export default router;

@@ -27,7 +27,8 @@ services:
       - "33061:3306"
     volumes:
       - db-data:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./init.sql:/docker-entrypoint-initdb.d/01_init.sql
+      - ./init_migrations.sql:/docker-entrypoint-initdb.d/02_init_migrations.sql
     healthcheck:
       test: mysqladmin ping -h localhost -u root -p${DB_PASSWORD:-secret}
       interval: 20s

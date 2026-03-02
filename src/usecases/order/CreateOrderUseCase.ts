@@ -1,4 +1,8 @@
-import { OrderRepository, OrderInput } from "../../data/repositories/order/OrderRepository";
+import {
+  OrderRepository,
+  OrderInput,
+} from "../../data/repositories/order/OrderRepository";
+
 import AppError from "../../errors/AppError";
 import { formatDecimal } from "../../utils";
 import config from "../../config";
@@ -6,8 +10,8 @@ import config from "../../config";
 const orderRepo = new OrderRepository();
 
 /**
- * Handle order creation business logic
- * This orchestrates the transactional creation of order master, details and initial status.
+ * Create Order UseCase
+ * Handles validation + calculation + transactional creation
  */
 export const createOrderUseCase = async (data: OrderInput) => {
   if (!data.items || data.items.length === 0) {
@@ -98,8 +102,7 @@ export const createOrderUseCase = async (data: OrderInput) => {
    * ===============================
    */
 
-  // Note: order.orderDetails might not be present in return of createOrder if not included in repo return.
-  // But OrderRepository.createOrder returns the master. Let's fetch full order.
+  // Re-fetch full order to include details
   const fullOrder = await orderRepo.getOrder(order.order_id);
 
   const num_items =

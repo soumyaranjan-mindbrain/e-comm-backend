@@ -4,20 +4,20 @@ export class CartRepository {
   // ---------------- Add to Cart ----------------
   async addToCart(comId: number, ItemId: number, quantity: number) {
     // Check if item already exists (even if soft deleted)
-    const existing = await (prisma as any).x5_app_cart.findUnique({
+    const existing = await prisma.x5_app_cart.findUnique({
       where: {
         comId_ItemId: { comId, ItemId },
       },
     });
 
     // If item exists and NOT deleted → increase quantity
-    if (existing && (existing as any).isDeleted === false) {
-      return (prisma as any).x5_app_cart.update({
+    if (existing && existing.isDeleted === false) {
+      return prisma.x5_app_cart.update({
         where: {
           comId_ItemId: { comId, ItemId },
         },
         data: {
-          quantity: (existing as any).quantity + quantity,
+          quantity: existing.quantity + quantity,
         },
         include: {
           product: true,
@@ -26,8 +26,8 @@ export class CartRepository {
     }
 
     // If item exists but soft deleted → restore it and update quantity
-    if (existing && (existing as any).isDeleted === true) {
-      return (prisma as any).x5_app_cart.update({
+    if (existing && existing.isDeleted === true) {
+      return prisma.x5_app_cart.update({
         where: {
           comId_ItemId: { comId, ItemId },
         },
@@ -42,7 +42,7 @@ export class CartRepository {
     }
 
     // If item does not exist → create new
-    return (prisma as any).x5_app_cart.create({
+    return prisma.x5_app_cart.create({
       data: {
         comId,
         ItemId,
@@ -57,7 +57,7 @@ export class CartRepository {
 
   // ---------------- Get Cart ----------------
   async getCartByComId(comId: number) {
-    return (prisma as any).x5_app_cart.findMany({
+    return prisma.x5_app_cart.findMany({
       where: {
         comId,
         isDeleted: false,
@@ -77,7 +77,7 @@ export class CartRepository {
 
   // ---------------- Update Quantity ----------------
   async updateQuantity(comId: number, ItemId: number, quantity: number) {
-    const existing = await (prisma as any).x5_app_cart.findFirst({
+    const existing = await prisma.x5_app_cart.findFirst({
       where: {
         comId,
         ItemId,
@@ -89,7 +89,7 @@ export class CartRepository {
       throw new Error("Cart item not found");
     }
 
-    return (prisma as any).x5_app_cart.update({
+    return prisma.x5_app_cart.update({
       where: {
         comId_ItemId: { comId, ItemId },
       },
@@ -104,7 +104,7 @@ export class CartRepository {
 
   // ---------------- Soft Delete Single Item ----------------
   async removeCartItem(comId: number, ItemId: number) {
-    return (prisma as any).x5_app_cart.update({
+    return prisma.x5_app_cart.update({
       where: {
         comId_ItemId: { comId, ItemId },
       },
@@ -116,7 +116,7 @@ export class CartRepository {
 
   // ---------------- Soft Delete All ----------------
   async clearCart(comId: number) {
-    return (prisma as any).x5_app_cart.updateMany({
+    return prisma.x5_app_cart.updateMany({
       where: {
         comId,
         isDeleted: false,

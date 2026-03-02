@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "dotenv -- tsc-watch --sourceMap --onsuccess \"node --enable-source-maps dist/index.js\"",
+    "sync:me": "npx -y rimraf dist && npm install && npx prisma db push --accept-data-loss && npx prisma generate",
     "build": "tsc",
     "start": "node dist/index.js",
     "swagger": "node dist/swagger.js",

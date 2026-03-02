@@ -16,7 +16,7 @@ export class OrderReturnRepository {
                 ? new Date(data.pickupDate)
                 : data.pickupDate;
 
-        return (prisma as any).orderReturn.create({
+        return prisma.orderReturn.create({
             data: {
                 orderId: data.orderId,
                 productId: data.productId,
@@ -30,27 +30,27 @@ export class OrderReturnRepository {
 
     // Get all return requests, newest first
     async getAllReturns() {
-        return (prisma as any).orderReturn.findMany({
+        return prisma.orderReturn.findMany({
             orderBy: { createdAt: "desc" }, // Use model field, NOT DB column
         });
     }
 
     // Get a return request by ID
     async getReturnById(returnId: number) {
-        return (prisma as any).orderReturn.findUnique({
+        return prisma.orderReturn.findUnique({
             where: { id: returnId },
         });
     }
 
     // Update return request status
     async updateReturnStatus(returnId: number, status: string) {
-        const existing = await (prisma as any).orderReturn.findUnique({
+        const existing = await prisma.orderReturn.findUnique({
             where: { id: returnId },
         });
 
         if (!existing) throw new Error(`Return with id ${returnId} not found`);
 
-        return (prisma as any).orderReturn.update({
+        return prisma.orderReturn.update({
             where: { id: returnId },
             data: { status },
         });

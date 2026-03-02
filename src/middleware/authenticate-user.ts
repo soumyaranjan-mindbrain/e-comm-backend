@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import config from "../config";
 import AppError from "../errors/AppError";
+import { isTokenBlocked } from "../utils/tokenBlocklist";
 
 export interface AuthRequest extends Request {
   user?: {
@@ -30,6 +31,11 @@ const authenticateUser = (req: Request, res: Response, next: NextFunction) => {
     return next(
       AppError.unauthorized("authentication token is missing or invalid"),
     );
+  }
+
+  // ✅ Check if this token was explicitly revoked (post-logout)
+  if (isTokenBlocked(token)) {
+    return next(AppError.unauthorized("session has been logged out"));
   }
 
   try {

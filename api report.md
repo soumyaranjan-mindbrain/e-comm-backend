@@ -1122,6 +1122,123 @@ Authorization: Bearer <token>
 If not found:
 
 ```json
+If not found:
+
+```json
 { "success": false, "message": "coupon not found" }
+```
+
+---
+
+## Wallet (User)
+
+### Get Balance
+```
+GET /v1/wallet/balance
+Authorization: Bearer <token>
+```
+
+### Get History
+```
+GET /v1/wallet/history
+Authorization: Bearer <token>
+```
+
+### Get Wallet Config
+```
+GET /v1/wallet/config
+Authorization: Bearer <token>
+```
+
+### Validate Redemption
+```
+POST /v1/wallet/validate-redeem
+Authorization: Bearer <token>
+```
+
+---
+
+## Notifications
+
+### Get All Notifications
+```
+GET /v1/notifications
+Authorization: Bearer <token>
+```
+
+### Mark as Read
+```
+PATCH /v1/notifications/:id/read
+Authorization: Bearer <token>
+```
+
+### Mark All as Read
+```
+PATCH /v1/notifications/read-all
+Authorization: Bearer <token>
+```
+
+### Delete Notification
+```
+DELETE /v1/notifications/:id
+Authorization: Bearer <token>
+```
+
+---
+
+## FAQ
+
+### Get All FAQs
+```
+GET /v1/faq
+```
+
+### Get FAQ Categories
+```
+GET /v1/faq/categories
+```
+
+---
+
+## Policies
+
+### Terms & Conditions
+```
+GET /v1/policies/terms
+```
+
+### Return & Refund Policy
+```
+GET /v1/policies/returns
+```
+
+### Shipping Policy
+```
+GET /v1/policies/shipping
+```
+
+---
+
+## Contact
+
+### Get Contact Info
+```
+GET /v1/contact/info
+```
+
+### Submit Enquiry
+```
+POST /v1/contact/enquiry
+```
+
+Payload:
+```json
+{
+  "fullName": "John Doe",
+  "email": "john@example.com",
+  "phone": "9876543210",
+  "subject": "Bulk Order Enquiry",
+  "message": "Enquiry message here..."
+}
 ```
 

@@ -6,6 +6,7 @@ import { SignupUseCase } from "../../usecases/auth/SignupUseCase";
 import { LogoutUseCase } from "../../usecases/auth/LogoutUseCase";
 import { RefreshTokenUseCase } from "../../usecases/auth/RefreshTokenUseCase";
 import config from "../../config";
+import { blockToken } from "../../utils/tokenBlocklist";
 
 const customerRepository = new CustomerRepository();
 const sendOtpUseCase = new SendOtpUseCase(customerRepository);
@@ -102,9 +103,27 @@ export const logout = async (
     const userId = (req as any).user?.id;
     const result = await logoutUseCase.execute(userId);
 
-    // Clear Cookies
-    res.clearCookie("accessToken");
-    res.clearCookie("refreshToken");
+    // ✅ Revoke the current access token immediately (blocklist until expiry)
+    const currentToken =
+      req.cookies?.accessToken ||
+      req.headers.authorization?.split(" ")[1];
+    if (currentToken) {
+      blockToken(currentToken, 15 * 60 * 1000); // 15 min = access token TTL
+    }
+
+    const isProduction = config.env === "production";
+
+    // ✅ Must pass same options as when cookie was set, otherwise browser ignores the clear
+    res.clearCookie("accessToken", {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: "lax",
+    });
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: "lax",
+    });
 
     res.status(200).json({
       ...result,

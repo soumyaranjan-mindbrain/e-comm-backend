@@ -14,6 +14,10 @@ import orderRouter from "./order/order";
 import orderReturnRouter from "./return/OrderReturnRouter";
 import walletRouter from "./wallet/WalletRouter";
 import adminWalletRouter from "./wallet/AdminWalletRouter";
+import notificationRouter from "./notifications/NotificationRouter";
+import faqRouter from "./faq/FaqRouter";
+import policyRouter from "./policies/PolicyRouter";
+import contactRouter from "./contact/ContactRouter";
 
 const v1: Router = express.Router();
 
@@ -32,5 +36,9 @@ v1.use("/orders", orderRouter);
 v1.use("/order-returns", orderReturnRouter);
 v1.use("/wallet", walletRouter);
 v1.use("/admin/wallet", adminWalletRouter);
+v1.use("/notifications", notificationRouter);
+v1.use("/faq", faqRouter);
+v1.use("/policies", policyRouter);
+v1.use("/contact", contactRouter);
 
 export default v1;

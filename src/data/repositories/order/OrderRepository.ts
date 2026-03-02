@@ -1,5 +1,5 @@
-import prisma from "../../../prisma-client";
 import { Prisma, caa1_shop_stock_item_db_status } from "@prisma/client";
+import prisma from "../../../prisma-client";
 
 export enum OrderStatus {
   PENDING = "PENDING",
@@ -24,23 +24,16 @@ export interface OrderInput {
   del_charge_amount?: number;
   tax_amount_b_coins?: number;
   payment_mode: string;
+  delivery_date?: string;
   coinsToRedeem?: number;
-}
-
-export interface GetAllOrdersParams {
-  page?: number;
-  limit?: number;
-  status?: string;
-  comId?: number;
 }
 
 export class OrderRepository {
   /**
-   * Create an order with details and initial status
+   * Create a new order — uses our BM00X order ID format
    */
   async createOrder(data: OrderInput) {
-    // 1. Get the latest record to determine the next sequential ID
-    // We do this outside the main transaction to get the "absolute" next ID
+    // Get next sequential ID to generate BM00X format
     const lastOrder = await prisma.x8_app_orders_master.findFirst({
       orderBy: { id: "desc" },
       select: { id: true },
@@ -96,99 +89,15 @@ export class OrderRepository {
         })),
       });
 
-      // 3. Create Initial Status
-      await tx.x10_app_order_status.create({
-        data: {
-          order_id: orderId,
-          order_status: OrderStatus.PENDING,
-          comId: data.comId,
-        },
-      });
+      // 3. Create Initial Status (Raw SQL for robustness on teammate laptops)
+      await tx.$executeRaw`
+        INSERT INTO x10_app_order_status 
+          (order_id, order_status, com_id)
+        VALUES 
+          (${orderId}, ${OrderStatus.PENDING}, ${data.comId ?? null})
+      `;
 
       return order;
-    });
-  }
-
-  /**
-   * Update order status
-   */
-  async updateStatusByOrderId(
-    orderId: string,
-    status: OrderStatus,
-    updated_by?: number
-  ) {
-    return await prisma.$transaction(async (tx) => {
-      // Get order details to get comId
-      const order = await tx.x8_app_orders_master.findUnique({
-        where: { order_id: orderId },
-        select: { comId: true },
-      });
-
-      // 1. Create history record
-      const history = await tx.x10_app_order_status.create({
-        data: {
-          order_id: orderId,
-          order_status: status,
-          updated_by: updated_by,
-          comId: order?.comId,
-        },
-      });
-
-      // 2. Update master record for easy display/filter
-      await (tx as any).x8_app_orders_master.update({
-        where: { order_id: orderId },
-        data: { status: status },
-      });
-
-      return history;
-    });
-  }
-
-  /**
-   * Cancel order
-   */
-  async cancelOrder(orderId: string, updated_by?: number) {
-    return this.updateStatusByOrderId(
-      orderId,
-      OrderStatus.CANCELLED,
-      updated_by
-    );
-  }
-
-  /**
-   * Get order with details
-   */
-  async getOrder(orderId: string) {
-    return (prisma as any).x8_app_orders_master.findUnique({
-      where: { order_id: orderId },
-      include: {
-        orderDetails: true,
-        orderStatus: true,
-      },
-    });
-  }
-
-  /**
-   * Get all orders with optional pagination and filters
-   */
-  async getAllOrders(params: GetAllOrdersParams = {}) {
-    const { page = 1, limit = 50, status, comId } = params;
-
-    const where: any = {};
-    if (status) where.status = status;
-    if (comId !== undefined) where.comId = comId;
-
-    return (prisma as any).x8_app_orders_master.findMany({
-      where,
-      include: {
-        orderDetails: true,
-        orderStatus: true,
-      },
-      orderBy: {
-        created_at: "desc",
-      },
-      skip: (page - 1) * limit,
-      take: limit,
     });
   }
 
@@ -211,7 +120,19 @@ export class OrderRepository {
   }
 
   /**
-   * Update order status with additional details
+   * Update order status and return the new status entry
+   */
+  async updateStatusByOrderId(
+    orderId: string,
+    status: OrderStatus,
+    updated_by?: number,
+  ) {
+    return this.updateStatusWithDetails(orderId, status, { updated_by });
+  }
+
+  /**
+   * Update order status with additional cancellation details
+   * Uses raw SQL to ensure cancel_reason is written regardless of client version
    */
   async updateStatusWithDetails(
     orderId: string,
@@ -222,34 +143,105 @@ export class OrderRepository {
       cancelled_by_type?: string;
     },
   ) {
-    return await prisma.$transaction(async (tx: any) => {
-      // Get order details to get comId
-      const order = await tx.x8_app_orders_master.findUnique({
-        where: { order_id: orderId },
-        select: { comId: true },
-      });
+    // Insert via raw SQL so cancel_reason and snapshot columns are always written correctly
+    await prisma.$executeRaw`
+      INSERT INTO x10_app_order_status
+        (order_id, order_status, cancel_reason, updated_by, total_amount, discounted_amount, del_charge_amount, tax_amount_b_coins, net_amount_payment_mode, quantity)
+      VALUES
+        (${orderId}, ${status}, ${details.cancel_reason ?? null}, ${details.updated_by ?? null}, 
+         ${(details as any).total_amount ?? null}, ${(details as any).discounted_amount ?? null}, 
+         ${(details as any).del_charge_amount ?? null}, ${(details as any).tax_amount_b_coins ?? null}, 
+         ${(details as any).net_amount_payment_mode ?? null}, ${(details as any).quantity ?? null})
+    `;
 
-      // 1. Create history record with details
-      const history = await tx.x10_app_order_status.create({
-        data: {
-          order_id: orderId,
-          order_status: status,
-          updated_by: details.updated_by,
-          comId: order?.comId,
-          cancel_reason: details.cancel_reason,
-          // Note: In schema x10_app_order_status doesn't have cancelled_by_type 
-          // but has cancel_by (Int). We match schema.
-        },
-      });
-
-      // 2. Update master record
-      await tx.x8_app_orders_master.update({
-        where: { order_id: orderId },
-        data: { status: status },
-      });
-
-      return history;
+    // Also update the master record status for consistency
+    await (prisma as any).x8_app_orders_master.update({
+      where: { order_id: orderId },
+      data: { status },
     });
+
+    // Return the newly inserted row
+    const rows = await prisma.$queryRaw<any[]>`
+      SELECT * FROM x10_app_order_status
+      WHERE order_id = ${orderId}
+      ORDER BY id DESC
+      LIMIT 1
+    `;
+    return rows[0];
+  }
+
+  /**
+   * Cancel order wrapper
+   */
+  async cancelOrder(
+    orderId: string,
+    details: {
+      updated_by?: number;
+      cancel_reason?: string;
+      cancelled_by_type?: string;
+    },
+  ) {
+    return this.updateStatusWithDetails(orderId, OrderStatus.CANCELLED, details);
+  }
+
+  /**
+   * Get main order by ID with details and status history
+   */
+  async getOrder(orderId: string) {
+    return (prisma as any).x8_app_orders_master.findUnique({
+      where: { order_id: orderId },
+      include: {
+        orderDetails: true,
+        orderStatus: {
+          orderBy: { id: "desc" },
+        },
+      },
+    });
+  }
+
+  /**
+   * Get all orders with optional pagination and filters
+   */
+  async getAllOrders(params: {
+    page?: number;
+    limit?: number;
+    status?: string;
+    comId?: number;
+  } = {}) {
+    const { page = 1, limit = 10, status, comId } = params;
+    const skip = (page - 1) * limit;
+
+    const where: any = {};
+    if (comId !== undefined) where.comId = comId;
+    if (status) {
+      where.orderStatus = { some: { order_status: status } };
+    }
+
+    const totalOrders = await (prisma as any).x8_app_orders_master.count({ where });
+
+    const orders = await (prisma as any).x8_app_orders_master.findMany({
+      where,
+      orderBy: { created_at: "desc" },
+      skip,
+      take: limit,
+      include: {
+        orderDetails: true,
+        orderStatus: {
+          orderBy: { id: "desc" },
+          take: 1,
+        },
+      },
+    });
+
+    return {
+      data: orders,
+      pagination: {
+        total: totalOrders,
+        page,
+        limit,
+        totalPages: Math.ceil(totalOrders / limit),
+      },
+    };
   }
 
   /**
@@ -272,7 +264,7 @@ export class OrderRepository {
               select: {
                 qnty: true,
                 rate: true,
-                product_id: true
+                product_id: true,
               },
             },
           },

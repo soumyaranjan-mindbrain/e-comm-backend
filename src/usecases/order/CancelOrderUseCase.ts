@@ -1,10 +1,60 @@
-import { OrderRepository } from "../../data/repositories/order/OrderRepository";
+import {
+  OrderRepository,
+  OrderStatus,
+} from "../../data/repositories/order/OrderRepository";
+import AppError from "../../errors/AppError";
+import { formatDecimal } from "../../utils";
 
-const repo = new OrderRepository();
+const orderRepo = new OrderRepository();
 
+/**
+ * Handle order cancellation business logic
+ */
 export const cancelOrderUseCase = async (
   orderId: string,
-  updated_by?: number,
+  details: {
+    updated_by?: number;
+    cancel_reason?: string;
+    cancelled_by_type?: string;
+  },
 ) => {
-  return repo.cancelOrder(orderId, updated_by);
+  // 1. Fetch order to verify existence and state
+  const order = await orderRepo.getOrder(orderId);
+  if (!order) {
+    throw AppError.notFound(`Order with ID ${orderId} not found`);
+  }
+
+  // Get current status (last entry)
+  const currentStatusEntries = await orderRepo.trackOrder(orderId);
+  const currentStatus = currentStatusEntries[currentStatusEntries.length - 1]?.order_status;
+
+  if (currentStatus === OrderStatus.CANCELLED) {
+    throw AppError.badRequest("Order is already cancelled");
+  }
+
+  if (currentStatus === OrderStatus.DELIVERED) {
+    throw AppError.badRequest("Cannot cancel a delivered order");
+  }
+
+  // 2. Perform cancellation
+  const result = await orderRepo.updateStatusWithDetails(orderId, OrderStatus.CANCELLED, details);
+
+  // Re-fetch full order for consistent response
+  const updatedOrder = await orderRepo.getOrder(orderId);
+  const num_items =
+    updatedOrder?.orderDetails.reduce(
+      (sum: number, item: any) => sum + item.qnty,
+      0,
+    ) || 0;
+
+  return formatDecimal({
+    ...updatedOrder,
+    num_items,
+    status: result.order_status,
+    cancel_reason: result.cancel_reason,
+    // Ensure summary fields are at the top level
+    total_amount: updatedOrder?.total_amount,
+    tax: updatedOrder?.tax_amount_b_coins,
+    payment_method: updatedOrder?.net_amount_payment_mode,
+  });
 };

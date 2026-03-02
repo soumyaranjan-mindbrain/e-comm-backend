@@ -7,6 +7,7 @@ exports.add = add;
 exports.getErrorMessage = getErrorMessage;
 exports.getPaginationParameters = getPaginationParameters;
 exports.getLevenshteinDistance = getLevenshteinDistance;
+exports.formatDecimal = formatDecimal;
 const config_1 = __importDefault(require("./config"));
 function add(a, b) {
     return a + b;
@@ -64,4 +65,24 @@ function getLevenshteinDistance(s1, s2) {
         }
     }
     return matrix[t2.length][t1.length];
+}
+function formatDecimal(obj) {
+    if (obj === null || obj === undefined)
+        return obj;
+    if (Array.isArray(obj)) {
+        return obj.map(formatDecimal);
+    }
+    if (typeof obj === 'object') {
+        // If it's a Prisma Decimal, convert to string
+        if (obj.constructor.name === 'Decimal' || (obj.d && obj.e && obj.s)) {
+            return obj.toString();
+        }
+        // Recursive for nested objects
+        const newObj = {};
+        for (const key in obj) {
+            newObj[key] = formatDecimal(obj[key]);
+        }
+        return newObj;
+    }
+    return obj;
 }

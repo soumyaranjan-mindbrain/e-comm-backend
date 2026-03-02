@@ -26,7 +26,7 @@ class OrderRepository {
             select: { id: true },
         });
         const nextId = (lastOrder?.id || 0) + 1;
-        const orderId = `#BM00${nextId}`;
+        const orderId = `BM00${nextId}`;
         return await prisma_client_1.default.$transaction(async (tx) => {
             let finalDiscount = data.discounted_amount || 0;
             // --- WALLET REDEMPTION ---
@@ -144,12 +144,77 @@ class OrderRepository {
         });
     }
     /**
-     * Track order history
+     * Get product by ID
+     */
+    async getProductById(productId) {
+        return prisma_client_1.default.productRegister.findUnique({
+            where: { productId: productId },
+        });
+    }
+    /**
+     * Get shop stock item by product ID
+     */
+    async getShopStockItem(productId) {
+        return prisma_client_1.default.shopStockItem.findFirst({
+            where: { itemId: productId, status: client_1.caa1_shop_stock_item_db_status.ONE },
+        });
+    }
+    /**
+     * Update order status with additional details
+     */
+    async updateStatusWithDetails(orderId, status, details) {
+        return await prisma_client_1.default.$transaction(async (tx) => {
+            // Get order details to get comId
+            const order = await tx.x8_app_orders_master.findUnique({
+                where: { order_id: orderId },
+                select: { comId: true },
+            });
+            // 1. Create history record with details
+            const history = await tx.x10_app_order_status.create({
+                data: {
+                    order_id: orderId,
+                    order_status: status,
+                    updated_by: details.updated_by,
+                    comId: order?.comId,
+                    cancel_reason: details.cancel_reason,
+                    // Note: In schema x10_app_order_status doesn't have cancelled_by_type 
+                    // but has cancel_by (Int). We match schema.
+                },
+            });
+            // 2. Update master record
+            await tx.x8_app_orders_master.update({
+                where: { order_id: orderId },
+                data: { status: status },
+            });
+            return history;
+        });
+    }
+    /**
+     * Track order history with items (enhanced)
      */
     async trackOrder(orderId) {
         return prisma_client_1.default.x10_app_order_status.findMany({
             where: { order_id: orderId },
             orderBy: { created_at: "asc" },
+            include: {
+                orderDetail: {
+                    select: {
+                        qnty: true,
+                        rate: true,
+                    },
+                },
+                orderMaster: {
+                    include: {
+                        orderDetails: {
+                            select: {
+                                qnty: true,
+                                rate: true,
+                                product_id: true
+                            },
+                        },
+                    },
+                },
+            },
         });
     }
 }

@@ -32,12 +32,15 @@ export const createOrderController = async (
     const result = await createOrderUseCase(orderData);
     res.status(201).json({
       success: true,
-      message: "order placed successfully",
+      message: "Order placed successfully",
       data: result
     });
   } catch (err: any) {
     console.error(err);
-    res.status(500).json({ success: false, message: err.message || "failed to create order" });
+    res.status(err.statusCode || 500).json({
+      success: false,
+      message: err.message || "Failed to create order"
+    });
   }
 };
 
@@ -53,16 +56,25 @@ export const cancelOrderController = async (
 ): Promise<void> => {
   try {
     const { orderId } = req.params;
-    const updated_by = req.body.updated_by;
-    const result = await cancelOrderUseCase(orderId, updated_by);
+    const { updated_by, cancel_reason, cancelled_by_type } = req.body;
+
+    const result = await cancelOrderUseCase(orderId, {
+      updated_by,
+      cancel_reason,
+      cancelled_by_type
+    });
+
     res.status(200).json({
       success: true,
-      message: "order cancelled successfully",
+      message: "Order cancelled successfully",
       data: result
     });
   } catch (err: any) {
     console.error(err);
-    res.status(500).json({ success: false, message: err.message || "failed to cancel order" });
+    res.status(err.statusCode || 500).json({
+      success: false,
+      message: err.message || "Failed to cancel order"
+    });
   }
 };
 
@@ -80,17 +92,20 @@ export const getOrderController = async (
     const { orderId } = req.params;
     const order = await getOrderUseCase(orderId);
     if (!order) {
-      res.status(404).json({ success: false, message: "order not found" });
+      res.status(404).json({ success: false, message: "Order not found" });
       return;
     }
     res.status(200).json({
       success: true,
-      message: "order fetched successfully",
+      message: "Order fetched successfully",
       data: order
     });
   } catch (err: any) {
     console.error(err);
-    res.status(500).json({ success: false, message: err.message || "failed to fetch order" });
+    res.status(err.statusCode || 500).json({
+      success: false,
+      message: err.message || "Failed to fetch order"
+    });
   }
 };
 
@@ -106,25 +121,25 @@ export const getAllOrdersController = async (
 ): Promise<void> => {
   try {
     const user = (req as any).user;
-    const { page = 1, limit = 50, status } = req.query;
+    const { page, limit, status } = req.query;
 
     const result = await getAllOrdersUseCase({
-      page: Number(page),
-      limit: Number(limit),
+      page: page ? Number(page) : undefined,
+      limit: limit ? Number(limit) : undefined,
       status: status as string | undefined,
       comId: user?.comId,
     });
 
     res.status(200).json({
       success: true,
-      message: "orders fetched successfully",
+      message: "Orders fetched successfully",
       data: result,
     });
   } catch (err: any) {
     console.error(err);
-    res.status(500).json({
+    res.status(err.statusCode || 500).json({
       success: false,
-      message: err.message || "failed to fetch orders",
+      message: err.message || "Failed to fetch orders",
     });
   }
 };
@@ -144,12 +159,15 @@ export const trackOrderController = async (
     const history = await trackOrderUseCase(orderId);
     res.status(200).json({
       success: true,
-      message: "order tracking history fetched",
+      message: "Order tracking history fetched",
       data: history
     });
   } catch (err: any) {
     console.error(err);
-    res.status(500).json({ success: false, message: err.message || "failed to track order" });
+    res.status(err.statusCode || 500).json({
+      success: false,
+      message: err.message || "Failed to track order"
+    });
   }
 };
 
@@ -168,18 +186,21 @@ export const updateOrderStatusController = async (
     const { status, updated_by } = req.body;
 
     if (!Object.values(OrderStatus).includes(status)) {
-      res.status(400).json({ success: false, message: "invalid order status" });
+      res.status(400).json({ success: false, message: "Invalid order status" });
       return;
     }
 
     const result = await updateOrderStatusUseCase(orderId, status, updated_by);
     res.status(200).json({
       success: true,
-      message: "order status updated successfully",
+      message: "Order status updated successfully",
       data: result
     });
   } catch (err: any) {
     console.error(err);
-    res.status(500).json({ success: false, message: err.message || "failed to update order status" });
+    res.status(err.statusCode || 500).json({
+      success: false,
+      message: err.message || "Failed to update order status"
+    });
   }
 };

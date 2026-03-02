@@ -3,9 +3,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateOrderStatusUseCase = void 0;
 const OrderRepository_1 = require("../../data/repositories/order/OrderRepository");
 const WalletService_1 = require("../../services/WalletService");
+const utils_1 = require("../../utils");
 const orderRepo = new OrderRepository_1.OrderRepository();
 const walletService = new WalletService_1.WalletService();
+/**
+ * Handle order status update business logic
+ */
 const updateOrderStatusUseCase = async (orderId, status, updated_by) => {
+    // 1. Update status
     const updatedStatus = await orderRepo.updateStatusByOrderId(orderId, status, updated_by);
     // COIN LOGIC: If status is DELIVERED, process coin generation
     if (status === OrderRepository_1.OrderStatus.DELIVERED) {
@@ -21,6 +26,9 @@ const updateOrderStatusUseCase = async (orderId, status, updated_by) => {
             // We don't throw here to avoid failing the status update itself
         }
     }
-    return { message: "Status Updated Successfully", updatedStatus };
+    return (0, utils_1.formatDecimal)({
+        message: "Status Updated Successfully",
+        updatedStatus
+    });
 };
 exports.updateOrderStatusUseCase = updateOrderStatusUseCase;

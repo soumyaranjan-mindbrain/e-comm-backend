@@ -1,10 +1,15 @@
 import { OrderRepository, OrderStatus } from "../../data/repositories/order/OrderRepository";
 import { WalletService } from "../../services/WalletService";
+import { formatDecimal } from "../../utils";
 
 const orderRepo = new OrderRepository();
 const walletService = new WalletService();
 
+/**
+ * Handle order status update business logic
+ */
 export const updateOrderStatusUseCase = async (orderId: string, status: OrderStatus, updated_by?: number) => {
+  // 1. Update status
   const updatedStatus = await orderRepo.updateStatusByOrderId(orderId, status, updated_by);
 
   // COIN LOGIC: If status is DELIVERED, process coin generation
@@ -21,5 +26,8 @@ export const updateOrderStatusUseCase = async (orderId: string, status: OrderSta
     }
   }
 
-  return { message: "Status Updated Successfully", updatedStatus };
+  return formatDecimal({
+    message: "Status Updated Successfully",
+    updatedStatus
+  });
 };

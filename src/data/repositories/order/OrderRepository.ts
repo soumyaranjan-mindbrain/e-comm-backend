@@ -1,5 +1,5 @@
 import prisma from "../../../prisma-client";
-import { Prisma } from "@prisma/client";
+import { Prisma, caa1_shop_stock_item_db_status } from "@prisma/client";
 
 export enum OrderStatus {
   PENDING = "PENDING",
@@ -193,12 +193,91 @@ export class OrderRepository {
   }
 
   /**
-   * Track order history
+   * Get product by ID
+   */
+  async getProductById(productId: number) {
+    return (prisma as any).productRegister.findUnique({
+      where: { productId: productId },
+    });
+  }
+
+  /**
+   * Get shop stock item by product ID
+   */
+  async getShopStockItem(productId: number) {
+    return (prisma as any).shopStockItem.findFirst({
+      where: { itemId: productId, status: caa1_shop_stock_item_db_status.ONE },
+    });
+  }
+
+  /**
+   * Update order status with additional details
+   */
+  async updateStatusWithDetails(
+    orderId: string,
+    status: OrderStatus,
+    details: {
+      updated_by?: number;
+      cancel_reason?: string;
+      cancelled_by_type?: string;
+    },
+  ) {
+    return await prisma.$transaction(async (tx: any) => {
+      // Get order details to get comId
+      const order = await tx.x8_app_orders_master.findUnique({
+        where: { order_id: orderId },
+        select: { comId: true },
+      });
+
+      // 1. Create history record with details
+      const history = await tx.x10_app_order_status.create({
+        data: {
+          order_id: orderId,
+          order_status: status,
+          updated_by: details.updated_by,
+          comId: order?.comId,
+          cancel_reason: details.cancel_reason,
+          // Note: In schema x10_app_order_status doesn't have cancelled_by_type 
+          // but has cancel_by (Int). We match schema.
+        },
+      });
+
+      // 2. Update master record
+      await tx.x8_app_orders_master.update({
+        where: { order_id: orderId },
+        data: { status: status },
+      });
+
+      return history;
+    });
+  }
+
+  /**
+   * Track order history with items (enhanced)
    */
   async trackOrder(orderId: string) {
     return (prisma as any).x10_app_order_status.findMany({
       where: { order_id: orderId },
       orderBy: { created_at: "asc" },
+      include: {
+        orderDetail: {
+          select: {
+            qnty: true,
+            rate: true,
+          },
+        },
+        orderMaster: {
+          include: {
+            orderDetails: {
+              select: {
+                qnty: true,
+                rate: true,
+                product_id: true
+              },
+            },
+          },
+        },
+      },
     });
   }
 }

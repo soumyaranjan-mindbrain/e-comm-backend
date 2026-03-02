@@ -17,3 +17,4 @@ router.patch("/:orderId/status", OrderController_1.updateOrderStatusController);
 router.get("/:orderId/track", OrderController_1.trackOrderController);
 router.patch("/:orderId/cancel", (0, validate_request_1.default)(validation_1.cancelOrderSchema), OrderController_1.cancelOrderController);
 exports.default = router;
+//# sourceMappingURL=order.js.map

@@ -78,3 +78,4 @@ class WalletController {
     }
 }
 exports.WalletController = WalletController;
+//# sourceMappingURL=WalletController.js.map

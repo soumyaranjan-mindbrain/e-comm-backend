@@ -28,3 +28,4 @@ const authenticateUser = (req, res, next) => {
     }
 };
 exports.default = authenticateUser;
+//# sourceMappingURL=authenticate-user.js.map

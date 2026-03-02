@@ -62,3 +62,4 @@ router.get("/", categoryController.getAll);
  */
 router.get("/:id", categoryController.getOne);
 exports.default = router;
+//# sourceMappingURL=index.js.map

@@ -32,3 +32,4 @@ const updateOrderStatusUseCase = async (orderId, status, updated_by) => {
     });
 };
 exports.updateOrderStatusUseCase = updateOrderStatusUseCase;
+//# sourceMappingURL=UpdateStatusUseCase.js.map

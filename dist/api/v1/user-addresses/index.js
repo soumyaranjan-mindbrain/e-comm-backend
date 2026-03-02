@@ -40,3 +40,4 @@ router.put("/:id", (0, validate_request_1.default)(request_schemas_1.updateUserA
 router.patch("/:id", (0, validate_request_1.default)(request_schemas_1.updateUserAddressSchema), userAddressController.update);
 router.delete("/:id", userAddressController.remove);
 exports.default = router;
+//# sourceMappingURL=index.js.map

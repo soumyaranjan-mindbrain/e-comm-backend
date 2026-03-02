@@ -81,3 +81,4 @@ class WalletAdminController {
     }
 }
 exports.WalletAdminController = WalletAdminController;
+//# sourceMappingURL=WalletAdminController.js.map

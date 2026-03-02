@@ -115,3 +115,4 @@ const getOne = async (req, res, next) => {
     }
 };
 exports.getOne = getOne;
+//# sourceMappingURL=ProductController.js.map

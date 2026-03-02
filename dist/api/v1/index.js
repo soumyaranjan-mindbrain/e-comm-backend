@@ -36,3 +36,4 @@ v1.use("/order-returns", OrderReturnRouter_1.default);
 v1.use("/wallet", WalletRouter_1.default);
 v1.use("/admin/wallet", AdminWalletRouter_1.default);
 exports.default = v1;
+//# sourceMappingURL=index.js.map

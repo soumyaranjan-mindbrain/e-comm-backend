@@ -88,3 +88,4 @@ router.get("/", (0, validate_request_1.default)(request_schemas_1.productFilterS
  */
 router.get("/:id", productController.getOne);
 exports.default = router;
+//# sourceMappingURL=index.js.map

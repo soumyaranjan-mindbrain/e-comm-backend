@@ -29,3 +29,4 @@ const mailer = {
     send: consoleLogMailer.send,
 };
 exports.mailer = mailer;
+//# sourceMappingURL=index.js.map

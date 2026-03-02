@@ -47,3 +47,4 @@ router.put("/:id", authenticate_user_1.default, authorize_admin_1.default, (0, v
 // Delete a coupon code
 router.delete("/:id", authenticate_user_1.default, authorize_admin_1.default, couponCodeController.remove);
 exports.default = router;
+//# sourceMappingURL=index.js.map

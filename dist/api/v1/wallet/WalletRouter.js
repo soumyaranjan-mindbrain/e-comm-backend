@@ -13,3 +13,4 @@ router.get("/", WalletController_1.WalletController.getWalletBalance);
 router.get("/transactions", WalletController_1.WalletController.getTransactionHistory);
 router.post("/validate", WalletController_1.WalletController.validateRedemption);
 exports.default = router;
+//# sourceMappingURL=WalletRouter.js.map

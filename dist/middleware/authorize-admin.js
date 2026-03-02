@@ -20,3 +20,4 @@ const authorizeAdmin = (req, res, next) => {
     next();
 };
 exports.default = authorizeAdmin;
+//# sourceMappingURL=authorize-admin.js.map

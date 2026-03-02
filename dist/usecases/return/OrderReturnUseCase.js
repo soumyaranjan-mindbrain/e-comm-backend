@@ -34,3 +34,4 @@ const getReturnByIdUseCase = async (returnId) => {
     return repo.getReturnById(returnId);
 };
 exports.getReturnByIdUseCase = getReturnByIdUseCase;
+//# sourceMappingURL=OrderReturnUseCase.js.map

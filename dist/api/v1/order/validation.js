@@ -30,3 +30,4 @@ exports.cancelOrderSchema = joi_1.default.object({
         .valid("user", "admin", "system", "USER", "ADMIN", "SYSTEM")
         .required(),
 });
+//# sourceMappingURL=validation.js.map

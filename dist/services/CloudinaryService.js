@@ -68,3 +68,4 @@ class CloudinaryService {
 }
 exports.CloudinaryService = CloudinaryService;
 exports.cloudinaryService = new CloudinaryService();
+//# sourceMappingURL=CloudinaryService.js.map

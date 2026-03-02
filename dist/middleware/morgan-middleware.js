@@ -11,3 +11,4 @@ const morganMiddleware = (0, morgan_1.default)(":method :url :status :res[conten
     },
 });
 exports.default = morganMiddleware;
+//# sourceMappingURL=morgan-middleware.js.map

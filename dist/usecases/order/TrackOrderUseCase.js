@@ -12,3 +12,4 @@ const trackOrderUseCase = async (orderId) => {
     return (0, utils_1.formatDecimal)(history);
 };
 exports.trackOrderUseCase = trackOrderUseCase;
+//# sourceMappingURL=TrackOrderUseCase.js.map

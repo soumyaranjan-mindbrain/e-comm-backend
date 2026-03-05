@@ -40,6 +40,20 @@ router.post(
 
 /**
  * @openapi
+ * /v1/auth/resend-otp:
+ *   post:
+ *     tags:
+ *       - Auth
+ *     summary: Resend OTP to mobile number
+ */
+router.post(
+  "/resend-otp",
+  validateRequest(sendOtpSchema),
+  authController.resendOtp,
+);
+
+/**
+ * @openapi
  * /v1/auth/verify-otp:
  *   post:
  *     tags:

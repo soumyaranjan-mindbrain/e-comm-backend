@@ -25,14 +25,7 @@ const categoryData = [
 async function main() {
   console.log("🌱 Checking database state...");
 
-  // 1. Check if database already has data
-  const customerCount = await prisma.customer.count();
-  if (customerCount > 0) {
-    console.log(`✅ Database already has ${customerCount} customers. Skipping seeding to protect existing data.`);
-    return;
-  }
-
-  console.log("🌱 Starting Database Seeding (Empty DB detected)...");
+  console.log("🌱 Starting Database Seeding...");
 
   // 2. Clear existing data (in case of partial data)
   console.log("🧹 Cleaning up old data if any...");
@@ -54,6 +47,9 @@ async function main() {
   await prisma.category.deleteMany();
   await prisma.customer.deleteMany();
   await prisma.coinConfig.deleteMany();
+  await prisma.faq.deleteMany();
+  await prisma.appContent.deleteMany();
+  await prisma.enquiry.deleteMany();
 
   console.log("✅ Cleanup complete.");
 
@@ -351,6 +347,75 @@ async function main() {
         used_coins: 50,
         net_bm_coins: 50
       }
+    });
+  }
+
+  // 10. Seed FAQs
+  console.log("❓ Seeding FAQs...");
+  const faqs = [
+    {
+      question: "How do I place an order?",
+      answer: "You can place an order by browsing our categories, adding items to your cart, and proceeding to checkout. You'll need to verify your mobile number with an OTP.",
+      category: "ORDERING",
+      priority: 1
+    },
+    {
+      question: "What are BM Coins?",
+      answer: "BM Coins are reward points you earn on every purchase. You can redeem them for discounts on future orders.",
+      category: "REWARDS",
+      priority: 2
+    },
+    {
+      question: "How can I track my order?",
+      answer: "Go to 'My Orders' section in the app and click on 'Track Order' for any active purchase.",
+      category: "SHIPPING",
+      priority: 3
+    }
+  ];
+
+  for (const faq of faqs) {
+    await prisma.faq.create({
+      data: {
+        ...faq,
+        isActive: true
+      }
+    });
+  }
+
+  // 11. Seed App Content (Policies and Contact Info)
+  console.log("📄 Seeding Policies and Contact Info...");
+  const contents = [
+    {
+      slug: "terms",
+      title: "Terms and Conditions",
+      content: "<h1>Terms and Conditions</h1><p>Welcome to BM2MALL. By using our app, you agree to comply with our terms of service. We provide a platform for grocery and garment shopping...</p>"
+    },
+    {
+      slug: "returns",
+      title: "Return & Refund Policy",
+      content: "<h1>Return Policy</h1><p>We offer a 7-day return policy for standard items. Perishables and innerwear are non-returnable for hygiene reasons. Refunds are processed within 5-7 working days.</p>"
+    },
+    {
+      slug: "shipping",
+      title: "Shipping Policy",
+      content: "<h1>Shipping Policy</h1><p>We deliver within 2-5 business days across major cities. Delivery charges may apply based on your location and order value.</p>"
+    },
+    {
+      slug: "contact-info",
+      title: "Contact Us",
+      content: JSON.stringify({
+        email: "support@bm2mall.com",
+        phone: "+91 9876543210",
+        whatsapp: "+91 9876543210",
+        address: "123, Retail Park, Bangalore, KA, India",
+        workingHours: "Mon-Sat: 9AM - 8PM"
+      })
+    }
+  ];
+
+  for (const item of contents) {
+    await prisma.appContent.create({
+      data: item
     });
   }
 

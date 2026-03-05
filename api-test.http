@@ -71,6 +71,37 @@ Content-Type: application/json
 # ❌ ERROR (429) — OTP requested too soon:
 # { "success": false, "msg": "please wait 60 seconds before requesting a new otp." }
 
+### 1.2.1 Resend OTP
+# ✏️  EDIT: Change mobile to your registered number
+# ⚠️  Use when OTP expired or not received
+# ─────────────────────────────────────────────
+
+POST {{baseUrl}}/auth/resend-otp
+Content-Type: application/json
+
+{
+  "mobile": "9876543210"
+}
+
+# ✅ EXPECTED RESPONSE (200 OK):
+# {
+#   "success": true,
+#   "msg": "otp resent successfully",
+#   "data": null
+# }
+
+# ❌ ERROR (404) — mobile not registered:
+# {
+#   "success": false,
+#   "msg": "mobile number not registered"
+# }
+
+# ❌ ERROR (429) — resend too fast:
+# {
+#   "success": false,
+#   "msg": "please wait 60 seconds before requesting a new otp"
+# }
+
 ###
 
 ### 1.3 Verify OTP  ← After running, copy data.token into @token above
@@ -291,6 +322,37 @@ Content-Type: application/json
 #   "message": "address updated successfully",
 #   "data": { ... }
 # }
+
+
+### 2.6.1 DELETE Address
+# ✏️  EDIT: Change :id to the address ID from the previous response
+# ✏️  ENSURE: @token is set
+# ─────────────────────────────────────────────
+DELETE {{baseUrl}}/user-addresses/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "address": "456 Updated Lane",
+  "townCity": "Bangalore",
+  "state": "Karnataka",
+  "pincode": "560001",
+  "receiversName": "Updated Receiver",
+  "receiversNumber": "9876543210",
+  "saveAs": "Work",
+  "isDefault": false
+}
+
+# ✅ EXPECTED RESPONSE (200 OK):
+# {
+#   "success": true,
+#   "message": "address deleted successfully",
+#   "data": null
+# }
+
+
+###
+
 
 
 ### ════════════════════════════════════════════

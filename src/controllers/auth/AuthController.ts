@@ -5,6 +5,7 @@ import { VerifyOtpUseCase } from "../../usecases/auth/VerifyOtpUseCase";
 import { SignupUseCase } from "../../usecases/auth/SignupUseCase";
 import { LogoutUseCase } from "../../usecases/auth/LogoutUseCase";
 import { RefreshTokenUseCase } from "../../usecases/auth/RefreshTokenUseCase";
+import { ResendOtpUseCase } from "../../usecases/auth/ResendOtpUseCase";
 import config from "../../config";
 import { blockToken } from "../../utils/tokenBlocklist";
 
@@ -14,6 +15,7 @@ const verifyOtpUseCase = new VerifyOtpUseCase(customerRepository);
 const signupUseCase = new SignupUseCase(customerRepository, sendOtpUseCase);
 const logoutUseCase = new LogoutUseCase(customerRepository);
 const refreshTokenUseCase = new RefreshTokenUseCase(customerRepository);
+const resendOtpUseCase = new ResendOtpUseCase(customerRepository);
 
 export const sendOtp = async (
   req: Request,
@@ -23,6 +25,25 @@ export const sendOtp = async (
   try {
     const { mobile } = req.body;
     const result = await sendOtpUseCase.execute(mobile);
+
+    res.status(200).json({
+      success: true,
+      message: result.message.toLowerCase(),
+      data: null,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const resendOtp = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const { mobile } = req.body;
+    const result = await resendOtpUseCase.execute(mobile);
 
     res.status(200).json({
       success: true,

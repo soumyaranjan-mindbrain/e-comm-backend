@@ -522,11 +522,11 @@ GET {{baseUrl}}/product-ratings/product/15
 
 ###
 ### 4.5.1 Create a Product Rating
-# âœï¸  POST with `productId`, `givenRatings`, optional `message`, and `reviewImages`
+# âœ ï¸   POST with `productId`, `givenRatings`, optional `message`, and `reviewImages`
 POST {{baseUrl}}/product-ratings
 
 {
-  "productId": 15,
+  "productId": 10036,
   "givenRatings": 5,
   "message": "Fabric and fit were spot-on!",
   "createdBy": 15,
@@ -560,7 +560,7 @@ POST {{baseUrl}}/product-ratings
 ### 4.6 Product Rating Stats
 # ✏️  EDIT: Replace 15 with the product `id`
 # ─────────────────────────────────────────────
-GET {{baseUrl}}/product-ratings/product/15/stats
+GET {{baseUrl}}/product-ratings/product/10036/stats
 
 # ✅ EXPECTED RESPONSE (200 OK):
 # {
@@ -621,7 +621,7 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "productId": 5014,
+  "productId": 10000,
   "quantity": 1
 }
 
@@ -648,7 +648,7 @@ Content-Type: application/json
 # ✏️  EDIT: quantity = new quantity value
 # ✏️  ENSURE: @token is set
 # ─────────────────────────────────────────────
-PUT {{baseUrl}}/cart/5014
+PUT {{baseUrl}}/cart/10000
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
@@ -1065,10 +1065,13 @@ GET {{baseUrl}}/faq/categories
 ### 13.1 Terms & Conditions
 GET {{baseUrl}}/policies/terms
 
-### 13.2 Return & Refund Policy
+### 13.2 Privacy Policy
+GET {{baseUrl}}/policies/privacy
+
+### 13.3 Return & Refund Policy
 GET {{baseUrl}}/policies/returns
 
-### 13.3 Shipping Policy
+### 13.4 Shipping Policy
 GET {{baseUrl}}/policies/shipping
 
 

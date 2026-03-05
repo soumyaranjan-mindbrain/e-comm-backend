@@ -5,6 +5,7 @@ const router = Router();
 
 // Public routes
 router.get("/terms", PolicyController.getTerms);
+router.get("/privacy", PolicyController.getPrivacy);
 router.get("/returns", PolicyController.getReturns);
 router.get("/shipping", PolicyController.getShipping);
 

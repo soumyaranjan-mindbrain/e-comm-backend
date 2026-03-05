@@ -93,6 +93,7 @@ model ProductRegister {
   stockItems     ShopStockItem[]
   images         ProductImageRegister[]
   cart           x5_app_cart[]
+  productRatings ProductRating[]
 
   @@map("x1_app_product_register")
 }
@@ -122,6 +123,7 @@ model ProductRating {
   updatedBy    Int?                 @map("updated_by")
   reviewImages ProductRatingImage[]
   customer     Customer?            @relation(fields: [createdBy], references: [id])
+  product      ProductRegister?     @relation(fields: [productId], references: [productId])
 
   @@index([createdBy], map: "x3_app_product_ratings_created_by_fkey")
   @@map("x3_app_product_ratings")

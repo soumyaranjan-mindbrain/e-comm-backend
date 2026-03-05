@@ -1,6 +1,7 @@
 import { Response, NextFunction } from "express";
 import { AuthRequest } from "../../middleware/authenticate-user";
 import { CartRepository } from "../../data/repositories/cart/CartRepository";
+import prisma from "../../prisma-client";
 
 const cartRepository = new CartRepository();
 
@@ -11,7 +12,20 @@ export const addToCart = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const comId = req.user!.comId || req.user!.id;
+    // Ensure we use comId (business ID) for the cart, not the internal id
+    let comId = req.user!.comId;
+    if (!comId) {
+      console.log(`WARNING: comId missing in token for user ${req.user!.id}. Falling back to db lookup.`);
+      // This is a safety fallback in case token is misconfigured
+      const customer = await prisma.customer.findUnique({ where: { id: req.user!.id } });
+      comId = customer?.comId || req.user!.id;
+    }
+
+    if (!comId) {
+      res.status(500).json({ success: false, message: "user identity could not be verified" });
+      return;
+    }
+
     const productId = req.body.productId || req.body.ItemId;
     const quantity = req.body.quantity;
 
@@ -53,7 +67,17 @@ export const getCart = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const comId = req.user!.comId || req.user!.id;
+    let comId = req.user!.comId;
+    if (!comId) {
+      const customer = await prisma.customer.findUnique({ where: { id: req.user!.id } });
+      comId = customer?.comId || req.user!.id;
+    }
+
+    if (!comId) {
+      res.status(500).json({ success: false, message: "user identity could not be verified" });
+      return;
+    }
+
     const items = await cartRepository.getCartByComId(comId);
 
     let grandTotal = 0;
@@ -93,7 +117,17 @@ export const updateCartQuantity = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const comId = req.user!.comId || req.user!.id;
+    let comId = req.user!.comId;
+    if (!comId) {
+      const customer = await prisma.customer.findUnique({ where: { id: req.user!.id } });
+      comId = customer?.comId || req.user!.id;
+    }
+
+    if (!comId) {
+      res.status(500).json({ success: false, message: "user identity could not be verified" });
+      return;
+    }
+
     const itemId = Number(req.params.itemId);
     const { quantity } = req.body;
 
@@ -132,7 +166,17 @@ export const removeFromCart = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const comId = req.user!.comId || req.user!.id;
+    let comId = req.user!.comId;
+    if (!comId) {
+      const customer = await prisma.customer.findUnique({ where: { id: req.user!.id } });
+      comId = customer?.comId || req.user!.id;
+    }
+
+    if (!comId) {
+      res.status(500).json({ success: false, message: "user identity could not be verified" });
+      return;
+    }
+
     const itemId = Number(req.params.itemId);
 
     if (isNaN(itemId)) {
@@ -161,7 +205,17 @@ export const clearCart = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const comId = req.user!.comId || req.user!.id;
+    let comId = req.user!.comId;
+    if (!comId) {
+      const customer = await prisma.customer.findUnique({ where: { id: req.user!.id } });
+      comId = customer?.comId || req.user!.id;
+    }
+
+    if (!comId) {
+      res.status(500).json({ success: false, message: "user identity could not be verified" });
+      return;
+    }
+
     await cartRepository.clearCart(comId);
 
     res.status(200).json({

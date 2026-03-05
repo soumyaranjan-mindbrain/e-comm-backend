@@ -355,21 +355,45 @@ async function main() {
   const faqs = [
     {
       question: "How do I place an order?",
-      answer: "You can place an order by browsing our categories, adding items to your cart, and proceeding to checkout. You'll need to verify your mobile number with an OTP.",
+      answer: "Simply browse our products, add them to your cart, and proceed to checkout. Follow the on-screen instructions to complete your purchase.",
       category: "ORDERING",
-      priority: 1
+      priority: 10
     },
     {
-      question: "What are BM Coins?",
-      answer: "BM Coins are reward points you earn on every purchase. You can redeem them for discounts on future orders.",
-      category: "REWARDS",
-      priority: 2
+      question: "What payment methods are accepted?",
+      answer: "We accept all major credit/debit cards, UPI, net banking, and Cash on Delivery (COD) in most locations.",
+      category: "PAYMENT",
+      priority: 9
     },
     {
-      question: "How can I track my order?",
-      answer: "Go to 'My Orders' section in the app and click on 'Track Order' for any active purchase.",
+      question: "Can I track my order?",
+      answer: "Yes, once your order is dispatched, you will receive a tracking link in the 'My Orders' section of the app.",
       category: "SHIPPING",
-      priority: 3
+      priority: 8
+    },
+    {
+      question: "How do I cancel my order?",
+      answer: "You can cancel your order from the 'My Orders' section before it is out for delivery. A cancellation fee may apply if processing has started.",
+      category: "ORDERING",
+      priority: 7
+    },
+    {
+      question: "What if I receive a wrong item?",
+      answer: "Please contact our support team within 24 hours of delivery. We will arrange a replacement or refund immediately.",
+      category: "SUPPORT",
+      priority: 6
+    },
+    {
+      question: "How do I use a coupon code?",
+      answer: "Enter your coupon code in the 'Offers & Coupons' section at the checkout page to avail of the discount.",
+      category: "PROMOTIONS",
+      priority: 5
+    },
+    {
+      question: "Is my personal information secure?",
+      answer: "Absolutely. We use high-level encryption and follow strict data protection protocols to ensure your information stays safe.",
+      category: "SECURITY",
+      priority: 4
     }
   ];
 
@@ -387,28 +411,100 @@ async function main() {
   const contents = [
     {
       slug: "terms",
-      title: "Terms and Conditions",
-      content: "<h1>Terms and Conditions</h1><p>Welcome to BM2MALL. By using our app, you agree to comply with our terms of service. We provide a platform for grocery and garment shopping...</p>"
+      title: "Terms & Conditions",
+      content: `
+        <h1>Terms & Conditions</h1>
+        <h3>1. Introduction</h3>
+        <p>Welcome to BM Mall. By using our website or mobile app, you agree to comply with these Terms & Conditions, our Privacy Policy, and all applicable laws of the land.</p>
+        <h3>2. Account Registration</h3>
+        <p>To access certain features, you must register for an account. You agree to provide accurate information and keep it updated. You are solely responsible for all activity on your account.</p>
+        <h3>3. Product Availability & Pricing</h3>
+        <p>We strive for accuracy but errors in pricing or availability may occur. In such cases, we reserve the right to cancel orders and provide a full refund.</p>
+        <h3>4. Order Acceptance</h3>
+        <p>Receiving an order confirmation does not signify our acceptance of an order. We reserve the right to accept or decline any order for any reason at our sole discretion.</p>
+        <h3>5. Payments & Security</h3>
+        <p>All payments are processed through secure gateways. We do not store sensitive payment information on our servers. You agree to pay all charges incurred by you or your account.</p>
+        <h3>6. Prohibited Activities</h3>
+        <p>Users are prohibited from using the app for fraudulent purposes, reverse engineering the software, or attempting to breach our security protocols.</p>
+        <h3>7. Termination of Service</h3>
+        <p>We reserve the right to suspend or terminate your account at any time without prior notice if we believe you have violated these Terms & Conditions.</p>
+      `
     },
     {
       slug: "returns",
       title: "Return & Refund Policy",
-      content: "<h1>Return Policy</h1><p>We offer a 7-day return policy for standard items. Perishables and innerwear are non-returnable for hygiene reasons. Refunds are processed within 5-7 working days.</p>"
+      content: `
+        <h1>Return & Refund Policy</h1>
+        <h3>1. 7-Day Return Window</h3>
+        <p>Most items are eligible for return within 7 days of delivery. The items must be unused, in original packaging, and with all tags intact.</p>
+        <h3>2. Non-Returnable Items</h3>
+        <p>Perishable goods (groceries), personal care products, innerwear, and clearance items are not eligible for return due to hygiene and safety reasons.</p>
+        <h3>3. Damaged or Wrong Items</h3>
+        <p>If you receive a damaged or incorrect item, please report it via the app within 24 hours of delivery with clear photographic evidence.</p>
+        <h3>4. Return Process</h3>
+        <p>Go to 'My Orders', select the order, and click 'Request Return'. Once approved, our delivery partner will pick up the item within 48 hours.</p>
+        <h3>5. Quality Inspection</h3>
+        <p>All returned items undergo a quality check at our warehouse. We reserve the right to reject returns if the item shows signs of use or damage.</p>
+        <h3>6. Refund Timeline</h3>
+        <p>Approved refunds are processed within 5-7 business days to your original payment method. For COD orders, refunds are credited to your BM Wallet.</p>
+        <h3>7. Cancellation Policy</h3>
+        <p>Orders can be cancelled anytime before they are out for delivery. Once the packing process has started, a small cancellation fee may apply.</p>
+      `
     },
     {
       slug: "shipping",
       title: "Shipping Policy",
-      content: "<h1>Shipping Policy</h1><p>We deliver within 2-5 business days across major cities. Delivery charges may apply based on your location and order value.</p>"
+      content: `
+        <h1>Shipping Policy</h1>
+        <h3>1. Delivery Coverage</h3>
+        <p>We currently deliver across major urban centers. You can check the serviceability of your area by entering your pincode in the app.</p>
+        <h3>2. Standard Delivery Times</h3>
+        <p>Orders are typically delivered within 2-5 business days. Express delivery (same day or next day) may be available in select locations for an extra fee.</p>
+        <h3>3. Shipping Charges</h3>
+        <p>A nominal delivery fee is charged based on the order value and distance. Free delivery is provided for orders exceeding a specific threshold (e.g., ₹500).</p>
+        <h3>4. Order Tracking</h3>
+        <p>Real-time tracking is available in the 'Track Order' section as soon as your order is dispatched from our fulfillment center.</p>
+        <h3>5. Delivery Attempts</h3>
+        <p>Our partners will make up to three delivery attempts. If unsuccessful, the order will be returned to the hub and a refund will be initiated.</p>
+        <h3>6. Packaging Excellence</h3>
+        <p>We use eco-friendly and sturdy packaging to ensure your products reach you in pristine condition, especially for fragile items.</p>
+        <h3>7. Address Changes</h3>
+        <p>Shipping addresses can be modified only before the order is dispatched. Please contact support immediately for any urgent corrections.</p>
+      `
+    },
+    {
+      slug: "privacy",
+      title: "Privacy Policy",
+      content: `
+        <h1>Privacy Policy</h1>
+        <h3>1. Information Collection</h3>
+        <p>We collect personal information such as name, email, and phone number when you register an account or place an order.</p>
+        <h3>2. Usage of Data</h3>
+        <p>Your data is used to process transactions, improve our services, and send you important updates regarding your orders or account.</p>
+        <h3>3. Data Sharing</h3>
+        <p>We do not sell your personal data. We only share information with trusted third-party partners (like delivery and payments) necessary to fulfill your requests.</p>
+        <h3>4. Cookies & Tracking</h3>
+        <p>Our app uses cookies to enhance user experience and analyze traffic. You can manage your cookie preferences through your device settings.</p>
+        <h3>5. Data Security</h3>
+        <p>We implement industry-standard security measures to protect your data from unauthorized access, loss, or misuse.</p>
+        <h3>6. Your Rights</h3>
+        <p>You have the right to access, correct, or delete your personal data. Please contact our privacy officer for any such requests.</p>
+        <h3>7. Policy Updates</h3>
+        <p>We may update this policy periodically. Significant changes will be notified via the app or email. Continued use of the app signifies acceptance.</p>
+      `
     },
     {
       slug: "contact-info",
       title: "Contact Us",
       content: JSON.stringify({
+        phone: "1800-123-4567",
+        whatsapp: "+91-98765-43210",
         email: "support@bm2mall.com",
-        phone: "+91 9876543210",
-        whatsapp: "+91 9876543210",
-        address: "123, Retail Park, Bangalore, KA, India",
-        workingHours: "Mon-Sat: 9AM - 8PM"
+        office: "BM Mall HQ, 123 Tech Park, Sector 45, Bhubaneswar, Odisha - 751001",
+        timings: "9:00 AM to 9:00 PM (Daily)",
+        instagram: "@BMMallOfficial",
+        facebook: "@BMMallOfficial",
+        business_email: "business@bmmall.com"
       })
     }
   ];

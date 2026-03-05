@@ -42,6 +42,7 @@ export class CartRepository {
     }
 
     // If item does not exist → create new
+    console.log(`DEBUG: Creating cart item for comId=${comId}, ItemId=${ItemId}`);
     return prisma.x5_app_cart.create({
       data: {
         comId,

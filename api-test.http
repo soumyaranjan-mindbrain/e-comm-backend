@@ -703,7 +703,7 @@ Authorization: Bearer {{token}}
 ### 6. ORDERS
 ### ════════════════════════════════════════════
 
-@orderId = BM007
+@orderId = BM0016
 
 ### 6.1 Create Order
 # ✏️  ENSURE: @token is set
@@ -718,7 +718,7 @@ Content-Type: application/json
   "total_amount": 1500,
   "items": [
     {
-      "productId": 5014,
+      "productId": 10000,
       "qnty": 2,
       "rate": 750,
       "net_amount": 1500

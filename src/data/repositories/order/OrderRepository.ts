@@ -30,6 +30,21 @@ export interface OrderInput {
 
 export class OrderRepository {
   /**
+   * Helper to add productName and productImage to order items
+   */
+  private enrichOrder(order: any) {
+    if (!order) return null;
+    if (order.orderDetails) {
+      order.orderDetails = order.orderDetails.map((item: any) => ({
+        ...item,
+        productName: item.product?.productName || "",
+        productImage: item.product?.proimg || "",
+      }));
+    }
+    return order;
+  }
+
+  /**
    * Create a new order — uses our BM00X order ID format
    */
   async createOrder(data: OrderInput) {
@@ -75,6 +90,15 @@ export class OrderRepository {
           net_amount_payment_mode: data.payment_mode,
           status: OrderStatus.PENDING,
         },
+        include: {
+          orderDetails: {
+            include: {
+              product: {
+                select: { productName: true, proimg: true }
+              }
+            }
+          }
+        }
       });
 
       // 2. Create Order Details
@@ -97,7 +121,21 @@ export class OrderRepository {
           (${orderId}, ${OrderStatus.PENDING}, ${data.comId ?? null})
       `;
 
-      return order;
+      // We re-fetch to ensure the orderDetails we created above are included with product info
+      const finalOrder = await tx.x8_app_orders_master.findUnique({
+        where: { order_id: orderId },
+        include: {
+          orderDetails: {
+            include: {
+              product: {
+                select: { productName: true, proimg: true }
+              }
+            }
+          }
+        }
+      });
+
+      return this.enrichOrder(finalOrder);
     });
   }
 
@@ -160,14 +198,29 @@ export class OrderRepository {
       data: { status },
     });
 
-    // Return the newly inserted row
-    const rows = await prisma.$queryRaw<any[]>`
-      SELECT * FROM x10_app_order_status
-      WHERE order_id = ${orderId}
-      ORDER BY id DESC
-      LIMIT 1
-    `;
-    return rows[0];
+    // Return the newly inserted row, enhanced with order master and flattened names/images
+    const row = await (prisma as any).x10_app_order_status.findFirst({
+      where: { order_id: orderId },
+      orderBy: { id: "desc" },
+      include: {
+        orderMaster: {
+          include: {
+            orderDetails: {
+              include: {
+                product: {
+                  select: { productName: true, proimg: true }
+                }
+              }
+            }
+          }
+        }
+      }
+    });
+
+    if (row && row.orderMaster) {
+      row.orderMaster = this.enrichOrder(row.orderMaster);
+    }
+    return row;
   }
 
   /**
@@ -188,15 +241,22 @@ export class OrderRepository {
    * Get main order by ID with details and status history
    */
   async getOrder(orderId: string) {
-    return (prisma as any).x8_app_orders_master.findUnique({
+    const order = await (prisma as any).x8_app_orders_master.findUnique({
       where: { order_id: orderId },
       include: {
-        orderDetails: true,
+        orderDetails: {
+          include: {
+            product: {
+              select: { productName: true, proimg: true }
+            }
+          }
+        },
         orderStatus: {
           orderBy: { id: "desc" },
         },
       },
     });
+    return this.enrichOrder(order);
   }
 
   /**
@@ -225,7 +285,13 @@ export class OrderRepository {
       skip,
       take: limit,
       include: {
-        orderDetails: true,
+        orderDetails: {
+          include: {
+            product: {
+              select: { productName: true, proimg: true }
+            }
+          }
+        },
         orderStatus: {
           orderBy: { id: "desc" },
           take: 1,
@@ -234,7 +300,7 @@ export class OrderRepository {
     });
 
     return {
-      data: orders,
+      data: orders.map((o: any) => this.enrichOrder(o)),
       pagination: {
         total: totalOrders,
         page,
@@ -248,28 +314,63 @@ export class OrderRepository {
    * Track order history with items (enhanced)
    */
   async trackOrder(orderId: string) {
-    return (prisma as any).x10_app_order_status.findMany({
+    const history = await (prisma as any).x10_app_order_status.findMany({
       where: { order_id: orderId },
       orderBy: { created_at: "asc" },
       include: {
         orderDetail: {
-          select: {
-            qnty: true,
-            rate: true,
-          },
+          include: {
+            product: {
+              select: { productName: true, proimg: true }
+            }
+          }
         },
         orderMaster: {
           include: {
             orderDetails: {
-              select: {
-                qnty: true,
-                rate: true,
-                product_id: true,
-              },
+              include: {
+                product: {
+                  select: { productName: true, proimg: true }
+                }
+              }
             },
           },
         },
       },
+    });
+
+    return history.map((item: any) => {
+      // Basic enriched item with original fields + order_id
+      const enrichedItem = {
+        ...item,
+        order_id: item.order_id || orderId,
+      };
+
+      // Ensure we have a primary productName and productImage at the top level
+      // If this history row is for a specific detail, use that. 
+      // Otherwise, use the first item from the order master.
+      if (item.orderDetail) {
+        enrichedItem.productName = item.orderDetail.product?.productName || "";
+        enrichedItem.productImage = item.orderDetail.product?.proimg || "";
+
+        // Also enrich the nested orderDetail object for backward compatibility
+        enrichedItem.orderDetail = {
+          ...item.orderDetail,
+          productName: enrichedItem.productName,
+          productImage: enrichedItem.productImage,
+        };
+      } else if (item.orderMaster?.orderDetails?.[0]) {
+        const firstItem = item.orderMaster.orderDetails[0];
+        enrichedItem.productName = firstItem.product?.productName || "";
+        enrichedItem.productImage = firstItem.product?.proimg || "";
+      }
+
+      // Also enrich the nested orderMaster if it exists
+      if (item.orderMaster) {
+        enrichedItem.orderMaster = this.enrichOrder(item.orderMaster);
+      }
+
+      return enrichedItem;
     });
   }
 }

@@ -94,6 +94,7 @@ model ProductRegister {
   images         ProductImageRegister[]
   cart           x5_app_cart[]
   productRatings ProductRating[]
+  orderDetails   x9_app_order_details[]
 
   @@map("x1_app_product_register")
 }
@@ -415,8 +416,10 @@ model x9_app_order_details {
   updated_by   Int?
   orderStatus  x10_app_order_status[] @relation("DetailToStatus")
   order        x8_app_orders_master   @relation("OrderToOrderDetails", fields: [order_id], references: [order_id])
+  product      ProductRegister?       @relation(fields: [product_id], references: [productId])
 
   @@index([order_id], map: "x9_app_order_details_order_id_fkey")
+  @@index([product_id], map: "x9_app_order_details_product_id_fkey")
   @@map("x9_app_order_details")
 }
 

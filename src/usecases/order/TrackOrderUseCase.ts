@@ -20,9 +20,13 @@ export const trackOrderUseCase = async (orderId: string) => {
     }
 
     return {
+      order_id: h.order_id,
       status: h.order_status,
       cancel_reason: h.cancel_reason ?? null,
       created_at: h.created_at,
+      productName: h.productName || "",
+      productImage: h.productImage || "",
+      image: h.productImage || "",
       qnty,
       rate,
     };

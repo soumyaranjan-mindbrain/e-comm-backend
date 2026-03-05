@@ -34,12 +34,33 @@ export class OrderRepository {
    */
   private enrichOrder(order: any) {
     if (!order) return null;
-    if (order.orderDetails) {
-      order.orderDetails = order.orderDetails.map((item: any) => ({
-        ...item,
-        productName: item.product?.productName || "",
-        productImage: item.product?.proimg || "",
-      }));
+
+    // 1. Flatten items inside orderDetails
+    if (order.orderDetails && Array.isArray(order.orderDetails)) {
+      order.orderDetails = order.orderDetails.map((item: any) => {
+        // Fallback: If proimg is empty, use first image from images array
+        let mainImg = item.product?.proimg || "";
+        if (!mainImg && item.product?.images?.[0]?.proimgs) {
+          mainImg = item.product.images[0].proimgs;
+        }
+
+        return {
+          ...item,
+          productName: item.product?.productName || "",
+          productImage: mainImg,
+          // For backup compatibility
+          image: mainImg,
+        };
+      });
+
+      // 2. Pull the FIRST item's details to the top level of the Order object
+      // This is what the "My Orders" list view usually expects.
+      if (order.orderDetails.length > 0) {
+        const first = order.orderDetails[0];
+        order.productName = order.productName || first.productName;
+        order.productImage = order.productImage || first.productImage;
+        order.image = order.image || first.productImage;
+      }
     }
     return order;
   }
@@ -94,7 +115,11 @@ export class OrderRepository {
           orderDetails: {
             include: {
               product: {
-                select: { productName: true, proimg: true }
+                select: {
+                  productName: true,
+                  proimg: true,
+                  images: { select: { proimgs: true }, take: 1 }
+                }
               }
             }
           }
@@ -128,7 +153,11 @@ export class OrderRepository {
           orderDetails: {
             include: {
               product: {
-                select: { productName: true, proimg: true }
+                select: {
+                  productName: true,
+                  proimg: true,
+                  images: { select: { proimgs: true }, take: 1 }
+                }
               }
             }
           }
@@ -208,7 +237,11 @@ export class OrderRepository {
             orderDetails: {
               include: {
                 product: {
-                  select: { productName: true, proimg: true }
+                  select: {
+                    productName: true,
+                    proimg: true,
+                    images: { select: { proimgs: true }, take: 1 }
+                  }
                 }
               }
             }
@@ -247,7 +280,11 @@ export class OrderRepository {
         orderDetails: {
           include: {
             product: {
-              select: { productName: true, proimg: true }
+              select: {
+                productName: true,
+                proimg: true,
+                images: { select: { proimgs: true }, take: 1 }
+              }
             }
           }
         },
@@ -288,7 +325,11 @@ export class OrderRepository {
         orderDetails: {
           include: {
             product: {
-              select: { productName: true, proimg: true }
+              select: {
+                productName: true,
+                proimg: true,
+                images: { select: { proimgs: true }, take: 1 }
+              }
             }
           }
         },
@@ -321,7 +362,11 @@ export class OrderRepository {
         orderDetail: {
           include: {
             product: {
-              select: { productName: true, proimg: true }
+              select: {
+                productName: true,
+                proimg: true,
+                images: { select: { proimgs: true }, take: 1 }
+              }
             }
           }
         },
@@ -330,7 +375,11 @@ export class OrderRepository {
             orderDetails: {
               include: {
                 product: {
-                  select: { productName: true, proimg: true }
+                  select: {
+                    productName: true,
+                    proimg: true,
+                    images: { select: { proimgs: true }, take: 1 }
+                  }
                 }
               }
             },
@@ -346,26 +395,34 @@ export class OrderRepository {
         order_id: item.order_id || orderId,
       };
 
-      // Ensure we have a primary productName and productImage at the top level
-      // If this history row is for a specific detail, use that. 
-      // Otherwise, use the first item from the order master.
-      if (item.orderDetail) {
-        enrichedItem.productName = item.orderDetail.product?.productName || "";
-        enrichedItem.productImage = item.orderDetail.product?.proimg || "";
+      // Find the best possible name/image for this row
+      let pName = "";
+      let pImg = "";
 
-        // Also enrich the nested orderDetail object for backward compatibility
-        enrichedItem.orderDetail = {
-          ...item.orderDetail,
-          productName: enrichedItem.productName,
-          productImage: enrichedItem.productImage,
-        };
-      } else if (item.orderMaster?.orderDetails?.[0]) {
-        const firstItem = item.orderMaster.orderDetails[0];
-        enrichedItem.productName = firstItem.product?.productName || "";
-        enrichedItem.productImage = firstItem.product?.proimg || "";
+      if (item.orderDetail?.product) {
+        const p = item.orderDetail.product;
+        pName = p.productName || "";
+        pImg = p.proimg || p.images?.[0]?.proimgs || "";
+      } else if (item.orderMaster?.orderDetails?.[0]?.product) {
+        const p = item.orderMaster.orderDetails[0].product;
+        pName = p.productName || "";
+        pImg = p.proimg || p.images?.[0]?.proimgs || "";
       }
 
-      // Also enrich the nested orderMaster if it exists
+      // Add to top level
+      enrichedItem.productName = pName;
+      enrichedItem.productImage = pImg;
+      enrichedItem.image = pImg;
+
+      // Also enrich the nested objects for safety
+      if (item.orderDetail) {
+        enrichedItem.orderDetail = {
+          ...item.orderDetail,
+          productName: pName,
+          productImage: pImg,
+          image: pImg,
+        };
+      }
       if (item.orderMaster) {
         enrichedItem.orderMaster = this.enrichOrder(item.orderMaster);
       }

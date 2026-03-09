@@ -1,3 +1,13 @@
+import "dotenv/config";
+
+const getRequiredEnv = (key: string): string => {
+  const value = process.env[key];
+  if (!value) {
+    throw new Error(`${key} is required`);
+  }
+  return value;
+};
+
 const config = {
   env: process.env.NODE_ENV || "development",
   port: parseInt(process.env.PORT || "3000"),
@@ -6,8 +16,8 @@ const config = {
   consoleLogEmails: process.env.CONSOLE_LOG_EMAILS === "true",
   defaultPageSize: parseInt(process.env.DEFAULT_PAGE_SIZE || "5"),
   appSecret: process.env.APP_SECRET || "",
-  jwtAccessSecret: process.env.JWT_ACCESS_SECRET || "access-secret",
-  jwtRefreshSecret: process.env.JWT_REFRESH_SECRET || "refresh-secret",
+  jwtAccessSecret: getRequiredEnv("JWT_ACCESS_SECRET"),
+  jwtRefreshSecret: getRequiredEnv("JWT_REFRESH_SECRET"),
   issuerBaseUrl: process.env.ISSUER_BASE_URL || "https://ussuer.com",
   audience: process.env.AUDIENCE || "default-audience",
   mail: {

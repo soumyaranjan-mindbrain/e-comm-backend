@@ -30,10 +30,35 @@ export const getAllCategories = async (
     };
   }
 
+  let queryWhere: any = where;
+  if (cursor) {
+    const cursorCategory = await prisma.category.findUnique({
+      where: { id: cursor },
+      select: { id: true, disorder: true },
+    });
+
+    if (cursorCategory) {
+      queryWhere = {
+        ...where,
+        AND: [
+          {
+            OR: [
+              { disorder: { gt: cursorCategory.disorder } },
+              {
+                disorder: cursorCategory.disorder,
+                id: { gt: cursorCategory.id },
+              },
+            ],
+          },
+        ],
+      };
+    }
+  }
+
   const [categories, totalCount] = await Promise.all([
     prisma.category.findMany({
-      where: cursor ? { ...where, id: { gt: cursor } } : where,
-      orderBy: { disorder: "asc" },
+      where: queryWhere,
+      orderBy: [{ disorder: "asc" }, { id: "asc" }],
       take,
     }),
     prisma.category.count({ where }),

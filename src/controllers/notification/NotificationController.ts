@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Response, NextFunction } from "express";
 import { NotificationRepository } from "../../data/repositories/notification/NotificationRepository";
 import { AuthRequest } from "../../middleware/authenticate-user";
 
@@ -8,7 +8,7 @@ export class NotificationController {
     /**
      * GET /v1/notifications
      */
-    static async getNotifications(req: AuthRequest, res: Response): Promise<void> {
+    static async getNotifications(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
         try {
             const userId = req.user!.comId || req.user!.id;
             const skip = parseInt(req.query.skip as string) || 0;
@@ -24,15 +24,15 @@ export class NotificationController {
                     unreadCount
                 }
             });
-        } catch (error: any) {
-            res.status(500).json({ success: false, message: error.message });
+        } catch (error) {
+            next(error);
         }
     }
 
     /**
      * PATCH /v1/notifications/:id/read
      */
-    static async markAsRead(req: AuthRequest, res: Response): Promise<void> {
+    static async markAsRead(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
         try {
             const userId = req.user!.comId || req.user!.id;
             const notificationId = parseInt(req.params.id);
@@ -43,15 +43,15 @@ export class NotificationController {
                 success: true,
                 message: "Notification marked as read."
             });
-        } catch (error: any) {
-            res.status(500).json({ success: false, message: error.message });
+        } catch (error) {
+            next(error);
         }
     }
 
     /**
      * PATCH /v1/notifications/read-all
      */
-    static async markAllAsRead(req: AuthRequest, res: Response): Promise<void> {
+    static async markAllAsRead(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
         try {
             const userId = req.user!.comId || req.user!.id;
 
@@ -61,15 +61,15 @@ export class NotificationController {
                 success: true,
                 message: "All notifications marked as read."
             });
-        } catch (error: any) {
-            res.status(500).json({ success: false, message: error.message });
+        } catch (error) {
+            next(error);
         }
     }
 
     /**
      * DELETE /v1/notifications/:id
      */
-    static async deleteNotification(req: AuthRequest, res: Response): Promise<void> {
+    static async deleteNotification(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
         try {
             const userId = req.user!.comId || req.user!.id;
             const notificationId = parseInt(req.params.id);
@@ -80,8 +80,8 @@ export class NotificationController {
                 success: true,
                 message: "Notification deleted successfully."
             });
-        } catch (error: any) {
-            res.status(500).json({ success: false, message: error.message });
+        } catch (error) {
+            next(error);
         }
     }
 }

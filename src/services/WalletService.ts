@@ -141,26 +141,44 @@ export class WalletService {
      */
     async activatePendingCoins() {
         const batchSize = 500;
+        const concurrency = 10;
         const transactions = await repo.getPendingEligibleTransactions(batchSize);
 
         let processed = 0;
-        for (const txn of transactions) {
-            try {
-                await prisma.$transaction(async (tx) => {
-                    // Lock customer to be safe
-                    await repo.getUserBalancesForUpdate(txn.userId, tx);
+        let cursor = 0;
 
-                    // Move from pending to active
-                    await repo.updateBalances(txn.userId, txn.amount, -txn.amount, tx);
+        const worker = async () => {
+            while (true) {
+                const index = cursor;
+                cursor += 1;
 
-                    // Mark txn as active
-                    await repo.updateTransactionStatus(txn.id, "ACTIVE", new Date(), tx);
-                });
-                processed++;
-            } catch (err) {
-                console.error(`Failed to activate transaction ${txn.id}:`, err);
+                const txn = transactions[index];
+                if (!txn) return;
+
+                try {
+                    await prisma.$transaction(async (tx) => {
+                        // Lock customer to be safe
+                        await repo.getUserBalancesForUpdate(txn.userId, tx);
+
+                        // Move from pending to active
+                        await repo.updateBalances(txn.userId, txn.amount, -txn.amount, tx);
+
+                        // Mark txn as active
+                        await repo.updateTransactionStatus(txn.id, "ACTIVE", new Date(), tx);
+                    });
+                    processed++;
+                } catch (err) {
+                    console.error(`Failed to activate transaction ${txn.id}:`, err);
+                }
             }
-        }
+        };
+
+        await Promise.all(
+            Array.from(
+                { length: Math.min(concurrency, transactions.length) },
+                () => worker(),
+            ),
+        );
         return processed;
     }
 }

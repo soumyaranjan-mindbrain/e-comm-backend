@@ -47,6 +47,7 @@ model Customer {
   cart               x5_app_cart[]
   orders             x8_app_orders_master[]  @relation("CustomerOrders")
 
+  @@index([contactNo], map: "idx_customer_contact_no")
   @@map("aa13_customer_db")
 }
 
@@ -69,6 +70,7 @@ model Category {
 
   @@index([id, catName], map: "id")
   @@index([id, catName, catCode], map: "index_category_db")
+  @@index([catName], map: "idx_category_cat_name")
   @@map("aa4_category_db")
 }
 
@@ -96,6 +98,7 @@ model ProductRegister {
   productRatings ProductRating[]
   orderDetails   x9_app_order_details[]
 
+  @@index([productName], map: "idx_product_register_product_name")
   @@map("x1_app_product_register")
 }
 

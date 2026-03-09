@@ -1,31 +1,53 @@
-/**
- * Token Blocklist — in-memory deny-list for invalidated JWT access tokens.
- *
- * When a user logs out, their current access token is added here.
- * The middleware checks this list before trusting any token.
- *
- * Since access tokens expire in 15 minutes, we auto-clear entries after expiry
- * so the Set never grows unbounded.
- */
+import { createClient } from "redis";
 
-const blockedTokens = new Set<string>();
+const BLOCKLIST_PREFIX = "jwt:blocklist:";
+let redisClient: ReturnType<typeof createClient> | null = null;
+let redisConnectPromise: Promise<ReturnType<typeof createClient>> | null = null;
 
-/**
- * Add a token to the blocklist.
- * @param token   Raw JWT string
- * @param ttlMs   Time-to-live in milliseconds (should match token expiry)
- */
-export function blockToken(token: string, ttlMs = 15 * 60 * 1000): void {
-    blockedTokens.add(token);
-    // Auto-remove after expiry — no need to keep it forever
-    setTimeout(() => {
-        blockedTokens.delete(token);
-    }, ttlMs);
+async function getRedisClient(): Promise<ReturnType<typeof createClient>> {
+  if (redisClient?.isOpen) {
+    return redisClient;
+  }
+
+  if (redisConnectPromise) {
+    return redisConnectPromise;
+  }
+
+  const redisUrl = process.env.REDIS_URL;
+  if (!redisUrl) {
+    throw new Error("REDIS_URL is required for token blocklist");
+  }
+
+  const client = createClient({ url: redisUrl });
+  client.on("error", (error: unknown) => {
+    // Keep runtime visibility for infra issues while preserving endpoint contracts.
+    console.error("[TokenBlocklist] Redis error:", error);
+  });
+
+  redisConnectPromise = client.connect().then(() => {
+    redisClient = client;
+    return client;
+  });
+
+  return redisConnectPromise;
 }
 
-/**
- * Check whether a token has been blocked (i.e., user has logged out).
- */
-export function isTokenBlocked(token: string): boolean {
-    return blockedTokens.has(token);
+function getRedisKey(token: string): string {
+  return `${BLOCKLIST_PREFIX}${token}`;
+}
+
+export async function blockToken(
+  token: string,
+  ttlMs = 15 * 60 * 1000,
+): Promise<void> {
+  const client = await getRedisClient();
+  await client.set(getRedisKey(token), "1", {
+    PX: ttlMs,
+  });
+}
+
+export async function isTokenBlocked(token: string): Promise<boolean> {
+  const client = await getRedisClient();
+  const exists = await client.exists(getRedisKey(token));
+  return exists === 1;
 }

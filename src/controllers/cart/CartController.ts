@@ -1,7 +1,6 @@
 import { Response, NextFunction } from "express";
 import { AuthRequest } from "../../middleware/authenticate-user";
 import { CartRepository } from "../../data/repositories/cart/CartRepository";
-import prisma from "../../prisma-client";
 
 const cartRepository = new CartRepository();
 
@@ -12,14 +11,7 @@ export const addToCart = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    // Ensure we use comId (business ID) for the cart, not the internal id
-    let comId = req.user!.comId;
-    if (!comId) {
-      console.log(`WARNING: comId missing in token for user ${req.user!.id}. Falling back to db lookup.`);
-      // This is a safety fallback in case token is misconfigured
-      const customer = await prisma.customer.findUnique({ where: { id: req.user!.id } });
-      comId = customer?.comId || req.user!.id;
-    }
+    const comId = req.companyContext?.comId;
 
     if (!comId) {
       res.status(500).json({ success: false, message: "user identity could not be verified" });
@@ -67,11 +59,7 @@ export const getCart = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    let comId = req.user!.comId;
-    if (!comId) {
-      const customer = await prisma.customer.findUnique({ where: { id: req.user!.id } });
-      comId = customer?.comId || req.user!.id;
-    }
+    const comId = req.companyContext?.comId;
 
     if (!comId) {
       res.status(500).json({ success: false, message: "user identity could not be verified" });
@@ -117,11 +105,7 @@ export const updateCartQuantity = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    let comId = req.user!.comId;
-    if (!comId) {
-      const customer = await prisma.customer.findUnique({ where: { id: req.user!.id } });
-      comId = customer?.comId || req.user!.id;
-    }
+    const comId = req.companyContext?.comId;
 
     if (!comId) {
       res.status(500).json({ success: false, message: "user identity could not be verified" });
@@ -166,11 +150,7 @@ export const removeFromCart = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    let comId = req.user!.comId;
-    if (!comId) {
-      const customer = await prisma.customer.findUnique({ where: { id: req.user!.id } });
-      comId = customer?.comId || req.user!.id;
-    }
+    const comId = req.companyContext?.comId;
 
     if (!comId) {
       res.status(500).json({ success: false, message: "user identity could not be verified" });
@@ -205,11 +185,7 @@ export const clearCart = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    let comId = req.user!.comId;
-    if (!comId) {
-      const customer = await prisma.customer.findUnique({ where: { id: req.user!.id } });
-      comId = customer?.comId || req.user!.id;
-    }
+    const comId = req.companyContext?.comId;
 
     if (!comId) {
       res.status(500).json({ success: false, message: "user identity could not be verified" });

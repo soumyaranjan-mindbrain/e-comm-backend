@@ -12,11 +12,18 @@ export interface AuthRequest extends Request {
     mobile?: string;
     role?: string;
   };
+  companyContext?: {
+    comId: number;
+  };
   file?: any;
   files?: any;
 }
 
-const authenticateUser = (req: Request, res: Response, next: NextFunction) => {
+const authenticateUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   // Try to get token from cookies first, then fallback to Authorization header
   let token = req.cookies?.accessToken;
 
@@ -33,9 +40,13 @@ const authenticateUser = (req: Request, res: Response, next: NextFunction) => {
     );
   }
 
-  // ✅ Check if this token was explicitly revoked (post-logout)
-  if (isTokenBlocked(token)) {
-    return next(AppError.unauthorized("session has been logged out"));
+  // Check if this token was explicitly revoked (post-logout)
+  try {
+    if (await isTokenBlocked(token)) {
+      return next(AppError.unauthorized("session has been logged out"));
+    }
+  } catch (error) {
+    return next(AppError.unauthorized("session expired or invalid token"));
   }
 
   try {

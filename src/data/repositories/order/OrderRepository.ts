@@ -29,6 +29,7 @@ export interface OrderInput {
 }
 
 export class OrderRepository {
+  private static readonly ORDER_ID_RETRY_LIMIT = 5;
   /**
    * Helper to add productName and productImage to order items
    */
@@ -69,103 +70,108 @@ export class OrderRepository {
    * Create a new order — uses our BM00X order ID format
    */
   async createOrder(data: OrderInput) {
-    // Get next sequential ID to generate BM00X format
-    const lastOrder = await prisma.x8_app_orders_master.findFirst({
-      orderBy: { id: "desc" },
-      select: { id: true },
-    });
+    for (
+      let attempt = 0;
+      attempt < OrderRepository.ORDER_ID_RETRY_LIMIT;
+      attempt++
+    ) {
+      // Keep existing BM00<number> format while handling concurrent create collisions via retry.
+      const lastOrder = await prisma.x8_app_orders_master.findFirst({
+        orderBy: { id: "desc" },
+        select: { id: true },
+      });
+      const nextId = (lastOrder?.id || 0) + 1;
+      const orderId = `BM00${nextId}`;
 
-    const nextId = (lastOrder?.id || 0) + 1;
-    const orderId = `BM00${nextId}`;
+      try {
+        return await prisma.$transaction(async (tx: any) => {
+          let finalDiscount = data.discounted_amount || 0;
 
-    return await prisma.$transaction(async (tx: any) => {
-      let finalDiscount = data.discounted_amount || 0;
+          // --- WALLET REDEMPTION ---
+          if (data.coinsToRedeem && data.coinsToRedeem > 0) {
+            const { WalletService } = require("../../../services/WalletService");
+            const walletService = new WalletService();
+            const redeemed = await walletService.redeemCoins(
+              data.comId,
+              orderId,
+              data.coinsToRedeem,
+              data.total_amount,
+              tx,
+            );
+            finalDiscount += redeemed;
+          }
 
-      // --- WALLET REDEMPTION ---
-      if (data.coinsToRedeem && data.coinsToRedeem > 0) {
-        const { WalletService } = require("../../../services/WalletService");
-        const walletService = new WalletService();
-        const redeemed = await walletService.redeemCoins(
-          data.comId,
-          orderId,
-          data.coinsToRedeem,
-          data.total_amount,
-          tx
-        );
-        finalDiscount += redeemed;
+          // 1. Create Order Master
+          await tx.x8_app_orders_master.create({
+            data: {
+              order_id: orderId,
+              comId: data.comId,
+              total_amount: new Prisma.Decimal(data.total_amount),
+              discounted_amount: new Prisma.Decimal(finalDiscount),
+              del_charge_amount: data.del_charge_amount
+                ? new Prisma.Decimal(data.del_charge_amount)
+                : new Prisma.Decimal(0),
+              tax_amount_b_coins: data.tax_amount_b_coins
+                ? new Prisma.Decimal(data.tax_amount_b_coins)
+                : new Prisma.Decimal(0),
+              net_amount_payment_mode: data.payment_mode,
+              status: OrderStatus.PENDING,
+            },
+          });
+
+          // 2. Create Order Details
+          await tx.x9_app_order_details.createMany({
+            data: data.items.map((item) => ({
+              order_id: orderId,
+              product_id: item.productId,
+              qnty: item.qnty,
+              rate: new Prisma.Decimal(item.rate),
+              net_amount: new Prisma.Decimal(item.net_amount),
+              comId: data.comId,
+            })),
+          });
+
+          // 3. Create Initial Status (Raw SQL for robustness on teammate laptops)
+          await tx.$executeRaw`
+            INSERT INTO x10_app_order_status 
+              (order_id, order_status, com_id)
+            VALUES 
+              (${orderId}, ${OrderStatus.PENDING}, ${data.comId ?? null})
+          `;
+
+          // We re-fetch to ensure the orderDetails we created above are included with product info
+          const finalOrder = await tx.x8_app_orders_master.findUnique({
+            where: { order_id: orderId },
+            include: {
+              orderDetails: {
+                include: {
+                  product: {
+                    select: {
+                      productName: true,
+                      proimg: true,
+                      images: { select: { proimgs: true }, take: 1 },
+                    },
+                  },
+                },
+              },
+            },
+          });
+
+          return this.enrichOrder(finalOrder);
+        });
+      } catch (error) {
+        // Unique collision on order_id: retry with a fresh candidate.
+        if (
+          error instanceof Prisma.PrismaClientKnownRequestError &&
+          error.code === "P2002"
+        ) {
+          continue;
+        }
+        throw error;
       }
+    }
 
-      // 1. Create Order Master
-      const order = await tx.x8_app_orders_master.create({
-        data: {
-          order_id: orderId,
-          comId: data.comId,
-          total_amount: new Prisma.Decimal(data.total_amount),
-          discounted_amount: new Prisma.Decimal(finalDiscount),
-          del_charge_amount: data.del_charge_amount
-            ? new Prisma.Decimal(data.del_charge_amount)
-            : new Prisma.Decimal(0),
-          tax_amount_b_coins: data.tax_amount_b_coins
-            ? new Prisma.Decimal(data.tax_amount_b_coins)
-            : new Prisma.Decimal(0),
-          net_amount_payment_mode: data.payment_mode,
-          status: OrderStatus.PENDING,
-        },
-        include: {
-          orderDetails: {
-            include: {
-              product: {
-                select: {
-                  productName: true,
-                  proimg: true,
-                  images: { select: { proimgs: true }, take: 1 }
-                }
-              }
-            }
-          }
-        }
-      });
-
-      // 2. Create Order Details
-      await tx.x9_app_order_details.createMany({
-        data: data.items.map((item) => ({
-          order_id: orderId,
-          product_id: item.productId,
-          qnty: item.qnty,
-          rate: new Prisma.Decimal(item.rate),
-          net_amount: new Prisma.Decimal(item.net_amount),
-          comId: data.comId,
-        })),
-      });
-
-      // 3. Create Initial Status (Raw SQL for robustness on teammate laptops)
-      await tx.$executeRaw`
-        INSERT INTO x10_app_order_status 
-          (order_id, order_status, com_id)
-        VALUES 
-          (${orderId}, ${OrderStatus.PENDING}, ${data.comId ?? null})
-      `;
-
-      // We re-fetch to ensure the orderDetails we created above are included with product info
-      const finalOrder = await tx.x8_app_orders_master.findUnique({
-        where: { order_id: orderId },
-        include: {
-          orderDetails: {
-            include: {
-              product: {
-                select: {
-                  productName: true,
-                  proimg: true,
-                  images: { select: { proimgs: true }, take: 1 }
-                }
-              }
-            }
-          }
-        }
-      });
-
-      return this.enrichOrder(finalOrder);
-    });
+    throw new Error("Unable to create order id after retry attempts");
   }
 
   /**
@@ -183,6 +189,32 @@ export class OrderRepository {
   async getShopStockItem(productId: number) {
     return (prisma as any).shopStockItem.findFirst({
       where: { itemId: productId, status: caa1_shop_stock_item_db_status.ONE },
+    });
+  }
+
+  async getProductsByIds(productIds: number[]) {
+    if (productIds.length === 0) return [];
+    return (prisma as any).productRegister.findMany({
+      where: {
+        productId: {
+          in: productIds,
+        },
+      },
+    });
+  }
+
+  async getShopStockItemsByProductIds(productIds: number[]) {
+    if (productIds.length === 0) return [];
+    return (prisma as any).shopStockItem.findMany({
+      where: {
+        itemId: {
+          in: productIds,
+        },
+        status: caa1_shop_stock_item_db_status.ONE,
+      },
+      orderBy: {
+        id: "asc",
+      },
     });
   }
 

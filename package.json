@@ -18,7 +18,7 @@
     "migrate": "prisma migrate deploy",
     "seed": "prisma db seed",
     "db:seed": "prisma db seed",
-    "deploy": "sh -c 'npx prisma generate && sleep 20 && npx prisma db push --accept-data-loss && npx prisma db seed && node dist/index.js'",
+    "deploy": "sh -c 'npx prisma generate && sleep 20 && npx prisma migrate deploy && npx prisma db seed && node dist/index.js'",
     "fix:dates": "ts-node scripts/fix-category-dates.ts",
     "fix:add-to-website": "ts-node scripts/fix-add-to-website.ts"
   },
@@ -85,6 +85,7 @@
     "nodemailer": "^6.10.0",
     "nodemon": "^3.1.7",
     "reflect-metadata": "^0.2.2",
+    "redis": "^4.7.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "uuid": "^13.0.0",

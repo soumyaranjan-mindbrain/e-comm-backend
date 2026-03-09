@@ -16,6 +16,20 @@ export default function errorHandler(
     return;
   }
 
+  const legacy500Paths = [
+    "/v1/notifications",
+    "/v1/faq",
+    "/v1/policies",
+  ];
+
+  if (legacy500Paths.some((prefix) => req.originalUrl.startsWith(prefix))) {
+    res.status(500).json({
+      success: false,
+      message: getErrorMessage(error),
+    });
+    return;
+  }
+
   // Handle Joi validation errors
   if (Joi.isError(error)) {
     const fieldErrors: Record<string, string> = {};

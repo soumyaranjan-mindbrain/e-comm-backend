@@ -129,7 +129,7 @@ export const logout = async (
       req.cookies?.accessToken ||
       req.headers.authorization?.split(" ")[1];
     if (currentToken) {
-      blockToken(currentToken, 15 * 60 * 1000); // 15 min = access token TTL
+      await blockToken(currentToken, 15 * 60 * 1000); // 15 min = access token TTL
     }
 
     const isProduction = config.env === "production";

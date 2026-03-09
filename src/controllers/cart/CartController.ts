@@ -6,6 +6,24 @@ import { getProductMainImage } from "../../utils/product-image";
 
 const cartRepository = new CartRepository();
 
+const enrichCartItem = (item: any) => {
+  const price = item.product?.stockItems?.[0]?.saleRate || 0;
+  const itemTotal = price * item.quantity;
+  const mainImage = getProductMainImage(item.product);
+
+  return {
+    cartId: item.cartId,
+    id: item.product?.id,
+    productId: item.ItemId,
+    productName: item.product?.productName,
+    productImage: mainImage,
+    image: mainImage,
+    quantity: item.quantity,
+    price: price,
+    itemTotal: Number(itemTotal.toFixed(2)),
+  };
+};
+
 // ---------------- Add to Cart ----------------
 export const addToCart = async (
   req: AuthRequest,
@@ -54,7 +72,7 @@ export const addToCart = async (
     res.status(200).json({
       success: true,
       message: "item added to cart successfully",
-      data: result,
+      data: enrichCartItem(result),
     });
   } catch (error) {
     next(error);
@@ -83,21 +101,9 @@ export const getCart = async (
 
     let grandTotal = 0;
     const enrichedItems = items.map((item: any) => {
-      const price = item.product?.stockItems?.[0]?.saleRate || 0;
-      const itemTotal = price * item.quantity;
-      const mainImage = getProductMainImage(item.product);
-      grandTotal += itemTotal;
-
-      return {
-        cartId: item.cartId,
-        productId: item.ItemId,
-        productName: item.product?.productName,
-        productImage: mainImage,
-        image: mainImage,
-        quantity: item.quantity,
-        price: price,
-        itemTotal: Number(itemTotal.toFixed(2)),
-      };
+      const enriched = enrichCartItem(item);
+      grandTotal += enriched.itemTotal;
+      return enriched;
     });
 
     res.status(200).json({
@@ -155,7 +161,7 @@ export const updateCartQuantity = async (
     res.status(200).json({
       success: true,
       message: "cart quantity updated successfully",
-      data: result,
+      data: enrichCartItem(result),
     });
   } catch (error) {
     next(error);

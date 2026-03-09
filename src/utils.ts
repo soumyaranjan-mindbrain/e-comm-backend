@@ -22,7 +22,7 @@ export function getPaginationParameters(req: Request) {
   const page = parseInt(req.query.page as string, 10);
   const perPage = parseInt(req.query.perPage as string, 10);
 
-  const validPage = isNaN(page) || page < 1 ? 1 : page;
+  const validPage = isNaN(page) || page < 1 ? 1 : page;``
   const validPerPage =
     isNaN(perPage) || perPage < 1 ? config.defaultPageSize : perPage;
 

@@ -46,6 +46,7 @@ model Customer {
   addresses          UserAddress[]
   cart               x5_app_cart[]
   orders             x8_app_orders_master[]  @relation("CustomerOrders")
+  deviceTokens       DeviceToken[]
 
   @@map("aa13_customer_db")
 }
@@ -515,4 +516,17 @@ model Enquiry {
 
   @@index([status])
   @@map("x19_app_enquiry")
+}
+
+model DeviceToken {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  token     String   @unique @db.VarChar(255)
+  platform  String?  @db.VarChar(20)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  customer Customer @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("x20_app_device_tokens")
 }

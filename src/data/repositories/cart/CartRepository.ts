@@ -5,10 +5,19 @@ export class CartRepository {
   async addToCart(comId: number, ItemId: number, quantity: number) {
     // Check if item already exists (even if soft deleted)
     const existing = await prisma.x5_app_cart.findUnique({
-      where: {
+      where: { 
         comId_ItemId: { comId, ItemId },
       },
     });
+
+    const includeOptions = {
+      product: {
+        include: {
+          images: { select: { proimgs: true }, take: 1 },
+          stockItems: { where: { status: "ONE" as const }, take: 1 },
+        },
+      },
+    };
 
     // If item exists and NOT deleted → increase quantity
     if (existing && existing.isDeleted === false) {
@@ -19,9 +28,7 @@ export class CartRepository {
         data: {
           quantity: existing.quantity + quantity,
         },
-        include: {
-          product: true,
-        },
+        include: includeOptions,
       });
     }
 
@@ -35,9 +42,7 @@ export class CartRepository {
           quantity,
           isDeleted: false,
         },
-        include: {
-          product: true,
-        },
+        include: includeOptions,
       });
     }
 
@@ -50,9 +55,7 @@ export class CartRepository {
         quantity,
         isDeleted: false,
       },
-      include: {
-        product: true,
-      },
+      include: includeOptions,
     });
   }
 
@@ -102,7 +105,12 @@ export class CartRepository {
         quantity,
       },
       include: {
-        product: true,
+        product: {
+          include: {
+            images: { select: { proimgs: true }, take: 1 },
+            stockItems: { where: { status: "ONE" }, take: 1 },
+          },
+        },
       },
     });
   }

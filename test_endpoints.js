@@ -84,7 +84,6 @@ async function runTests() {
             results.push({ name, method, path, status: 'ERROR', success: false, error: error.message });
             return null;
         }
-    }
 
     const auth = () => ({});  // We use cookies, no manual header needed
 
@@ -113,9 +112,7 @@ async function runTests() {
     if (token) {
         userId = authData?.data?.user?.id;
         console.log(`  🔑 Logged in — Cookie set, userId=${userId}`);
-    } else {
         console.log('  ⚠️  No token. Protected routes will fail.');
-    }
 
     // Test refresh token
     await request('1.5 Refresh Token', '/auth/refresh-token', 'POST');
@@ -155,7 +152,6 @@ async function runTests() {
             saveAs: 'Work',
             isDefault: false
         }, auth());
-    }
 
     // ─────────────────────────────────────────────────────────────────────
     // PHASE 4: CATEGORIES
@@ -209,7 +205,6 @@ async function runTests() {
 
     if (!saleRate || !realProductId) {
         console.log('  ⚠️  saleRate or realProductId missing. Skipping order tests.');
-    } else {
         const qnty = 2;
         const netAmount = parseFloat((saleRate * qnty).toFixed(2));
 
@@ -334,16 +329,16 @@ async function runTests() {
     // PHASE 10: NOTIFICATIONS
     // ─────────────────────────────────────────────────────────────────────
     console.log('\n▶ Phase 10: Notifications');
-    const notifRes = await request('10.1 Get All Notifications', '/notifications', 'GET', null, auth());
-    if (notifRes?.data?.length > 0) {
-        const notifId = notifRes.data[0].id;
-        await request('10.2 Mark as Read', `/notifications/${notifId}/read`, 'PATCH', null, auth());
-        await request('10.3 Mark All Read', '/notifications/read-all', 'PATCH', null, auth());
-        await request('10.4 Delete Notification', `/notifications/${notifId}`, 'DELETE', null, auth());
-    } else {
         console.log('  🕒 No notifications found. Skipping mark-as-read/delete tests.');
-        await request('10.3 Mark All Read', '/notifications/read-all', 'PATCH', null, auth());
-    }
+    await request('10.1 Register Device Token', '/notifications/register-device', 'POST', {
+        token: 'fcm_test_device_token_' + Date.now(),
+        platform: 'android'
+    }, auth());
+
+    await request('10.2 Send Push Notification', '/notifications/send', 'POST', {
+        title: 'API Test Push',
+        message: 'This is a test broadcast notification from the automated suite.'
+    }, auth());
 
     // ─────────────────────────────────────────────────────────────────────
     // PHASE 11: FAQ

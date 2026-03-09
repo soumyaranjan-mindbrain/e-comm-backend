@@ -2,6 +2,22 @@ import { Prisma } from "@prisma/client";
 import prisma from "../../../prisma-client";
 
 export class NotificationRepository {
+    async createNotification(
+        userId: number,
+        title: string,
+        message: string,
+        type: string,
+    ) {
+        return prisma.notification.create({
+            data: {
+                userId,
+                title,
+                message,
+                type,
+            },
+        });
+    }
+
     async getNotificationsByUser(userId: number, skip = 0, take = 20) {
         return prisma.notification.findMany({
             where: { userId },
@@ -37,3 +53,5 @@ export class NotificationRepository {
         });
     }
 }
+
+export const notificationRepository = new NotificationRepository();

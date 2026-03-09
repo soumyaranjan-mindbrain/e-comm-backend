@@ -1,87 +1,49 @@
 import { Request, Response } from "express";
-import { NotificationRepository } from "../../data/repositories/notification/NotificationRepository";
 import { AuthRequest } from "../../middleware/authenticate-user";
-
-const repo = new NotificationRepository();
+import { registerDeviceUsecase } from "../../usecases/notification/RegisterDeviceUseCase";
+import { sendNotificationUsecase } from "../../usecases/notification/SendNotificationUseCase";
 
 export class NotificationController {
-    /**
-     * GET /v1/notifications
-     */
-    static async getNotifications(req: AuthRequest, res: Response): Promise<void> {
+    static async registerDevice(req: AuthRequest, res: Response): Promise<void> {
         try {
-            const userId = req.user!.comId || req.user!.id;
-            const skip = parseInt(req.query.skip as string) || 0;
-            const take = parseInt(req.query.take as string) || 20;
+            const userId = req.user!.id;
+            const { token, platform } = req.body;
 
-            const notifications = await repo.getNotificationsByUser(userId, skip, take);
-            const unreadCount = await repo.getUnreadCount(userId);
+            const result = await registerDeviceUsecase.execute(
+                userId,
+                token,
+                platform,
+            );
 
             res.status(200).json({
                 success: true,
-                data: notifications,
-                meta: {
-                    unreadCount
-                }
+                data: result,
             });
         } catch (error: any) {
-            res.status(500).json({ success: false, message: error.message });
+            console.error("Error in registerDevice:", error);
+            res.status(500).json({
+                success: false,
+                message: "Failed to register device token",
+            });
         }
     }
 
-    /**
-     * PATCH /v1/notifications/:id/read
-     */
-    static async markAsRead(req: AuthRequest, res: Response): Promise<void> {
+    static async sendNotification(req: AuthRequest, res: Response): Promise<void> {
         try {
-            const userId = req.user!.comId || req.user!.id;
-            const notificationId = parseInt(req.params.id);
+            const { title, message } = req.body;
 
-            await repo.markAsRead(notificationId, userId);
+            const result = await sendNotificationUsecase.execute(title, message);
 
             res.status(200).json({
                 success: true,
-                message: "Notification marked as read."
+                data: result,
             });
         } catch (error: any) {
-            res.status(500).json({ success: false, message: error.message });
-        }
-    }
-
-    /**
-     * PATCH /v1/notifications/read-all
-     */
-    static async markAllAsRead(req: AuthRequest, res: Response): Promise<void> {
-        try {
-            const userId = req.user!.comId || req.user!.id;
-
-            await repo.markAllAsRead(userId);
-
-            res.status(200).json({
-                success: true,
-                message: "All notifications marked as read."
+            console.error("Error in sendNotification:", error);
+            res.status(500).json({
+                success: false,
+                message: "Failed to send notification",
             });
-        } catch (error: any) {
-            res.status(500).json({ success: false, message: error.message });
-        }
-    }
-
-    /**
-     * DELETE /v1/notifications/:id
-     */
-    static async deleteNotification(req: AuthRequest, res: Response): Promise<void> {
-        try {
-            const userId = req.user!.comId || req.user!.id;
-            const notificationId = parseInt(req.params.id);
-
-            await repo.deleteNotification(notificationId, userId);
-
-            res.status(200).json({
-                success: true,
-                message: "Notification deleted successfully."
-            });
-        } catch (error: any) {
-            res.status(500).json({ success: false, message: error.message });
         }
     }
 }

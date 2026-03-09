@@ -1509,7 +1509,7 @@
       "name": "11. Notifications",
       "item": [
         {
-          "name": "11.1 Get Notifications",
+          "name": "11.1 Register Device Token",
           "request": {
             "auth": {
               "type": "bearer",
@@ -1521,22 +1521,33 @@
                 }
               ]
             },
-            "method": "GET",
-            "header": [],
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"fcm_device_token_here\",\n  \"platform\": \"android\"\n}"
+            },
             "url": {
-              "raw": "{{baseUrl}}/notifications",
+              "raw": "{{baseUrl}}/notifications/register-device",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "notifications"
+                "notifications",
+                "register-device"
               ]
             }
           },
           "response": []
         },
         {
-          "name": "11.2 Mark As Read",
+          "name": "11.2 Send Push Notification",
           "request": {
             "auth": {
               "type": "bearer",
@@ -1548,73 +1559,26 @@
                 }
               ]
             },
-            "method": "PATCH",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/notifications/1/read",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "notifications",
-                "1",
-                "read"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "11.3 Mark All As Read",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{token}}",
-                  "type": "string"
-                }
-              ]
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Welcome offer!\",\n  \"message\": \"Use code NEW50 to get 50% off on your first order.\"\n}"
             },
-            "method": "PATCH",
-            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/notifications/read-all",
+              "raw": "{{baseUrl}}/notifications/send",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "notifications",
-                "read-all"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "11.4 Delete Notification",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/notifications/1",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "notifications",
-                "1"
+                "send"
               ]
             }
           },
@@ -1768,6 +1732,75 @@
             }
           },
           "response": []
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "Register Device",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"token\": \"fcm_device_token_here\",\n    \"platform\": \"android\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/notifications/register-device",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                "register-device"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Send Push Notification (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Test Push\",\n    \"message\": \"Hello World from Server!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/notifications/send",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                "send"
+              ]
+            }
+          }
         }
       ]
     }

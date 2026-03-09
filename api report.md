@@ -1160,28 +1160,36 @@ Authorization: Bearer <token>
 
 ## Notifications
 
-### Get All Notifications
+### Register Device Token (Push Notifications)
+Required to associate a mobile phone's push token with the logged-in user.
+
 ```
-GET /v1/notifications
+POST /v1/notifications/register-device
 Authorization: Bearer <token>
 ```
 
-### Mark as Read
+Payload:
+```json
+{
+  "token": "fcm_device_token_here",
+  "platform": "android"
+}
 ```
-PATCH /v1/notifications/:id/read
+
+### Send Push Notification (Global)
+Triggers a multicast push notification to all enrolled users via Firebase.
+
+```
+POST /v1/notifications/send
 Authorization: Bearer <token>
 ```
 
-### Mark All as Read
-```
-PATCH /v1/notifications/read-all
-Authorization: Bearer <token>
-```
-
-### Delete Notification
-```
-DELETE /v1/notifications/:id
-Authorization: Bearer <token>
+Payload:
+```json
+{
+  "title": "Welcome offer!",
+  "message": "Use code NEW50 to get 50% off on your first order."
+}
 ```
 
 ---

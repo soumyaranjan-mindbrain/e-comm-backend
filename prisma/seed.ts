@@ -25,6 +25,12 @@ const categoryData = [
 async function main() {
   console.log("🌱 Checking database state...");
 
+  const existingCategories = await prisma.category.count();
+  if (existingCategories > 0) {
+    console.log("✅ Database already has data. Skipping seed.");
+    return;
+  }
+
   console.log("🌱 Starting Database Seeding...");
 
   // 2. Clear existing data (in case of partial data)

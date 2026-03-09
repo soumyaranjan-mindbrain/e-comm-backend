@@ -7,9 +7,10 @@ const router = Router();
 // Protect all notification routes
 router.use(authenticateUser);
 
-router.get("/", NotificationController.getNotifications);
-router.patch("/read-all", NotificationController.markAllAsRead); // Must be before /:id so it doesn't match :id
-router.patch("/:id/read", NotificationController.markAsRead);
-router.delete("/:id", NotificationController.deleteNotification);
+// Register device token
+router.post("/register-device", NotificationController.registerDevice);
+
+// Send notification (admin)
+router.post("/send", NotificationController.sendNotification);
 
 export default router;

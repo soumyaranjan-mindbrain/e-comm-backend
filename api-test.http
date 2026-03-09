@@ -621,7 +621,7 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "productId": 10000,
+  "productId": 5000,
   "quantity": 1
 }
 
@@ -648,7 +648,7 @@ Content-Type: application/json
 # ✏️  EDIT: quantity = new quantity value
 # ✏️  ENSURE: @token is set
 # ─────────────────────────────────────────────
-PUT {{baseUrl}}/cart/10000
+PUT {{baseUrl}}/cart/5000
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
@@ -678,7 +678,7 @@ Content-Type: application/json
 # ✏️  EDIT: Replace 5014 in URL with productId from your cart items
 # ✏️  ENSURE: @token is set
 # ─────────────────────────────────────────────
-DELETE {{baseUrl}}/cart/5014
+DELETE {{baseUrl}}/cart/5000
 Authorization: Bearer {{token}}
 
 # ✅ EXPECTED RESPONSE (200 OK):
@@ -1028,23 +1028,25 @@ Authorization: Bearer {{token}}
 ### 11. NOTIFICATIONS
 ### ════════════════════════════════════════════
 
-### 11.1 Get All Notifications
-GET {{baseUrl}}/notifications
+### 11.1 Register Device Token (Firebase Push)
+POST {{baseUrl}}/notifications/register-device
 Authorization: Bearer {{token}}
+Content-Type: application/json
 
-### 11.2 Mark as Read
-# Replace :id with real notification id
-PATCH {{baseUrl}}/notifications/1/read
-Authorization: Bearer {{token}}
+{
+  "token": "fcm_device_token_here",
+  "platform": "android"
+}
 
-### 11.3 Mark All as Read
-PATCH {{baseUrl}}/notifications/read-all
+### 11.2 Send Push Notification (Admin)
+POST {{baseUrl}}/notifications/send
 Authorization: Bearer {{token}}
+Content-Type: application/json
 
-### 11.4 Delete Notification
-# Replace :id with real notification id
-DELETE {{baseUrl}}/notifications/1
-Authorization: Bearer {{token}}
+{
+  "title": "Welcome offer!",
+  "message": "Use code NEW50 to get 50% off on your first order."
+}
 
 
 ### ════════════════════════════════════════════

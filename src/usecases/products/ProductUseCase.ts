@@ -1,5 +1,6 @@
 import * as productRegisterRepository from "../../data/repositories/products/ProductRegisterRepository";
 import AppError from "../../errors/AppError";
+import { getProductMainImage } from "../../utils/product-image";
 
 // Helper to flatten product data (extract price/MRP from nested stockItems)
 // Helper to flatten/transform product data with variants and stock status
@@ -24,9 +25,12 @@ const transformProduct = (product: any) => {
     (acc: number, item: any) => acc + (item.curQty || 0),
     0,
   );
+  const mainImage = getProductMainImage(product);
 
   return {
     ...product,
+    productImage: mainImage,
+    image: mainImage,
     price: primaryStock?.saleRate || null,
     mrp: primaryStock?.mrpRate
       ? parseFloat(primaryStock.mrpRate)

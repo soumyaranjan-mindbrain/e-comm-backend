@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.OrderRepository = exports.OrderStatus = void 0;
 const client_1 = require("@prisma/client");
 const prisma_client_1 = __importDefault(require("../../../prisma-client"));
+const product_image_1 = require("../../../utils/product-image");
 var OrderStatus;
 (function (OrderStatus) {
     OrderStatus["PENDING"] = "PENDING";
@@ -24,11 +25,7 @@ class OrderRepository {
         // 1. Flatten items inside orderDetails
         if (order.orderDetails && Array.isArray(order.orderDetails)) {
             order.orderDetails = order.orderDetails.map((item) => {
-                // Fallback: If proimg is empty, use first image from images array
-                let mainImg = item.product?.proimg || "";
-                if (!mainImg && item.product?.images?.[0]?.proimgs) {
-                    mainImg = item.product.images[0].proimgs;
-                }
+                const mainImg = (0, product_image_1.getProductMainImage)(item.product) || "";
                 return {
                     ...item,
                     productName: item.product?.productName || "",
@@ -340,12 +337,12 @@ class OrderRepository {
             if (item.orderDetail?.product) {
                 const p = item.orderDetail.product;
                 pName = p.productName || "";
-                pImg = p.proimg || p.images?.[0]?.proimgs || "";
+                pImg = (0, product_image_1.getProductMainImage)(p) || "";
             }
             else if (item.orderMaster?.orderDetails?.[0]?.product) {
                 const p = item.orderMaster.orderDetails[0].product;
                 pName = p.productName || "";
-                pImg = p.proimg || p.images?.[0]?.proimgs || "";
+                pImg = (0, product_image_1.getProductMainImage)(p) || "";
             }
             // Add to top level
             enrichedItem.productName = pName;

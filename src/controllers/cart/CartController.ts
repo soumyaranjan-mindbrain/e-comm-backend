@@ -2,6 +2,7 @@ import { Response, NextFunction } from "express";
 import { AuthRequest } from "../../middleware/authenticate-user";
 import { CartRepository } from "../../data/repositories/cart/CartRepository";
 import prisma from "../../prisma-client";
+import { getProductMainImage } from "../../utils/product-image";
 
 const cartRepository = new CartRepository();
 
@@ -84,13 +85,15 @@ export const getCart = async (
     const enrichedItems = items.map((item: any) => {
       const price = item.product?.stockItems?.[0]?.saleRate || 0;
       const itemTotal = price * item.quantity;
+      const mainImage = getProductMainImage(item.product);
       grandTotal += itemTotal;
 
       return {
         cartId: item.cartId,
         productId: item.ItemId,
         productName: item.product?.productName,
-        productImage: item.product?.proimg,
+        productImage: mainImage,
+        image: mainImage,
         quantity: item.quantity,
         price: price,
         itemTotal: Number(itemTotal.toFixed(2)),

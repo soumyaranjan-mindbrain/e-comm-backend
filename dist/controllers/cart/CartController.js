@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.clearCart = exports.removeFromCart = exports.updateCartQuantity = exports.getCart = exports.addToCart = void 0;
 const CartRepository_1 = require("../../data/repositories/cart/CartRepository");
 const prisma_client_1 = __importDefault(require("../../prisma-client"));
+const product_image_1 = require("../../utils/product-image");
 const cartRepository = new CartRepository_1.CartRepository();
 // ---------------- Add to Cart ----------------
 const addToCart = async (req, res, next) => {
@@ -69,12 +70,14 @@ const getCart = async (req, res, next) => {
         const enrichedItems = items.map((item) => {
             const price = item.product?.stockItems?.[0]?.saleRate || 0;
             const itemTotal = price * item.quantity;
+            const mainImage = (0, product_image_1.getProductMainImage)(item.product);
             grandTotal += itemTotal;
             return {
                 cartId: item.cartId,
                 productId: item.ItemId,
                 productName: item.product?.productName,
-                productImage: item.product?.proimg,
+                productImage: mainImage,
+                image: mainImage,
                 quantity: item.quantity,
                 price: price,
                 itemTotal: Number(itemTotal.toFixed(2)),

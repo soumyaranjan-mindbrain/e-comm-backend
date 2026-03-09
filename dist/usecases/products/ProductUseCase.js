@@ -29,6 +29,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getFilteredProducts = exports.searchProductRegistersByName = exports.getProductRegisterById = exports.getProductDetail = exports.getAllProductRegisters = exports.getProductsByCategorySlug = exports.getNewArrivals = void 0;
 const productRegisterRepository = __importStar(require("../../data/repositories/products/ProductRegisterRepository"));
 const AppError_1 = __importDefault(require("../../errors/AppError"));
+const product_image_1 = require("../../utils/product-image");
 // Helper to flatten product data (extract price/MRP from nested stockItems)
 // Helper to flatten/transform product data with variants and stock status
 const transformProduct = (product) => {
@@ -47,8 +48,11 @@ const transformProduct = (product) => {
     // Primary stock item for display in lists
     const primaryStock = stockItems[0];
     const totalQty = stockItems.reduce((acc, item) => acc + (item.curQty || 0), 0);
+    const mainImage = (0, product_image_1.getProductMainImage)(product);
     return {
         ...product,
+        productImage: mainImage,
+        image: mainImage,
         price: primaryStock?.saleRate || null,
         mrp: primaryStock?.mrpRate
             ? parseFloat(primaryStock.mrpRate)

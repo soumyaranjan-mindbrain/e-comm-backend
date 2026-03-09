@@ -1,5 +1,6 @@
 import { Prisma, caa1_shop_stock_item_db_status } from "@prisma/client";
 import prisma from "../../../prisma-client";
+import { getProductMainImage } from "../../../utils/product-image";
 
 export enum OrderStatus {
   PENDING = "PENDING",
@@ -38,11 +39,7 @@ export class OrderRepository {
     // 1. Flatten items inside orderDetails
     if (order.orderDetails && Array.isArray(order.orderDetails)) {
       order.orderDetails = order.orderDetails.map((item: any) => {
-        // Fallback: If proimg is empty, use first image from images array
-        let mainImg = item.product?.proimg || "";
-        if (!mainImg && item.product?.images?.[0]?.proimgs) {
-          mainImg = item.product.images[0].proimgs;
-        }
+        const mainImg = getProductMainImage(item.product) || "";
 
         return {
           ...item,
@@ -413,11 +410,11 @@ export class OrderRepository {
       if (item.orderDetail?.product) {
         const p = item.orderDetail.product;
         pName = p.productName || "";
-        pImg = p.proimg || p.images?.[0]?.proimgs || "";
+        pImg = getProductMainImage(p) || "";
       } else if (item.orderMaster?.orderDetails?.[0]?.product) {
         const p = item.orderMaster.orderDetails[0].product;
         pName = p.productName || "";
-        pImg = p.proimg || p.images?.[0]?.proimgs || "";
+        pImg = getProductMainImage(p) || "";
       }
 
       // Add to top level

@@ -164,6 +164,17 @@ export class OrderRepository {
         }
       });
 
+      // 4. Clear user's cart after successful order placement
+      await tx.x5_app_cart.updateMany({
+        where: {
+          comId: data.comId,
+          isDeleted: false,
+        },
+        data: {
+          isDeleted: true,
+        },
+      });
+
       return this.enrichOrder(finalOrder);
     });
   }

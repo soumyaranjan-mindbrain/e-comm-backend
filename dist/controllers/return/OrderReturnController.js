@@ -1,14 +1,10 @@
-import { Request, Response, NextFunction } from "express";
-import {
-    createReturnUseCase,
-    getAllReturnsUseCase,
-    updateReturnStatusUseCase,
-    getReturnByIdUseCase,
-} from "../../usecases/return/OrderReturnUseCase";
-
-const toReturnPayload = (item: any) => {
-    if (!item) return item;
-
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.updateReturnStatus = exports.getReturnById = exports.getReturnRequests = exports.createReturnRequest = void 0;
+const OrderReturnUseCase_1 = require("../../usecases/return/OrderReturnUseCase");
+const toReturnPayload = (item) => {
+    if (!item)
+        return item;
     const { id, ...rest } = item;
     return {
         returnId: id,
@@ -16,68 +12,72 @@ const toReturnPayload = (item: any) => {
         ...rest,
     };
 };
-
-export const createReturnRequest = async (req: Request, res: Response, next: NextFunction) => {
+const createReturnRequest = async (req, res, next) => {
     try {
-        const result = await createReturnUseCase(req.body);
+        const result = await (0, OrderReturnUseCase_1.createReturnUseCase)(req.body);
         res.status(201).json({
             success: true,
             message: "Return request created",
             data: result
         });
-    } catch (error: any) {
+    }
+    catch (error) {
         res.status(400).json({
             success: false,
             message: error.message
         });
     }
 };
-
-export const getReturnRequests = async (_req: Request, res: Response, next: NextFunction) => {
+exports.createReturnRequest = createReturnRequest;
+const getReturnRequests = async (_req, res, next) => {
     try {
-        const returns = await getAllReturnsUseCase();
+        const returns = await (0, OrderReturnUseCase_1.getAllReturnsUseCase)();
         res.status(200).json({
             success: true,
             data: returns.map(toReturnPayload)
         });
-    } catch (error: any) {
+    }
+    catch (error) {
         res.status(500).json({
             success: false,
             message: error.message
         });
     }
 };
-
-export const getReturnById = async (req: Request, res: Response, next: NextFunction) => {
+exports.getReturnRequests = getReturnRequests;
+const getReturnById = async (req, res, next) => {
     try {
         const returnId = parseInt(req.params.returnId);
-        const result = await getReturnByIdUseCase(returnId);
+        const result = await (0, OrderReturnUseCase_1.getReturnByIdUseCase)(returnId);
         res.status(200).json({
             success: true,
             data: toReturnPayload(result)
         });
-    } catch (error: any) {
+    }
+    catch (error) {
         res.status(400).json({
             success: false,
             message: error.message
         });
     }
 };
-
-export const updateReturnStatus = async (req: Request, res: Response, next: NextFunction) => {
+exports.getReturnById = getReturnById;
+const updateReturnStatus = async (req, res, next) => {
     try {
         const returnId = parseInt(req.params.returnId);
         const { status } = req.body;
-        const updated = await updateReturnStatusUseCase(returnId, status);
+        const updated = await (0, OrderReturnUseCase_1.updateReturnStatusUseCase)(returnId, status);
         res.status(200).json({
             success: true,
             message: "Return status updated",
             data: toReturnPayload(updated)
         });
-    } catch (error: any) {
+    }
+    catch (error) {
         res.status(400).json({
             success: false,
             message: error.message
         });
     }
 };
+exports.updateReturnStatus = updateReturnStatus;

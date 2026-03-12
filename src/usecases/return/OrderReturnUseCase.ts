@@ -36,3 +36,7 @@ export const updateReturnStatusUseCase = async (
 export const getReturnByIdUseCase = async (returnId: number) => {
     return repo.getReturnById(returnId);
 };
+
+export const cancelReturnUseCase = async (returnId: number) => {
+    return repo.cancelReturn(returnId);
+};

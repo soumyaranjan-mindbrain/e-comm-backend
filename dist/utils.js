@@ -28,6 +28,7 @@ function getPaginationParameters(req) {
     const page = parseInt(req.query.page, 10);
     const perPage = parseInt(req.query.perPage, 10);
     const validPage = isNaN(page) || page < 1 ? 1 : page;
+    ``;
     const validPerPage = isNaN(perPage) || perPage < 1 ? config_1.default.defaultPageSize : perPage;
     const limit = validPerPage;
     const offset = (validPage - 1) * validPerPage;

@@ -14,6 +14,14 @@ class CartRepository {
                 comId_ItemId: { comId, ItemId },
             },
         });
+        const includeOptions = {
+            product: {
+                include: {
+                    images: { select: { proimgs: true }, take: 1 },
+                    stockItems: { where: { status: "ONE" }, take: 1 },
+                },
+            },
+        };
         // If item exists and NOT deleted → increase quantity
         if (existing && existing.isDeleted === false) {
             return prisma_client_1.default.x5_app_cart.update({
@@ -23,9 +31,7 @@ class CartRepository {
                 data: {
                     quantity: existing.quantity + quantity,
                 },
-                include: {
-                    product: true,
-                },
+                include: includeOptions,
             });
         }
         // If item exists but soft deleted → restore it and update quantity
@@ -38,9 +44,7 @@ class CartRepository {
                     quantity,
                     isDeleted: false,
                 },
-                include: {
-                    product: true,
-                },
+                include: includeOptions,
             });
         }
         // If item does not exist → create new
@@ -52,9 +56,7 @@ class CartRepository {
                 quantity,
                 isDeleted: false,
             },
-            include: {
-                product: true,
-            },
+            include: includeOptions,
         });
     }
     // ---------------- Get Cart ----------------
@@ -100,7 +102,12 @@ class CartRepository {
                 quantity,
             },
             include: {
-                product: true,
+                product: {
+                    include: {
+                        images: { select: { proimgs: true }, take: 1 },
+                        stockItems: { where: { status: "ONE" }, take: 1 },
+                    },
+                },
             },
         });
     }

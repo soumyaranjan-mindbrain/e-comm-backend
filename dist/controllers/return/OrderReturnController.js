@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateReturnStatus = exports.getReturnById = exports.getReturnRequests = exports.createReturnRequest = void 0;
+exports.cancelReturnRequest = exports.updateReturnStatus = exports.getReturnById = exports.getReturnRequests = exports.createReturnRequest = void 0;
 const OrderReturnUseCase_1 = require("../../usecases/return/OrderReturnUseCase");
 const toReturnPayload = (item) => {
     if (!item)
@@ -81,3 +81,21 @@ const updateReturnStatus = async (req, res, next) => {
     }
 };
 exports.updateReturnStatus = updateReturnStatus;
+const cancelReturnRequest = async (req, res, next) => {
+    try {
+        const returnId = parseInt(req.params.returnId);
+        const cancelled = await (0, OrderReturnUseCase_1.cancelReturnUseCase)(returnId);
+        res.status(200).json({
+            success: true,
+            message: "Return request cancelled successfully",
+            data: toReturnPayload(cancelled)
+        });
+    }
+    catch (error) {
+        res.status(400).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+exports.cancelReturnRequest = cancelReturnRequest;

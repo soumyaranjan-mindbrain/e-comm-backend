@@ -3,9 +3,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.NotificationRepository = void 0;
+exports.notificationRepository = exports.NotificationRepository = void 0;
 const prisma_client_1 = __importDefault(require("../../../prisma-client"));
 class NotificationRepository {
+    async createNotification(userId, title, message, type) {
+        return prisma_client_1.default.notification.create({
+            data: {
+                userId,
+                title,
+                message,
+                type,
+            },
+        });
+    }
     async getNotificationsByUser(userId, skip = 0, take = 20) {
         return prisma_client_1.default.notification.findMany({
             where: { userId },
@@ -38,3 +48,4 @@ class NotificationRepository {
     }
 }
 exports.NotificationRepository = NotificationRepository;
+exports.notificationRepository = new NotificationRepository();

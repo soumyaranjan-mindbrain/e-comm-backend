@@ -9,8 +9,8 @@ const authenticate_user_1 = __importDefault(require("../../../middleware/authent
 const router = (0, express_1.Router)();
 // Protect all notification routes
 router.use(authenticate_user_1.default);
-router.get("/", NotificationController_1.NotificationController.getNotifications);
-router.patch("/read-all", NotificationController_1.NotificationController.markAllAsRead); // Must be before /:id so it doesn't match :id
-router.patch("/:id/read", NotificationController_1.NotificationController.markAsRead);
-router.delete("/:id", NotificationController_1.NotificationController.deleteNotification);
+// Register device token
+router.post("/register-device", NotificationController_1.NotificationController.registerDevice);
+// Send notification (admin)
+router.post("/send", NotificationController_1.NotificationController.sendNotification);
 exports.default = router;

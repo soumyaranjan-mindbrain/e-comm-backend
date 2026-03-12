@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getReturnByIdUseCase = exports.updateReturnStatusUseCase = exports.getAllReturnsUseCase = exports.createReturnUseCase = void 0;
+exports.cancelReturnUseCase = exports.getReturnByIdUseCase = exports.updateReturnStatusUseCase = exports.getAllReturnsUseCase = exports.createReturnUseCase = void 0;
 const OrderReturnRepository_1 = require("../../data/repositories/return/OrderReturnRepository");
 const WalletService_1 = require("../../services/WalletService");
 const repo = new OrderReturnRepository_1.OrderReturnRepository();
@@ -34,3 +34,7 @@ const getReturnByIdUseCase = async (returnId) => {
     return repo.getReturnById(returnId);
 };
 exports.getReturnByIdUseCase = getReturnByIdUseCase;
+const cancelReturnUseCase = async (returnId) => {
+    return repo.cancelReturn(returnId);
+};
+exports.cancelReturnUseCase = cancelReturnUseCase;

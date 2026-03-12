@@ -17,4 +17,6 @@ router.get("/", OrderReturnController_1.getReturnRequests);
 router.get("/:returnId", OrderReturnController_1.getReturnById);
 // PATCH /v1/order-returns/:returnId → approve/reject return
 router.patch("/:returnId", OrderReturnController_1.updateReturnStatus);
+// PATCH /v1/order-returns/:returnId/cancel → user cancel return request
+router.patch("/:returnId/cancel", OrderReturnController_1.cancelReturnRequest);
 exports.default = router;

@@ -20,6 +20,24 @@ async function runTests() {
     const testMobile = `9${Math.floor(Math.random() * 900000000 + 100000000)}`;
     const testEmail = `test_${Math.floor(Math.random() * 10000)}@example.com`;
 
+    function assertReturnPayloadFields(label, payload) {
+        const hasProductName = typeof payload?.productName === 'string';
+        const hasProductImage = typeof payload?.productImage === 'string';
+        const hasImage = typeof payload?.image === 'string';
+        const ok = hasProductName && hasProductImage && hasImage;
+
+        results.push({
+            name: `${label} (return fields)`,
+            method: 'ASSERT',
+            path: '/order-returns',
+            status: ok ? 200 : 'ASSERT_FAIL',
+            success: ok,
+            data: payload
+        });
+
+        console.log(`  ${ok ? '✅' : '❌'} [ASSERT] ${label} has productName/productImage/image`);
+    }
+
     // ─── Core request helper ───────────────────────────────────────────────
     async function request(name, path, method = 'GET', body = null, extraHeaders = {}, expectedStatus = null) {
         const options = {
@@ -312,12 +330,38 @@ async function runTests() {
                 refundAmount: saleRate
             }, auth(), 201);
             returnId = retRes?.data?.id;
+            if (retRes?.data) assertReturnPayloadFields('8.1 Create Return Request', retRes.data);
         }
 
-        await request('8.2 Get All Returns', '/order-returns', 'GET', null, auth());
+        const allReturnsRes = await request('8.2 Get All Returns', '/order-returns', 'GET', null, auth());
+        if (allReturnsRes?.data?.[0]) assertReturnPayloadFields('8.2 Get All Returns', allReturnsRes.data[0]);
+
         if (returnId) {
-            await request('8.3 Get Return by ID', `/order-returns/${returnId}`, 'GET', null, auth());
-            await request('8.4 Update Return → APPROVED', `/order-returns/${returnId}`, 'PATCH', { status: 'APPROVED' }, auth());
+            const byIdRes = await request('8.3 Get Return by ID', `/order-returns/${returnId}`, 'GET', null, auth());
+            if (byIdRes?.data) assertReturnPayloadFields('8.3 Get Return by ID', byIdRes.data);
+
+            const cancelRes = await request('8.4 Cancel Return Request', `/order-returns/${returnId}/cancel`, 'PATCH', null, auth());
+            if (cancelRes?.data) assertReturnPayloadFields('8.4 Cancel Return Request', cancelRes.data);
+
+            await request('8.5 Cancel Return Again (400)', `/order-returns/${returnId}/cancel`, 'PATCH', null, auth(), 400);
+        }
+
+        if (orderId2) {
+            const retRes2 = await request('8.6 Create Return Request (for admin update)', '/order-returns', 'POST', {
+                orderId: orderId2,
+                productId: realProductId,
+                comId: userId,
+                returnReason: 'Need admin approval flow test',
+                pickupDate: '2026-03-11',
+                refundAmount: saleRate
+            }, auth(), 201);
+            const returnId2 = retRes2?.data?.id;
+            if (retRes2?.data) assertReturnPayloadFields('8.6 Create Return Request', retRes2.data);
+
+            if (returnId2) {
+                const updateRes = await request('8.7 Update Return → APPROVED', `/order-returns/${returnId2}`, 'PATCH', { status: 'APPROVED' }, auth());
+                if (updateRes?.data) assertReturnPayloadFields('8.7 Update Return', updateRes.data);
+            }
         }
     }
 

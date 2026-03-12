@@ -788,6 +788,7 @@ Content-Type: application/json
 @returnId = 1
 
 ### 7.1 Create Return Request
+# EXPECTED: data contains productName, productImage, image
 # ✏️  ENSURE: @token and @orderId are set
 # ─────────────────────────────────────────────
 POST {{baseUrl}}/order-returns
@@ -805,6 +806,7 @@ Content-Type: application/json
 
 
 ### 7.2 Get All Return Requests
+# EXPECTED: each row contains returnId, productName, productImage, image
 # ✏️  ENSURE: @token is set
 # ─────────────────────────────────────────────
 GET {{baseUrl}}/order-returns
@@ -812,6 +814,7 @@ Authorization: Bearer {{token}}
 
 
 ### 7.3 Get Return Request by ID
+# EXPECTED: data contains returnId, productName, productImage, image
 # ✏️  ENSURE: @token and @returnId are set
 # ─────────────────────────────────────────────
 GET {{baseUrl}}/order-returns/{{returnId}}
@@ -819,6 +822,7 @@ Authorization: Bearer {{token}}
 
 
 ### 7.4 Update Return Status (Admin)
+# EXPECTED: response data contains productName, productImage, image
 # ✏️  ENSURE: @token and @returnId are set
 # ✏️  EDIT: Valid statuses: "APPROVED", "REJECTED"
 # ─────────────────────────────────────────────
@@ -830,6 +834,11 @@ Content-Type: application/json
   "status": "REJECTED"
 }
 
+### 7.5 Cancel Return Request (User)
+# ENSURE: @token and @returnId are set
+# EXPECTED: status becomes "CANCELLED" and data has productName, productImage, image
+PATCH {{baseUrl}}/order-returns/{{returnId}}/cancel
+Authorization: Bearer {{token}}
 
 ### ════════════════════════════════════════════
 ### 8. WALLET (USER)
@@ -1095,4 +1104,5 @@ Content-Type: application/json
   "subject": "Bulk Order Enquiry",
   "message": "I want to order 100 items for my retail shop. Can you provide a special discount?"
 }
+
 

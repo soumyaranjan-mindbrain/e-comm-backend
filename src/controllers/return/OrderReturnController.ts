@@ -4,6 +4,7 @@ import {
     getAllReturnsUseCase,
     updateReturnStatusUseCase,
     getReturnByIdUseCase,
+    cancelReturnUseCase,
 } from "../../usecases/return/OrderReturnUseCase";
 
 const toReturnPayload = (item: any) => {
@@ -73,6 +74,24 @@ export const updateReturnStatus = async (req: Request, res: Response, next: Next
             success: true,
             message: "Return status updated",
             data: toReturnPayload(updated)
+        });
+    } catch (error: any) {
+        res.status(400).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+export const cancelReturnRequest = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const returnId = parseInt(req.params.returnId);
+        const cancelled = await cancelReturnUseCase(returnId);
+
+        res.status(200).json({
+            success: true,
+            message: "Return request cancelled successfully",
+            data: toReturnPayload(cancelled)
         });
     } catch (error: any) {
         res.status(400).json({

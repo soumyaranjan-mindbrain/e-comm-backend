@@ -1,79 +1,42 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.NotificationController = void 0;
-const NotificationRepository_1 = require("../../data/repositories/notification/NotificationRepository");
-const repo = new NotificationRepository_1.NotificationRepository();
+const RegisterDeviceUseCase_1 = require("../../usecases/notification/RegisterDeviceUseCase");
+const SendNotificationUseCase_1 = require("../../usecases/notification/SendNotificationUseCase");
 class NotificationController {
-    /**
-     * GET /v1/notifications
-     */
-    static async getNotifications(req, res) {
+    static async registerDevice(req, res) {
         try {
-            const userId = req.user.comId || req.user.id;
-            const skip = parseInt(req.query.skip) || 0;
-            const take = parseInt(req.query.take) || 20;
-            const notifications = await repo.getNotificationsByUser(userId, skip, take);
-            const unreadCount = await repo.getUnreadCount(userId);
+            const userId = req.user.id;
+            const { token, platform } = req.body;
+            const result = await RegisterDeviceUseCase_1.registerDeviceUsecase.execute(userId, token, platform);
             res.status(200).json({
                 success: true,
-                data: notifications,
-                meta: {
-                    unreadCount
-                }
+                data: result,
             });
         }
         catch (error) {
-            res.status(500).json({ success: false, message: error.message });
+            console.error("Error in registerDevice:", error);
+            res.status(500).json({
+                success: false,
+                message: "Failed to register device token",
+            });
         }
     }
-    /**
-     * PATCH /v1/notifications/:id/read
-     */
-    static async markAsRead(req, res) {
+    static async sendNotification(req, res) {
         try {
-            const userId = req.user.comId || req.user.id;
-            const notificationId = parseInt(req.params.id);
-            await repo.markAsRead(notificationId, userId);
+            const { title, message } = req.body;
+            const result = await SendNotificationUseCase_1.sendNotificationUsecase.execute(title, message);
             res.status(200).json({
                 success: true,
-                message: "Notification marked as read."
+                data: result,
             });
         }
         catch (error) {
-            res.status(500).json({ success: false, message: error.message });
-        }
-    }
-    /**
-     * PATCH /v1/notifications/read-all
-     */
-    static async markAllAsRead(req, res) {
-        try {
-            const userId = req.user.comId || req.user.id;
-            await repo.markAllAsRead(userId);
-            res.status(200).json({
-                success: true,
-                message: "All notifications marked as read."
+            console.error("Error in sendNotification:", error);
+            res.status(500).json({
+                success: false,
+                message: "Failed to send notification",
             });
-        }
-        catch (error) {
-            res.status(500).json({ success: false, message: error.message });
-        }
-    }
-    /**
-     * DELETE /v1/notifications/:id
-     */
-    static async deleteNotification(req, res) {
-        try {
-            const userId = req.user.comId || req.user.id;
-            const notificationId = parseInt(req.params.id);
-            await repo.deleteNotification(notificationId, userId);
-            res.status(200).json({
-                success: true,
-                message: "Notification deleted successfully."
-            });
-        }
-        catch (error) {
-            res.status(500).json({ success: false, message: error.message });
         }
     }
 }

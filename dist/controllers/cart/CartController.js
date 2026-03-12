@@ -8,6 +8,22 @@ const CartRepository_1 = require("../../data/repositories/cart/CartRepository");
 const prisma_client_1 = __importDefault(require("../../prisma-client"));
 const product_image_1 = require("../../utils/product-image");
 const cartRepository = new CartRepository_1.CartRepository();
+const enrichCartItem = (item) => {
+    const price = item.product?.stockItems?.[0]?.saleRate || 0;
+    const itemTotal = price * item.quantity;
+    const mainImage = (0, product_image_1.getProductMainImage)(item.product);
+    return {
+        cartId: item.cartId,
+        id: item.product?.id,
+        productId: item.ItemId,
+        productName: item.product?.productName,
+        productImage: mainImage,
+        image: mainImage,
+        quantity: item.quantity,
+        price: price,
+        itemTotal: Number(itemTotal.toFixed(2)),
+    };
+};
 // ---------------- Add to Cart ----------------
 const addToCart = async (req, res, next) => {
     try {
@@ -45,7 +61,7 @@ const addToCart = async (req, res, next) => {
         res.status(200).json({
             success: true,
             message: "item added to cart successfully",
-            data: result,
+            data: enrichCartItem(result),
         });
     }
     catch (error) {
@@ -68,20 +84,9 @@ const getCart = async (req, res, next) => {
         const items = await cartRepository.getCartByComId(comId);
         let grandTotal = 0;
         const enrichedItems = items.map((item) => {
-            const price = item.product?.stockItems?.[0]?.saleRate || 0;
-            const itemTotal = price * item.quantity;
-            const mainImage = (0, product_image_1.getProductMainImage)(item.product);
-            grandTotal += itemTotal;
-            return {
-                cartId: item.cartId,
-                productId: item.ItemId,
-                productName: item.product?.productName,
-                productImage: mainImage,
-                image: mainImage,
-                quantity: item.quantity,
-                price: price,
-                itemTotal: Number(itemTotal.toFixed(2)),
-            };
+            const enriched = enrichCartItem(item);
+            grandTotal += enriched.itemTotal;
+            return enriched;
         });
         res.status(200).json({
             success: true,
@@ -129,7 +134,7 @@ const updateCartQuantity = async (req, res, next) => {
         res.status(200).json({
             success: true,
             message: "cart quantity updated successfully",
-            data: result,
+            data: enrichCartItem(result),
         });
     }
     catch (error) {

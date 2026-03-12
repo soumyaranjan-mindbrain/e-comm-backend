@@ -4,6 +4,7 @@ import {
     getReturnRequests,
     getReturnById,
     updateReturnStatus,
+    cancelReturnRequest,
 } from "../../../controllers/return/OrderReturnController";
 import authenticateUser from "../../../middleware/authenticate-user";
 
@@ -23,5 +24,8 @@ router.get("/:returnId", getReturnById);
 
 // PATCH /v1/order-returns/:returnId → approve/reject return
 router.patch("/:returnId", updateReturnStatus);
+
+// PATCH /v1/order-returns/:returnId/cancel → user cancel return request
+router.patch("/:returnId/cancel", cancelReturnRequest);
 
 export default router;

@@ -824,6 +824,9 @@ Success response:
     "id": 1,
     "orderId": "e73b7504-5507-4d30-a38a-ae9faf3d74de",
     "productId": 5014,
+    "productName": "Tasty Bronze Chicken",
+    "productImage": "https://cdn.example.com/products/chicken-main.jpg",
+    "image": "https://cdn.example.com/products/chicken-main.jpg",
     "status": "PENDING",
     ...
   }
@@ -844,8 +847,12 @@ Authorization: Bearer <token>
   "success": true,
   "data": [
     {
-      "id": 1,
+      "returnId": 1,
       "orderId": "e73b7504-5507-4d30-a38a-ae9faf3d74de",
+      "productId": 5014,
+      "productName": "Tasty Bronze Chicken",
+      "productImage": "https://cdn.example.com/products/chicken-main.jpg",
+      "image": "https://cdn.example.com/products/chicken-main.jpg",
       "status": "PENDING",
       ...
     }
@@ -860,6 +867,23 @@ Authorization: Bearer <token>
 ```
 GET /v1/order-returns/1
 Authorization: Bearer <token>
+```
+
+Example response:
+
+```json
+{
+  "success": true,
+  "data": {
+    "returnId": 1,
+    "orderId": "e73b7504-5507-4d30-a38a-ae9faf3d74de",
+    "productId": 5014,
+    "productName": "Tasty Bronze Chicken",
+    "productImage": "https://cdn.example.com/products/chicken-main.jpg",
+    "image": "https://cdn.example.com/products/chicken-main.jpg",
+    "status": "PENDING"
+  }
+}
 ```
 
 ---
@@ -878,6 +902,51 @@ Authorization: Bearer <token>
 ```
 
 Valid statuses: `APPROVED`, `REJECTED`.
+
+Example response:
+
+```json
+{
+  "success": true,
+  "message": "Return status updated",
+  "data": {
+    "returnId": 1,
+    "orderId": "e73b7504-5507-4d30-a38a-ae9faf3d74de",
+    "productId": 5014,
+    "productName": "Tasty Bronze Chicken",
+    "productImage": "https://cdn.example.com/products/chicken-main.jpg",
+    "image": "https://cdn.example.com/products/chicken-main.jpg",
+    "status": "APPROVED"
+  }
+}
+```
+
+---
+
+### Cancel Return Request (User)
+
+```
+PATCH /v1/order-returns/1/cancel
+Authorization: Bearer <token>
+```
+
+No request body needed.
+
+```json
+{
+  "success": true,
+  "message": "Return request cancelled successfully",
+  "data": {
+    "returnId": 1,
+    "orderId": "e73b7504-5507-4d30-a38a-ae9faf3d74de",
+    "productId": 5014,
+    "productName": "Tasty Bronze Chicken",
+    "productImage": "https://cdn.example.com/products/chicken-main.jpg",
+    "image": "https://cdn.example.com/products/chicken-main.jpg",
+    "status": "CANCELLED"
+  }
+}
+```
 
 ---
 

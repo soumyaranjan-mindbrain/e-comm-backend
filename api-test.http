@@ -524,14 +524,15 @@ GET {{baseUrl}}/product-ratings/product/15
 ### 4.5.1 Create a Product Rating
 # âœ ï¸   POST with `productId`, `givenRatings`, optional `message`, and `reviewImages`
 POST {{baseUrl}}/product-ratings
+Headers:
+Content-Type: application/json
 
-{
-  "productId": 10036,
+ {
+  "productId": 5008,
   "givenRatings": 5,
   "message": "Fabric and fit were spot-on!",
   "createdBy": 15,
   "reviewImages": [
-    "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD...",
     "https://res.cloudinary.com/deiz1hfev/image/upload/v12345/old-photo.jpg"
   ]
 }

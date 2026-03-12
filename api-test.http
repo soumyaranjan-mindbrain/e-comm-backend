@@ -703,7 +703,7 @@ Authorization: Bearer {{token}}
 ### 6. ORDERS
 ### ════════════════════════════════════════════
 
-@orderId = BM0016
+@orderId = BM0010
 
 ### 6.1 Create Order
 # ✏️  ENSURE: @token is set
@@ -718,7 +718,7 @@ Content-Type: application/json
   "total_amount": 1500,
   "items": [
     {
-      "productId": 10000,
+      "productId": 5000,
       "qnty": 2,
       "rate": 750,
       "net_amount": 1500
@@ -785,7 +785,7 @@ Content-Type: application/json
 ### 7. ORDER RETURNS
 ### ════════════════════════════════════════════
 
-@returnId = 1
+@returnId = 3
 
 ### 7.1 Create Return Request
 # EXPECTED: data contains productName, productImage, image

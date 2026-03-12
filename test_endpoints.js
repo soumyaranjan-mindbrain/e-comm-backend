@@ -84,6 +84,7 @@ async function runTests() {
             results.push({ name, method, path, status: 'ERROR', success: false, error: error.message });
             return null;
         }
+    }
 
     const auth = () => ({});  // We use cookies, no manual header needed
 
@@ -112,7 +113,9 @@ async function runTests() {
     if (token) {
         userId = authData?.data?.user?.id;
         console.log(`  🔑 Logged in — Cookie set, userId=${userId}`);
+    } else {
         console.log('  ⚠️  No token. Protected routes will fail.');
+    }
 
     // Test refresh token
     await request('1.5 Refresh Token', '/auth/refresh-token', 'POST');
@@ -152,6 +155,7 @@ async function runTests() {
             saveAs: 'Work',
             isDefault: false
         }, auth());
+    }
 
     // ─────────────────────────────────────────────────────────────────────
     // PHASE 4: CATEGORIES
@@ -205,6 +209,7 @@ async function runTests() {
 
     if (!saleRate || !realProductId) {
         console.log('  ⚠️  saleRate or realProductId missing. Skipping order tests.');
+    } else {
         const qnty = 2;
         const netAmount = parseFloat((saleRate * qnty).toFixed(2));
 
@@ -329,7 +334,7 @@ async function runTests() {
     // PHASE 10: NOTIFICATIONS
     // ─────────────────────────────────────────────────────────────────────
     console.log('\n▶ Phase 10: Notifications');
-        console.log('  🕒 No notifications found. Skipping mark-as-read/delete tests.');
+    console.log('  🕒 No notifications found. Skipping mark-as-read/delete tests.');
     await request('10.1 Register Device Token', '/notifications/register-device', 'POST', {
         token: 'fcm_test_device_token_' + Date.now(),
         platform: 'android'
